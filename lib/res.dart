@@ -28,7 +28,7 @@ class Strings {
   static late SharedPreferences preferences;
   static late AudioHandler audioHandler;
   static late AudioManager managerForRecord;
-  static String url = "https://cd58-178-66-32-212.ngrok.io/";
+  static String url = "https://533e-178-66-32-212.ngrok.io/";
   static ValueNotifier<int> curPage = ValueNotifier(0);
   static late Map curLang;
   static String email = "test@test";
@@ -90,6 +90,7 @@ class Strings {
     "SaveVoice": "Voice",
     "SavePost": "Post",
     "Back": "Back",
+    "Continue": "Or continue with",
   };
 
   static const Map _russianStrings = {
@@ -142,6 +143,7 @@ class Strings {
     "SaveVoice": "Голос",
     "SavePost": "Опубликовать",
     "Back": "Назад",
+    "Continue": "Или продолжите с",
   };
   static void changeLanguage(String language) {
     switch (language) {

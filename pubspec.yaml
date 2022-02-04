@@ -45,6 +45,8 @@ dependencies:
   rxdart: ^0.27.3
   shared_preferences: ^2.0.11
   fluttertoast: ^8.0.8
+  google_sign_in: ^5.2.1
+  flutter_facebook_auth: ^4.0.0
 
 dev_dependencies:
   flutter_test:
@@ -82,6 +84,8 @@ flutter:
   - assets/items/backbut.png
   - assets/items/checkmark.png
   - assets/items/toast.png
+  - assets/items/googlelogo.png
+  - assets/items/facebooklogo.png
 
 flutter_native_splash:
   background_image: "assets/logo/logo.png"
