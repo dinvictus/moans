@@ -22,24 +22,21 @@ class FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
   late PageController _controller;
   final List<AudioItem> _pages = [];
   final List<AudioManager> _handlers = [];
-  bool toastViewed = Strings.showHelpNotification;
+  bool toastViewed = Utilities.showHelpNotification;
   refresh() {
     setState(() {});
   }
 
   _initFirst() async {
-    _pages.add(AudioItem("Track name11",
-        "The description will be displayed here, or it will be not.", 0));
-    _pages.add(AudioItem("Track name2",
-        "The description will be displayed here, or it will be not.", 1));
-    _pages.add(AudioItem("Track name3",
-        "The description will be displayed here, or it will be not.", 2));
-    Strings.managerForRecord = AudioManager("", "Record", 0);
-    _handlers.add(Strings.managerForRecord);
+    _pages.add(AudioItem(0));
+    _pages.add(AudioItem(1));
+    _pages.add(AudioItem(2));
+    Utilities.managerForRecord = AudioManager("", "Record", 0);
+    _handlers.add(Utilities.managerForRecord);
     _handlers.add(_pages[0].audioManager);
     _handlers.add(_pages[1].audioManager);
     _handlers.add(_pages[2].audioManager);
-    Strings.audioHandler = await AudioService.init(
+    Utilities.audioHandler = await AudioService.init(
         builder: () => AudioSwitchHandler(_handlers),
         config: const AudioServiceConfig(
             androidNotificationIcon: "drawable/noti",
@@ -120,15 +117,12 @@ class FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
             onPageChanged: (value) async {
               setState(() {
                 toastViewed = true;
-                Strings.helpNotificationViewied();
+                Utilities.helpNotificationViewied();
               });
-              Strings.curPage.value = value;
+              Utilities.curPage.value = value;
               if (value > prepage) {
                 prepage = value;
-                _pages.add(AudioItem(
-                    "Track name Added fsdfsdf sdfsd ? sfsdfsd! ffsdfds",
-                    "The description will be displayed here, or it will be not.",
-                    value + 1));
+                _pages.add(AudioItem(value + 1));
                 _handlers.add(_pages[value + 1].audioManager);
               }
             },

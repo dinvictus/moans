@@ -47,11 +47,11 @@ class TagItemState extends State<TagItem> {
         Timer(const Duration(seconds: 1), _animateForward);
       }
     });
-    Strings.curPage.addListener(() {
-      if (widget._index != Strings.curPage.value) {
+    Utilities.curPage.addListener(() {
+      if (widget._index != Utilities.curPage.value) {
         _scrollController.jumpTo(0.01);
       }
-      if (widget._index == Strings.curPage.value) {
+      if (widget._index == Utilities.curPage.value) {
         _animateForward();
       }
     });
@@ -72,23 +72,27 @@ class TagItemState extends State<TagItem> {
             curve: const Interval(0.05, 1.0));
       }
     });
-    return Container(
-        margin: const EdgeInsets.fromLTRB(10, 30, 10, 40),
-        height: 43,
-        child: ListView.builder(
-            controller: _scrollController,
-            scrollDirection: Axis.horizontal,
-            itemCount: widget._tags.length,
-            itemBuilder: (BuildContext context, int index) {
-              return Container(
-                  margin: _margin,
-                  padding: _padding,
-                  decoration: _boxDecoration,
-                  child: Text(
-                    widget._tags[index],
-                    style: _textStyle,
-                    textAlign: TextAlign.center,
-                  ));
-            }));
+    return Center(
+        child: Container(
+            alignment: Alignment.center,
+            margin: const EdgeInsets.fromLTRB(10, 30, 10, 40),
+            height: 43,
+            child: ListView.builder(
+                shrinkWrap: true,
+                padding: const EdgeInsets.all(0),
+                controller: _scrollController,
+                scrollDirection: Axis.horizontal,
+                itemCount: widget._tags.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Container(
+                      margin: _margin,
+                      padding: _padding,
+                      decoration: _boxDecoration,
+                      child: Text(
+                        widget._tags[index],
+                        style: _textStyle,
+                        textAlign: TextAlign.center,
+                      ));
+                })));
   }
 }

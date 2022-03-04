@@ -12,7 +12,7 @@ void main() {
 class MyApp extends StatelessWidget {
   MyApp({Key? key}) : super(key: key) {
     WidgetsFlutterBinding.ensureInitialized();
-    Strings.init();
+    Utilities.init();
   }
   @override
   Widget build(BuildContext context) {
@@ -30,10 +30,10 @@ class MyApp extends StatelessWidget {
 class ConfirmAge extends StatefulWidget {
   const ConfirmAge({Key? key}) : super(key: key);
   @override
-  State<ConfirmAge> createState() => _ConfirmAge();
+  State<ConfirmAge> createState() => ConfirmAgeState();
 }
 
-class _ConfirmAge extends State<ConfirmAge> {
+class ConfirmAgeState extends State<ConfirmAge> {
   refresh() {
     setState(() {});
   }
@@ -69,7 +69,7 @@ class _ConfirmAge extends State<ConfirmAge> {
                         alignment: Alignment.topLeft,
                         child: FittedBox(
                             child: Text(
-                          Strings.curLang["18eQuesText"],
+                          Utilities.curLang["18eQuesText"],
                           style: GoogleFonts.inter(
                               color: Colors.white,
                               fontSize: height / 20,
@@ -78,7 +78,7 @@ class _ConfirmAge extends State<ConfirmAge> {
                       ),
                       Container(height: height / 25),
                       Text(
-                        Strings.curLang["18eText"],
+                        Utilities.curLang["18eText"],
                         style: GoogleFonts.inter(
                             color: Colors.white, fontSize: height / 40),
                       ),
@@ -93,7 +93,7 @@ class _ConfirmAge extends State<ConfirmAge> {
                                 borderRadius: BorderRadius.circular(25.0)),
                           ),
                           child: Text(
-                            Strings.curLang["18eButText"],
+                            Utilities.curLang["18eButText"],
                             style: GoogleFonts.inter(
                                 color: Colors.white, fontSize: height / 55),
                           ),
@@ -102,14 +102,14 @@ class _ConfirmAge extends State<ConfirmAge> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                        const MainScreen())); // Заменить на Login
+                                        const LogIn())); // Заменить на Login
                           },
                         ),
                       ),
                       Container(height: height / 25),
                       GestureDetector(
                           onTap: () {},
-                          child: Text(Strings.curLang["18eTerAndCondText"],
+                          child: Text(Utilities.curLang["18eTerAndCondText"],
                               style: GoogleFonts.inter(
                                   color: MColors.mainColor,
                                   decoration: TextDecoration.underline)))

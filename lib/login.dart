@@ -22,6 +22,7 @@ class LogIn extends StatefulWidget {
 class LogInState extends State<LogIn> {
   final _controllerEmail = TextEditingController();
   final _controllerPass = TextEditingController();
+  final _scrollController = ScrollController();
   bool _submitter = false;
   refresh() {
     setState(() {});
@@ -60,7 +61,7 @@ class LogInState extends State<LogIn> {
   String? get _errorTextEmail {
     final text = _controllerEmail.value.text.toString();
     if (!text.contains("@") || !text.contains(".")) {
-      return Strings.curLang["EmailNotCorrect"];
+      return Utilities.curLang["EmailNotCorrect"];
     }
     return null;
   }
@@ -68,7 +69,7 @@ class LogInState extends State<LogIn> {
   String? get _errorTextPass {
     final text = _controllerPass.value.text.toString();
     if (text.length <= 8) {
-      return Strings.curLang["ShortPass"];
+      return Utilities.curLang["ShortPass"];
     }
     return null;
   }
@@ -88,33 +89,37 @@ class LogInState extends State<LogIn> {
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
-    return Scaffold(
-        appBar: AppBar(
+    return Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+        decoration: const BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage('assets/back/back.png'), fit: BoxFit.fill)),
+        child: Scaffold(
           backgroundColor: Colors.transparent,
-          automaticallyImplyLeading: false,
-          elevation: 0,
-          actions: [MyDropButton(notifyParent: refresh, updateFeed: false)],
-        ),
-        extendBodyBehindAppBar: true,
-        body: Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.fromLTRB(16, 35, 16, 16),
-          decoration: const BoxDecoration(
-              image: DecorationImage(
-                  image: AssetImage('assets/back/back.png'), fit: BoxFit.fill)),
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            automaticallyImplyLeading: false,
+            elevation: 0,
+            actions: [MyDropButton(notifyParent: refresh, updateFeed: false)],
+          ),
+          extendBodyBehindAppBar: true,
+          body: SingleChildScrollView(
+            physics: MediaQuery.of(context).viewInsets.bottom == 0
+                ? const NeverScrollableScrollPhysics()
+                : const BouncingScrollPhysics(),
             scrollDirection: Axis.vertical,
             child: Column(
               children: [
                 Container(
+                  margin: EdgeInsets.only(top: height / 10),
                   padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
                   child: Column(
                     children: [
                       Container(
                         alignment: Alignment.topLeft,
                         child: Text(
-                          Strings.curLang["login"],
+                          Utilities.curLang["login"],
                           style: GoogleFonts.inter(
                               color: Colors.white,
                               fontSize: height / 20,
@@ -127,7 +132,7 @@ class LogInState extends State<LogIn> {
                           child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(Strings.curLang["Email"],
+                                Text(Utilities.curLang["Email"],
                                     style: GoogleFonts.inter(
                                         color: _getColorErrorEmail(),
                                         fontSize: 12)),
@@ -166,7 +171,7 @@ class LogInState extends State<LogIn> {
                           child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(Strings.curLang["Password"],
+                                Text(Utilities.curLang["Password"],
                                     style: GoogleFonts.inter(
                                         color: _getColorPassword(),
                                         fontSize: 12)),
@@ -209,7 +214,7 @@ class LogInState extends State<LogIn> {
                                 borderRadius: BorderRadius.circular(25.0)),
                           ),
                           child: Text(
-                            Strings.curLang["login"],
+                            Utilities.curLang["login"],
                             style: GoogleFonts.inter(
                                 color: Colors.white, fontSize: height / 50),
                           ),
@@ -226,7 +231,7 @@ class LogInState extends State<LogIn> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  Strings.curLang["LogQues"],
+                                  Utilities.curLang["LogQues"],
                                   style: GoogleFonts.inter(
                                       color: const Color(0xffcfcfd0),
                                       fontSize: height / 50),
@@ -241,7 +246,7 @@ class LogInState extends State<LogIn> {
                                                   const SignUp()));
                                     },
                                     child: Text(
-                                      Strings.curLang["Signup"],
+                                      Utilities.curLang["Signup"],
                                       style: GoogleFonts.inter(
                                           color: MColors.mainColor,
                                           fontSize: height / 50,
@@ -251,7 +256,7 @@ class LogInState extends State<LogIn> {
                       SizedBox(
                           height: 30,
                           child: Text(
-                            Strings.curLang["Continue"],
+                            Utilities.curLang["Continue"],
                             style: GoogleFonts.inter(
                                 color: const Color(0xffcfcfd0)),
                           )),
@@ -322,14 +327,14 @@ class LogInState extends State<LogIn> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Text(
-                              Strings.curLang["Forgotpass"],
+                              Utilities.curLang["Forgotpass"],
                               style: GoogleFonts.inter(
                                 color: const Color(0xff878789),
                                 fontSize: height / 50,
                               ),
                             ),
                             Container(height: 5),
-                            Text(Strings.curLang["Click"],
+                            Text(Utilities.curLang["Click"],
                                 style: GoogleFonts.inter(
                                     color: MColors.mainColor,
                                     fontSize: height / 50,

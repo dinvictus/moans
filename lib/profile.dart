@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moans/changepass.dart';
 import 'package:moans/elements/dropbutton.dart';
 import 'package:moans/elements/trackelement.dart';
 import 'package:moans/res.dart';
@@ -33,7 +34,7 @@ class ProfileState extends State<Profile> {
           elevation: 0,
           centerTitle: true,
           title: Text(
-            Strings.curLang["Profile"],
+            Utilities.curLang["Profile"],
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(color: Colors.white, fontSize: 20),
           ),
@@ -47,21 +48,26 @@ class ProfileState extends State<Profile> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(Strings.email,
+              Text(Utilities.email,
                   style: GoogleFonts.inter(
                       color: Colors.white,
                       fontSize: height / 25,
                       fontWeight: FontWeight.bold)),
               SizedBox(height: height / 40),
               GestureDetector(
-                  onTap: () {},
-                  child: Text(Strings.curLang["ChangePas"],
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ChangePassword()));
+                  },
+                  child: Text(Utilities.curLang["ChangePas"],
                       style: GoogleFonts.inter(
                           color: MColors.mainColor,
                           fontSize: height / 45,
                           decoration: TextDecoration.underline))),
               SizedBox(height: height / 20),
-              Text(Strings.curLang["Voice"],
+              Text(Utilities.curLang["Voice"],
                   style: GoogleFonts.inter(
                       color: Colors.white,
                       fontSize: height / 35,
@@ -85,7 +91,7 @@ class ProfileState extends State<Profile> {
                           });
                         },
                       )),
-                  Text(Strings.curLang["she/her"],
+                  Text(Utilities.curLang["she/her"],
                       style: GoogleFonts.inter(color: Colors.white)),
                   const Spacer(),
                   Container(
@@ -104,7 +110,7 @@ class ProfileState extends State<Profile> {
                           });
                         },
                       )),
-                  Text(Strings.curLang["he/him"],
+                  Text(Utilities.curLang["he/him"],
                       style: GoogleFonts.inter(color: Colors.white)),
                   const Spacer(),
                   Container(
@@ -123,12 +129,12 @@ class ProfileState extends State<Profile> {
                           });
                         },
                       )),
-                  Text(Strings.curLang["they/them"],
+                  Text(Utilities.curLang["they/them"],
                       style: GoogleFonts.inter(color: Colors.white)),
                 ],
               ),
               SizedBox(height: height / 12),
-              Text(Strings.curLang["MyRec"],
+              Text(Utilities.curLang["MyRec"],
                   style: GoogleFonts.inter(
                       color: Colors.white,
                       fontSize: height / 25,

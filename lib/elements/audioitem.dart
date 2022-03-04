@@ -1,5 +1,6 @@
 import 'dart:async';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
 import '../res.dart';
@@ -9,24 +10,15 @@ import 'package:google_fonts/google_fonts.dart';
 import 'helprefresher.dart';
 
 class AudioItem extends StatefulWidget {
-  AudioItem(this._trackName, this._trackDisk, this._indexPage, {Key? key})
-      : super(key: key);
-  late final AudioManager audioManager =
-      AudioManager(Strings.url + "audio", _trackName, _indexPage + 1);
+  AudioItem(this._indexPage, {Key? key}) : super(key: key);
+  late final AudioManager audioManager = AudioManager(
+      "https://0fa8-92-101-232-21.ngrok.io/tracks/get_audio?track_id=3",
+      _trackName,
+      _indexPage + 1);
   final int _indexPage;
-  final String _trackName;
-  final String _trackDisk;
-  final _tags = [
-    "taggggggggппп32П", // Пока что максимум по 16 символов в каждом тэге
-    "taggggggg2пппПы3",
-    "taggg333g3пппFS-",
-    "tag",
-    "tag",
-    "tagggggggппппппппппппппппппппп",
-    "tagggggggg",
-    "taggg",
-    "tag"
-  ];
+  String _trackName = "Test Name";
+  String _trackDisk = "Test Description";
+  final _tags = ["tag1", "tag2", "tag3", "tag4", "tag5"];
   @override
   State<AudioItem> createState() {
     return AudioItemState();
@@ -66,8 +58,23 @@ class AudioItemState extends State<AudioItem>
     });
   }
 
+  _getInfo() async {
+    try {
+      var _response = await http.get(Uri.parse(
+          "https://0fa8-92-101-232-21.ngrok.io/tracks/one?track_id=3"));
+      Map info = jsonDecode(_response.body);
+      setState(() {
+        widget._trackName = info["name"];
+        widget._trackDisk = info["description"];
+      });
+    } catch (e) {
+      // Ошибка подключения
+    }
+  }
+
   @override
   void initState() {
+    _getInfo();
     super.initState();
     HelpRefresh.toUpdateFeed = refresh;
     notifierforLikeSize = ValueNotifier<double>(32);
@@ -162,9 +169,9 @@ class AudioItemState extends State<AudioItem>
                             child: Image.asset("assets/items/play.png"),
                             onPressed: () {
                               try {
-                                Strings.audioHandler
+                                Utilities.audioHandler
                                     .switchToHandler(widget._indexPage + 1);
-                                Strings.audioHandler.play();
+                                Utilities.audioHandler.play();
                               } catch (e) {
                                 print("error");
                               }
@@ -226,9 +233,9 @@ class AudioItemState extends State<AudioItem>
                   SizedBox(
                       width: 71,
                       child: ValueListenableBuilder<String>(
-                        valueListenable: Strings.forShare,
+                        valueListenable: Utilities.forShare,
                         builder: (_, value, __) {
-                          return Text(Strings.curLang["Share"],
+                          return Text(Utilities.curLang["Share"],
                               textAlign: TextAlign.center, style: _textStyleLS);
                         },
                       )),

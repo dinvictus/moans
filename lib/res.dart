@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:moans/elements/audiomanager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class Strings {
+class Utilities {
   static init() async {
     curLang = _englishStrings;
     currentLanguage = "English";
@@ -91,6 +91,8 @@ class Strings {
     "SavePost": "Post",
     "Back": "Back",
     "Continue": "Or continue with",
+    "OldPass": "Old password",
+    "NewPass": "New password"
   };
 
   static const Map _russianStrings = {
@@ -144,6 +146,8 @@ class Strings {
     "SavePost": "Опубликовать",
     "Back": "Назад",
     "Continue": "Или продолжите с",
+    "OldPass": "Старый пароль",
+    "NewPass": "Новый пароль"
   };
   static void changeLanguage(String language) {
     switch (language) {

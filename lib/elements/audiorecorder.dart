@@ -41,11 +41,11 @@ class AudioRecorder {
   loadFile(String ur) {
     _isFile = true;
     url = ur;
-    Strings.managerForRecord.setUR(ur);
+    Utilities.managerForRecord.setUR(ur);
     timeNotifier.value.curtime = Duration.zero;
     Timer(const Duration(milliseconds: 500), () {
       timeNotifier.value = TimeRecordState(
-          Strings.managerForRecord.progressNotifier.value.total);
+          Utilities.managerForRecord.progressNotifier.value.total);
     });
     pageAudioRecordNotifier.value = AudioRecordState.playrecord;
   }
@@ -56,15 +56,15 @@ class AudioRecorder {
 
   save() {
     pageAudioRecordNotifier.value = AudioRecordState.saverecord;
-    Strings.managerForRecord.stop();
+    Utilities.managerForRecord.stop();
   }
 
   back() async {
-    Strings.descLength.value = 0;
-    Strings.tagsCountForSave.value = 0;
-    Strings.titleLength.value = 0;
-    Strings.managerForRecord.stop();
-    Strings.managerForRecord.resetDuration();
+    Utilities.descLength.value = 0;
+    Utilities.tagsCountForSave.value = 0;
+    Utilities.titleLength.value = 0;
+    Utilities.managerForRecord.stop();
+    Utilities.managerForRecord.resetDuration();
     if (await _audioRecorder.isRecording()) {
       _audioRecorder.stop();
     }
@@ -82,7 +82,7 @@ class AudioRecorder {
 
   _record() async {
     if (_isInitialize && !await _audioRecorder.isRecording()) {
-      Strings.isPlaying.value = Strings.isPlaying.value ? false : true;
+      Utilities.isPlaying.value = Utilities.isPlaying.value ? false : true;
       pageAudioRecordNotifier.value = AudioRecordState.record;
       _audioRecorder.start();
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -106,7 +106,7 @@ class AudioRecorder {
     } else {
       if (await _audioRecorder.isRecording()) {
         _isRecording = false;
-        Strings.managerForRecord.setUR(await _stop());
+        Utilities.managerForRecord.setUR(await _stop());
       }
     }
   }

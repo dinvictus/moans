@@ -28,8 +28,8 @@ class ChangeLanguageState extends State<ChangeLanguage> {
         _listLanguagesButtons.add(_langButton(
             widget._listLanguagesString[i],
             (widget.saveTrack
-                        ? Strings.langForSaveTrack
-                        : Strings.currentLanguage) ==
+                        ? Utilities.langForSaveTrack
+                        : Utilities.currentLanguage) ==
                     widget._listLanguagesString[i]
                 ? true
                 : false));
@@ -70,8 +70,8 @@ class ChangeLanguageState extends State<ChangeLanguage> {
 
   _changeLanguage(String language) {
     widget.saveTrack
-        ? Strings.langForSaveTrack = language
-        : Strings.changeLanguage(language);
+        ? Utilities.langForSaveTrack = language
+        : Utilities.changeLanguage(language);
     widget.toRefreshParent();
     _listLanguagesButtons.clear();
     _init();
@@ -106,7 +106,7 @@ class ChangeLanguageState extends State<ChangeLanguage> {
                       width: 15,
                     ),
                     Text(
-                      Strings.curLang["Back"],
+                      Utilities.curLang["Back"],
                       style: GoogleFonts.inter(),
                     )
                   ],

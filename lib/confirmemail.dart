@@ -44,7 +44,7 @@ class ConfirmEmailState extends State<ConfirmEmail> {
                           Container(
                               alignment: Alignment.topLeft,
                               child: Text(
-                                Strings.curLang["Thank"],
+                                Utilities.curLang["Thank"],
                                 style: GoogleFonts.inter(
                                     color: Colors.white,
                                     fontSize: height / 20,
@@ -53,20 +53,20 @@ class ConfirmEmailState extends State<ConfirmEmail> {
                           Container(height: height / 20),
                           RichText(
                               text: TextSpan(
-                                  text: Strings.curLang["ConfEmail"],
+                                  text: Utilities.curLang["ConfEmail"],
                                   style: GoogleFonts.inter(
                                       color: Colors.white,
                                       fontSize: height / 50),
                                   children: [
                                     TextSpan(
-                                        text: Strings.email + "\n\n",
+                                        text: Utilities.email + "\n\n",
                                         style: const TextStyle(
                                           color: MColors.mainColor,
                                         )),
                                     TextSpan(
-                                        text: Strings.curLang["ToConfEmail"]),
+                                        text: Utilities.curLang["ToConfEmail"]),
                                     TextSpan(
-                                        text: Strings.curLang["OurEmail"],
+                                        text: Utilities.curLang["OurEmail"],
                                         style: const TextStyle(
                                             color: MColors.mainColor,
                                             decoration:
@@ -84,7 +84,7 @@ class ConfirmEmailState extends State<ConfirmEmail> {
                                     borderRadius: BorderRadius.circular(25.0)),
                               ),
                               child: Text(
-                                Strings.curLang["Update"],
+                                Utilities.curLang["Update"],
                                 style: GoogleFonts.inter(
                                     color: Colors.white, fontSize: height / 50),
                               ),

@@ -46,7 +46,7 @@ class MainRecordItemState extends State<MainRecordItem> {
           elevation: 0,
           centerTitle: true,
           title: Text(
-            Strings.curLang["Record"],
+            Utilities.curLang["Record"],
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(color: Colors.white, fontSize: 20),
           ),
@@ -59,7 +59,7 @@ class MainRecordItemState extends State<MainRecordItem> {
               Container(
                 margin: EdgeInsets.only(bottom: _height / 20),
                 child: Text(
-                  Strings.curLang["TapToRecord"],
+                  Utilities.curLang["TapToRecord"],
                   style: GoogleFonts.inter(
                       color: const Color(0xffcfcfd0), fontSize: _height / 43),
                 ),
@@ -107,7 +107,7 @@ class MainRecordItemState extends State<MainRecordItem> {
                         }
                       },
                       child: Text(
-                        Strings.curLang["PickLib"],
+                        Utilities.curLang["PickLib"],
                         style: GoogleFonts.inter(
                             color: MColors.mainColor, fontSize: _width / 24),
                       ))),
@@ -139,7 +139,7 @@ class RecordRecordItemState extends State<RecordRecordItem> {
           elevation: 0,
           centerTitle: true,
           title: Text(
-            Strings.curLang["Record"],
+            Utilities.curLang["Record"],
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(color: Colors.white, fontSize: 20),
           ),
@@ -168,7 +168,7 @@ class RecordRecordItemState extends State<RecordRecordItem> {
               ),
               const Spacer(),
               Text(
-                Strings.curLang["StopRec"],
+                Utilities.curLang["StopRec"],
                 style: GoogleFonts.inter(
                     color: const Color(0xffcfcfd0),
                     fontWeight: FontWeight.w400,
@@ -218,7 +218,7 @@ class PlayRecordItemState extends State<PlayRecordItem> {
           elevation: 0,
           centerTitle: true,
           title: Text(
-            Strings.curLang["Record"],
+            Utilities.curLang["Record"],
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(color: Colors.white, fontSize: 20),
           ),
@@ -244,7 +244,7 @@ class PlayRecordItemState extends State<PlayRecordItem> {
                 margin: EdgeInsets.fromLTRB(30, _height / 40, 30, 30),
                 height: _height / 60,
                 child: ValueListenableBuilder<ProgressBarState>(
-                  valueListenable: Strings.managerForRecord.progressNotifier,
+                  valueListenable: Utilities.managerForRecord.progressNotifier,
                   builder: (_, value, __) {
                     return ProgressBar(
                       thumbColor: Colors.white,
@@ -258,7 +258,7 @@ class PlayRecordItemState extends State<PlayRecordItem> {
                       progress: value.current,
                       buffered: value.buffered,
                       total: value.total,
-                      onSeek: Strings.managerForRecord.seek,
+                      onSeek: Utilities.managerForRecord.seek,
                     );
                   },
                 ),
@@ -268,7 +268,7 @@ class PlayRecordItemState extends State<PlayRecordItem> {
                 height: _width / 6,
                 width: _width / 6,
                 child: ValueListenableBuilder<ButtonState>(
-                  valueListenable: Strings.managerForRecord.buttonNotifier,
+                  valueListenable: Utilities.managerForRecord.buttonNotifier,
                   builder: (_, value, __) {
                     switch (value) {
                       case ButtonState.loading:
@@ -292,8 +292,8 @@ class PlayRecordItemState extends State<PlayRecordItem> {
                                   borderRadius: BorderRadius.circular(50.0))),
                           child: Image.asset("assets/items/play.png"),
                           onPressed: () {
-                            Strings.audioHandler.switchToHandler(0);
-                            Strings.audioHandler.play();
+                            Utilities.audioHandler.switchToHandler(0);
+                            Utilities.audioHandler.play();
                           },
                         );
                       case ButtonState.playing:
@@ -305,7 +305,7 @@ class PlayRecordItemState extends State<PlayRecordItem> {
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(50.0))),
                           child: Image.asset("assets/items/pause.png"),
-                          onPressed: Strings.managerForRecord.pause,
+                          onPressed: Utilities.managerForRecord.pause,
                         );
                     }
                   },
@@ -331,7 +331,7 @@ class PlayRecordItemState extends State<PlayRecordItem> {
                           child: FittedBox(
                               fit: BoxFit.fitWidth,
                               child: Text(
-                                Strings.curLang["Again"],
+                                Utilities.curLang["Again"],
                                 style: GoogleFonts.inter(
                                     color: MColors.mainColor, fontSize: 15),
                               )))),
@@ -348,7 +348,7 @@ class PlayRecordItemState extends State<PlayRecordItem> {
                             _audioRecorder.save();
                           },
                           child: FittedBox(
-                              child: Text(Strings.curLang["Save"],
+                              child: Text(Utilities.curLang["Save"],
                                   style: GoogleFonts.inter())))),
                 ],
               ),

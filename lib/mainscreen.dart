@@ -89,7 +89,7 @@ class MainScreenState extends State<MainScreen> {
                           'assets/items/feedoff.png',
                           scale: 3,
                         ),
-                  label: Strings.curLang["Feed"],
+                  label: Utilities.curLang["Feed"],
                 ),
                 BottomNavigationBarItem(
                     icon: _selectionIndex == 1
@@ -101,7 +101,7 @@ class MainScreenState extends State<MainScreen> {
                             'assets/items/recordoff.png',
                             scale: 3,
                           ),
-                    label: Strings.curLang["Record"]),
+                    label: Utilities.curLang["Record"]),
                 BottomNavigationBarItem(
                     icon: _selectionIndex == 2
                         ? Image.asset(
@@ -112,7 +112,7 @@ class MainScreenState extends State<MainScreen> {
                             'assets/items/profileoff.png',
                             scale: 3,
                           ),
-                    label: Strings.curLang["Profile"]),
+                    label: Utilities.curLang["Profile"]),
               ],
               currentIndex: _selectionIndex,
               onTap: onItemTapped,

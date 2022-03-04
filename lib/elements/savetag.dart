@@ -24,13 +24,12 @@ class SaveTagState extends State<SaveTag> {
     super.initState();
     pageAudioRecordNotifier.addListener(() {
       if (pageAudioRecordNotifier.value == AudioRecordState.main) {
-        if(this.mounted)
-        {
-        setState(() {
-          _listTags.clear();
-          _listTagsString.clear();
-        });
-      }
+        if (this.mounted) {
+          setState(() {
+            _listTags.clear();
+            _listTagsString.clear();
+          });
+        }
       }
     });
   }
@@ -41,7 +40,7 @@ class SaveTagState extends State<SaveTag> {
         if (_listTagsString[i] == text) {
           _listTagsString.removeAt(i);
           _listTags.removeAt(i);
-          Strings.tagsCountForSave.value = _listTags.length;
+          Utilities.tagsCountForSave.value = _listTags.length;
         }
       }
     });
@@ -75,7 +74,7 @@ class SaveTagState extends State<SaveTag> {
         if (temp != "") {
           _listTags.add(SaveTagItem(temp, _delTagItem));
           _listTagsString.add(temp);
-          Strings.tagsCountForSave.value = _listTags.length;
+          Utilities.tagsCountForSave.value = _listTags.length;
           _animate();
         }
         _tagController.text = text.substring(temp.length + 1);

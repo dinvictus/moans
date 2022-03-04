@@ -10,7 +10,7 @@ import 'package:rxdart/rxdart.dart';
 extension DemoAudioHandler on AudioHandler {
   Future<void> switchToHandler(int? index) async {
     if (index == null) return;
-    await Strings.audioHandler
+    await Utilities.audioHandler
         .customAction('switchToHandler', <String, dynamic>{'index': index});
   }
 }
@@ -98,7 +98,6 @@ class AudioManager extends BaseAudioHandler with SeekHandler {
           MediaControl.stop
         ],
         systemActions: const {
-         
           MediaAction.seek,
         },
         // androidCompactActionIndices: const [0, 1, 3],
@@ -145,8 +144,7 @@ class AudioManager extends BaseAudioHandler with SeekHandler {
       }
     });
 
-    Future<Duration?> getDur() async
-    {
+    Future<Duration?> getDur() async {
       return _audioPlayer.durationFuture;
     }
 
@@ -178,7 +176,7 @@ class AudioManager extends BaseAudioHandler with SeekHandler {
       );
     });
 
-    Strings.isPlaying.addListener(() {
+    Utilities.isPlaying.addListener(() {
       if (_audioPlayer.playing) {
         _audioPlayer.stop();
         initNoti = false;
@@ -188,7 +186,7 @@ class AudioManager extends BaseAudioHandler with SeekHandler {
 
   @override
   Future<void> play() async {
-    Strings.isPlaying.value = Strings.isPlaying.value ? false : true;
+    Utilities.isPlaying.value = Utilities.isPlaying.value ? false : true;
     if (!initNoti) {
       _notifyAudioHandlerAboutPlaybackEvents();
       initNoti = true;
@@ -198,7 +196,8 @@ class AudioManager extends BaseAudioHandler with SeekHandler {
           id: _indexPage.toString(),
           title: title,
           duration: progressNotifier.value.total,
-          artUri: Uri.parse(Strings.url + "img"));
+          artUri:
+              Uri.parse("https://0fa8-92-101-232-21.ngrok.io/tracks/get_logo"));
       mediaItem.add(_source);
       initDuration = true;
     }

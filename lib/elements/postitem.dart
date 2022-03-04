@@ -83,7 +83,7 @@ class PostItemState extends State<PostItem> {
                         width: 15,
                       ),
                       Text(
-                        Strings.curLang["Back"],
+                        Utilities.curLang["Back"],
                         style: GoogleFonts.inter(),
                       )
                     ],
@@ -91,7 +91,7 @@ class PostItemState extends State<PostItem> {
           elevation: 0,
           centerTitle: true,
           title: Text(
-            Strings.curLang["Save"],
+            Utilities.curLang["Save"],
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(color: Colors.white, fontSize: 20),
           ),
@@ -105,9 +105,9 @@ class PostItemState extends State<PostItem> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(Strings.curLang["SaveTitle"], style: _textStyleSave),
+                    Text(Utilities.curLang["SaveTitle"], style: _textStyleSave),
                     ValueListenableBuilder<int>(
-                      valueListenable: Strings.titleLength,
+                      valueListenable: Utilities.titleLength,
                       builder: (_, value, __) {
                         return Text(value == 0 ? "" : value.toString() + "/30",
                             style: GoogleFonts.inter(
@@ -122,13 +122,13 @@ class PostItemState extends State<PostItem> {
                     controller: _titleController,
                     onChanged: (value) {
                       if (value.length >= 31) {
-                        Strings.titleLength.value = 30;
+                        Utilities.titleLength.value = 30;
                         _titleController.text =
                             _titleController.text.substring(0, 30);
                         _titleController.selection = TextSelection.fromPosition(
                             TextPosition(offset: _titleController.text.length));
                       } else {
-                        Strings.titleLength.value = value.length;
+                        Utilities.titleLength.value = value.length;
                       }
                     },
                     decoration: _inputDecoration("Track name"),
@@ -137,9 +137,10 @@ class PostItemState extends State<PostItem> {
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(Strings.curLang["SaveDesc"], style: _textStyleSave),
+                      Text(Utilities.curLang["SaveDesc"],
+                          style: _textStyleSave),
                       ValueListenableBuilder<int>(
-                        valueListenable: Strings.descLength,
+                        valueListenable: Utilities.descLength,
                         builder: (_, value, __) {
                           return Text(
                             value == 0 ? "" : value.toString() + "/150",
@@ -159,9 +160,9 @@ class PostItemState extends State<PostItem> {
                           _descController.text.substring(0, 150);
                       _descController.selection = TextSelection.fromPosition(
                           TextPosition(offset: _descController.text.length));
-                      Strings.descLength.value = 150;
+                      Utilities.descLength.value = 150;
                     } else {
-                      Strings.descLength.value = value.length;
+                      Utilities.descLength.value = value.length;
                     }
                   },
                   decoration: _inputDecoration(""),
@@ -173,9 +174,9 @@ class PostItemState extends State<PostItem> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(Strings.curLang["SaveTags"], style: _textStyleSave),
+                    Text(Utilities.curLang["SaveTags"], style: _textStyleSave),
                     ValueListenableBuilder<int>(
-                      valueListenable: Strings.tagsCountForSave,
+                      valueListenable: Utilities.tagsCountForSave,
                       builder: (_, value, __) {
                         return Text(value == 0 ? "" : value.toString() + "/16",
                             style: GoogleFonts.inter(
@@ -194,7 +195,7 @@ class PostItemState extends State<PostItem> {
                           context,
                           MaterialPageRoute(
                               builder: (context) => ChangeLanguage(
-                                  Strings.listLanguages,
+                                  Utilities.listLanguages,
                                   refresh,
                                   false,
                                   true)));
@@ -210,7 +211,7 @@ class PostItemState extends State<PostItem> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          Strings.langForSaveTrack,
+                          Utilities.langForSaveTrack,
                           style: _textStyleSave,
                         ),
                         Image.asset(
@@ -221,7 +222,7 @@ class PostItemState extends State<PostItem> {
                     )),
                 SizedBox(height: height / 30),
                 Text(
-                  Strings.curLang["SaveVoice"],
+                  Utilities.curLang["SaveVoice"],
                   style: _textStyleSave,
                 ),
                 SizedBox(height: height / 40),
@@ -243,7 +244,7 @@ class PostItemState extends State<PostItem> {
                             });
                           },
                         )),
-                    Text(Strings.curLang["she/her"],
+                    Text(Utilities.curLang["she/her"],
                         style: GoogleFonts.inter(color: Colors.white)),
                     const Spacer(),
                     Container(
@@ -262,7 +263,7 @@ class PostItemState extends State<PostItem> {
                             });
                           },
                         )),
-                    Text(Strings.curLang["he/him"],
+                    Text(Utilities.curLang["he/him"],
                         style: GoogleFonts.inter(color: Colors.white)),
                     const Spacer(),
                     Container(
@@ -281,7 +282,7 @@ class PostItemState extends State<PostItem> {
                             });
                           },
                         )),
-                    Text(Strings.curLang["they/them"],
+                    Text(Utilities.curLang["they/them"],
                         style: GoogleFonts.inter(color: Colors.white)),
                   ],
                 ),
@@ -296,7 +297,7 @@ class PostItemState extends State<PostItem> {
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(50.0))),
                         onPressed: () {},
-                        child: Text(Strings.curLang["SavePost"],
+                        child: Text(Utilities.curLang["SavePost"],
                             style: GoogleFonts.inter(
                                 fontSize: 16, fontWeight: FontWeight.w500))))
               ],
