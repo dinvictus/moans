@@ -1,12 +1,12 @@
 import 'dart:async';
-
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:moans/res.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class TagItem extends StatefulWidget {
   final int _index;
-  final List _tags;
+  final List<String> _tags;
   const TagItem(this._tags, this._index, {Key? key}) : super(key: key);
   @override
   State<TagItem> createState() {
@@ -15,28 +15,55 @@ class TagItem extends StatefulWidget {
 }
 
 class TagItemState extends State<TagItem> {
+  late final int averageSymbols;
   final TextStyle _textStyle = GoogleFonts.montserrat(
-      color: MColors.mainColor, fontSize: 13, height: 1.8);
+    color: MColors.mainColor,
+    fontSize: 13,
+    fontWeight: FontWeight.w500,
+  );
   final BoxDecoration _boxDecoration = BoxDecoration(
       borderRadius: BorderRadius.circular(20),
       border: Border.all(color: MColors.mainColor));
-  final EdgeInsets _padding = const EdgeInsets.fromLTRB(10, 0, 10, 0);
+  final EdgeInsets _padding = const EdgeInsets.fromLTRB(22, 0, 22, 1);
   final EdgeInsets _margin = const EdgeInsets.fromLTRB(5, 0, 5, 10);
   late ScrollController _scrollController;
+  final List<Container> elementsList = [];
 
   _animateForward() {
     _scrollController.animateTo(_scrollController.position.maxScrollExtent,
-        duration: const Duration(seconds: 30), curve: const Interval(0.05, 1));
+        duration: Duration(seconds: averageSymbols),
+        curve: const Interval(0.05, 1));
   }
 
   _animateRewerse() {
-    _scrollController.animateTo(_scrollController.position.minScrollExtent,
-        duration: const Duration(seconds: 30), curve: const Interval(0.05, 1));
+    _scrollController.animateTo(0,
+        duration: Duration(seconds: averageSymbols),
+        curve: const Interval(0.05, 1));
+  }
+
+  Container getTagItem(String text) {
+    return Container(
+        alignment: Alignment.center,
+        height: 35,
+        margin: _margin,
+        padding: _padding,
+        decoration: _boxDecoration,
+        child: Text(
+          text,
+          style: _textStyle,
+          textAlign: TextAlign.center,
+        ));
   }
 
   @override
   void initState() {
     super.initState();
+    int countSymbols = 0;
+    for (String tagItem in widget._tags) {
+      elementsList.add(getTagItem(tagItem));
+      countSymbols += tagItem.length;
+    }
+    averageSymbols = sqrt(countSymbols * widget._tags.length).toInt();
     _scrollController = ScrollController();
     _scrollController.addListener(() {
       if (_scrollController.offset ==
@@ -67,32 +94,17 @@ class TagItemState extends State<TagItem> {
   Widget build(BuildContext context) {
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
-        _scrollController.animateTo(_scrollController.position.maxScrollExtent,
-            duration: const Duration(seconds: 30),
-            curve: const Interval(0.05, 1.0));
+        _animateForward();
       }
     });
     return Center(
         child: Container(
             alignment: Alignment.center,
-            margin: const EdgeInsets.fromLTRB(10, 30, 10, 40),
-            height: 43,
-            child: ListView.builder(
-                shrinkWrap: true,
-                padding: const EdgeInsets.all(0),
-                controller: _scrollController,
+            margin: const EdgeInsets.fromLTRB(10, 30, 10, 25),
+            child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
                 scrollDirection: Axis.horizontal,
-                itemCount: widget._tags.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Container(
-                      margin: _margin,
-                      padding: _padding,
-                      decoration: _boxDecoration,
-                      child: Text(
-                        widget._tags[index],
-                        style: _textStyle,
-                        textAlign: TextAlign.center,
-                      ));
-                })));
+                controller: _scrollController,
+                child: Row(children: elementsList))));
   }
 }

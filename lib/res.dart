@@ -22,6 +22,22 @@ class Utilities {
     preferences.setBool(_keyHelpNotification, true);
   }
 
+  static showLoadingScreen(BuildContext context) {
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return const Center(
+              child: SizedBox(
+            height: 60,
+            width: 60,
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(MColors.mainColor),
+            ),
+          ));
+        });
+  }
+
   static late bool showHelpNotification;
   static const String _keyLanguage = "Language";
   static const String _keyHelpNotification = "HelpNotification";
@@ -92,7 +108,12 @@ class Utilities {
     "Back": "Back",
     "Continue": "Or continue with",
     "OldPass": "Old password",
-    "NewPass": "New password"
+    "NewPass": "New password",
+    "PassMatch": "Passwords don't match",
+    "OldPassMatch": "Old password incorrect",
+    "Shure": "Are you shure?",
+    "Yes": "Yes",
+    "No": "No",
   };
 
   static const Map _russianStrings = {
@@ -147,7 +168,12 @@ class Utilities {
     "Back": "Назад",
     "Continue": "Или продолжите с",
     "OldPass": "Старый пароль",
-    "NewPass": "Новый пароль"
+    "NewPass": "Новый пароль",
+    "PassMatch": "Пароли не совпадают",
+    "OldPassMatch": "Старый пароль неверный",
+    "Shure": "Вы уверены?",
+    "Yes": "Да",
+    "No": "Нет",
   };
   static void changeLanguage(String language) {
     switch (language) {
@@ -167,4 +193,41 @@ class Utilities {
 
 class MColors {
   static const Color mainColor = Color(0xff9900a7);
+}
+
+class Images {
+  static final Map<String, dynamic> imagesItems = {
+    "arrow": Image.asset("assets/items/arrow.png", scale: 2.5),
+    "feedon": Image.asset("assets/items/feedon.png", scale: 3),
+    "feedoff": Image.asset("assets/items/feedoff.png", scale: 3),
+    "recordon": Image.asset("assets/items/recordon.png", scale: 3),
+    "recordoff": Image.asset("assets/items/recordoff.png", scale: 3),
+    "profileon": Image.asset("assets/items/profileon.png", scale: 3),
+    "profileoff": Image.asset("assets/items/profileoff.png", scale: 3),
+    "play": Image.asset("assets/items/play.png"),
+    "pause": Image.asset("assets/items/pause.png"),
+    "likeon": Image.asset("assets/items/likeon.png"),
+    "likeoff": Image.asset("assets/items/likeoff.png"),
+    "share": Image.asset("assets/items/share.png"),
+    "recordbut": Image.asset("assets/items/recordbut.png"),
+    "ok": Image.asset("assets/items/ok.png"),
+    // "doc": AssetImage("assets/items/doc.png"),
+    "edit": Image.asset("assets/items/edit.png"),
+    "arrowright": Image.asset("assets/items/arrowright.png", scale: 2),
+    "cross": Image.asset("assets/items/cross.png"),
+    "backbut": Image.asset("assets/items/backbut.png", scale: 3),
+    "checkmark": Image.asset("assets/items/checkmark.png", scale: 3),
+    "toast": Image.asset("assets/items/toast.png"),
+    "googlelogo": Image.asset("assets/items/googlelogo.png"),
+    "facebooklogo": Image.asset("assets/items/facebooklogo.png"),
+  };
+
+  static const Map<String, DecorationImage> imagesDecoration = {
+    "back": DecorationImage(
+        image: AssetImage("assets/back/back.png"), fit: BoxFit.fill),
+    "backrecord": DecorationImage(
+        image: AssetImage("assets/back/backrecord.png"), fit: BoxFit.fill),
+    "backfeed": DecorationImage(
+        image: AssetImage("assets/back/backfeed.png"), fit: BoxFit.fill),
+  };
 }

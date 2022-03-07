@@ -33,6 +33,9 @@ class MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
+    precacheImage(const AssetImage("assets/items/recordon.png"), context);
+    precacheImage(const AssetImage("assets/items/profileon.png"), context);
+    precacheImage(const AssetImage("assets/items/feedoff.png"), context);
     return Scaffold(
         backgroundColor: const Color(0xff000014),
         body: PageView(
@@ -81,37 +84,37 @@ class MainScreenState extends State<MainScreen> {
               items: [
                 BottomNavigationBarItem(
                   icon: _selectionIndex == 0
-                      ? Image.asset(
-                          'assets/items/feedon.png',
-                          scale: 3,
-                        )
-                      : Image.asset(
-                          'assets/items/feedoff.png',
-                          scale: 3,
-                        ),
+                      ? const Image(
+                          image: AssetImage("assets/items/feedon.png"),
+                          height: 30,
+                          width: 30)
+                      : const Image(
+                          image: AssetImage("assets/items/feedoff.png"),
+                          height: 30,
+                          width: 30),
                   label: Utilities.curLang["Feed"],
                 ),
                 BottomNavigationBarItem(
                     icon: _selectionIndex == 1
-                        ? Image.asset(
-                            'assets/items/recordon.png',
-                            scale: 3,
-                          )
-                        : Image.asset(
-                            'assets/items/recordoff.png',
-                            scale: 3,
-                          ),
+                        ? const Image(
+                            image: AssetImage("assets/items/recordon.png"),
+                            height: 30,
+                            width: 30)
+                        : const Image(
+                            image: AssetImage("assets/items/recordoff.png"),
+                            height: 30,
+                            width: 30),
                     label: Utilities.curLang["Record"]),
                 BottomNavigationBarItem(
                     icon: _selectionIndex == 2
-                        ? Image.asset(
-                            'assets/items/profileon.png',
-                            scale: 3,
-                          )
-                        : Image.asset(
-                            'assets/items/profileoff.png',
-                            scale: 3,
-                          ),
+                        ? const Image(
+                            image: AssetImage("assets/items/profileon.png"),
+                            height: 30,
+                            width: 30)
+                        : const Image(
+                            image: AssetImage("assets/items/profileoff.png"),
+                            height: 30,
+                            width: 30),
                     label: Utilities.curLang["Profile"]),
               ],
               currentIndex: _selectionIndex,

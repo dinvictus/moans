@@ -102,7 +102,7 @@ class ConfirmAgeState extends State<ConfirmAge> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                        const LogIn())); // Заменить на Login
+                                        const MainScreen())); // Заменить на Login
                           },
                         ),
                       ),

@@ -1,4 +1,7 @@
+import 'dart:async';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
+import 'package:moans/actionconfirm.dart';
 import 'package:moans/res.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -11,11 +14,46 @@ class ChangePassword extends StatefulWidget {
 class ChangePasswordState extends State<ChangePassword> {
   final TextEditingController _controllerOldPassword = TextEditingController();
   final TextEditingController _controllerNewPassword = TextEditingController();
+  final ValueNotifier<String?> _erTextOldPass = ValueNotifier<String?>(null);
   bool _submitter = false;
 
+  Future<void> changepass() async {
+    Utilities.showLoadingScreen(context);
+    // Запрос к серверу на смену пароля, добавить окошко загрузки на время запроса и окно с подтверждением или ошибкой
+    Future.delayed(Duration(seconds: 5), () {
+      Navigator.of(context).pop();
+      print("Change Pass");
+      Fluttertoast.showToast(msg: "Пароль успешно изменён!");
+      Navigator.of(context).pop();
+    });
+  }
+
   Future<void> _submit() async {
+    _errorTextOldPassword();
     setState(() {
       _submitter = true;
+    });
+    if (_errorTextNewPassword == null && _erTextOldPass.value == null) {
+      _checkOldPassword().then((confirmOldPass) {
+        Navigator.of(context).pop();
+        if (confirmOldPass) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      ActionConfirm(confirmtrue: changepass)));
+        }
+      });
+    }
+  }
+
+  Future<bool> _checkOldPassword() async {
+    Utilities.showLoadingScreen(context);
+    // Запрос на проверку старого пароля
+    return Future.delayed(const Duration(seconds: 3), () {
+      // _erTextOldPass.value = Utilities.curLang["OldPassMatch"];
+      setState(() {});
+      return true;
     });
   }
 
@@ -26,24 +64,25 @@ class ChangePasswordState extends State<ChangePassword> {
     super.dispose();
   }
 
-  String? get _errorTextOldPassword {
+  _errorTextOldPassword() {
     final text = _controllerOldPassword.value.text.toString();
-    if (text.length <= 8) {
-      return Utilities.curLang["ShortPass"];
+    if (text != _controllerNewPassword.value.text.toString()) {
+      _erTextOldPass.value = Utilities.curLang["PassMatch"];
+    } else {
+      _erTextOldPass.value = null;
     }
-    return null;
   }
 
   String? get _errorTextNewPassword {
     final text = _controllerNewPassword.value.text.toString();
-    if (text.length <= 8) {
-      return Utilities.curLang["ShortPass"];
+    if (text != _controllerOldPassword.value.text.toString()) {
+      return Utilities.curLang["PassMatch"];
     }
     return null;
   }
 
   Color _getColorErrorOldPassword() {
-    return _submitter && _errorTextOldPassword != null
+    return _submitter && _erTextOldPass.value != null
         ? const Color(0xffa72627)
         : Colors.white;
   }
@@ -57,40 +96,44 @@ class ChangePasswordState extends State<ChangePassword> {
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
-    return Scaffold(
-        extendBody: true,
-        extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          leadingWidth: 100,
-          leading: Container(
-              margin: const EdgeInsets.fromLTRB(10, 10, 0, 10),
-              child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      elevation: 0,
-                      padding: const EdgeInsets.all(0),
-                      primary: Colors.transparent),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Row(
-                    children: [
-                      Image.asset("assets/items/backbut.png", scale: 3),
-                      const SizedBox(width: 15),
-                      Text(Utilities.curLang["Back"],
-                          style: GoogleFonts.inter())
-                    ],
-                  ))),
+    return Container(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+        decoration: const BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage('assets/back/back.png'), fit: BoxFit.fill)),
+        alignment: Alignment.topCenter,
+        child: Scaffold(
           backgroundColor: Colors.transparent,
-          elevation: 0,
-        ),
-        body: Container(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-          decoration: const BoxDecoration(
-              image: DecorationImage(
-                  image: AssetImage('assets/back/back.png'), fit: BoxFit.fill)),
-          alignment: Alignment.topCenter,
-          child: SingleChildScrollView(
+          extendBody: true,
+          extendBodyBehindAppBar: true,
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            leadingWidth: 100,
+            leading: Container(
+                margin: const EdgeInsets.fromLTRB(10, 10, 0, 10),
+                child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        padding: const EdgeInsets.all(0),
+                        primary: Colors.transparent),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Row(
+                      children: [
+                        Image.asset("assets/items/backbut.png", scale: 3),
+                        const SizedBox(width: 15),
+                        Text(Utilities.curLang["Back"],
+                            style: GoogleFonts.inter())
+                      ],
+                    ))),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+          ),
+          body: SingleChildScrollView(
+              physics: MediaQuery.of(context).viewInsets.bottom == 0
+                  ? const NeverScrollableScrollPhysics()
+                  : const BouncingScrollPhysics(),
               scrollDirection: Axis.vertical,
               child: Column(
                 children: [
@@ -116,32 +159,41 @@ class ChangePasswordState extends State<ChangePassword> {
                                   color: _getColorErrorOldPassword(),
                                   fontSize: 12),
                             ),
-                            Text(
-                              _submitter && _errorTextOldPassword != null
-                                  ? _errorTextOldPassword!
-                                  : "",
-                              style: GoogleFonts.inter(
-                                  color: const Color(0xffa72627), fontSize: 12),
-                            ),
+                            ValueListenableBuilder<String?>(
+                              valueListenable: _erTextOldPass,
+                              builder: (_, value, __) {
+                                return Text(
+                                  _submitter && value != null ? value : "",
+                                  style: GoogleFonts.inter(
+                                      color: const Color(0xffa72627),
+                                      fontSize: 12),
+                                );
+                              },
+                            )
                           ])),
-                  TextField(
-                    controller: _controllerOldPassword,
-                    style: TextStyle(color: _getColorErrorOldPassword()),
-                    autofocus: true,
-                    decoration: InputDecoration(
-                      enabledBorder: const UnderlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xff878789)),
-                      ),
-                      focusedBorder: const UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                      ),
-                      errorText: _submitter ? _errorTextOldPassword : null,
-                      errorStyle: const TextStyle(fontSize: 0, height: 0),
-                    ),
-                    onChanged: (_) => setState(() {
-                      _submitter = false;
-                    }),
-                  ),
+                  ValueListenableBuilder<String?>(
+                      valueListenable: _erTextOldPass,
+                      builder: (_, value, __) {
+                        return TextField(
+                          controller: _controllerOldPassword,
+                          style: TextStyle(color: _getColorErrorOldPassword()),
+                          autofocus: true,
+                          obscureText: true,
+                          decoration: InputDecoration(
+                            enabledBorder: const UnderlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xff878789)),
+                            ),
+                            focusedBorder: const UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            errorText: _submitter ? value : null,
+                            errorStyle: const TextStyle(fontSize: 0, height: 0),
+                          ),
+                          onChanged: (_) => setState(() {
+                            _submitter = false;
+                          }),
+                        );
+                      }),
                   Container(
                       height: height / 21,
                       alignment: Alignment.bottomLeft,

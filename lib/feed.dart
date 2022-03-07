@@ -83,26 +83,6 @@ class FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
         resizeToAvoidBottomInset: false,
         backgroundColor: const Color(0xff000014),
         extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          actions: [
-            Container(
-                padding: const EdgeInsets.all(10),
-                child: DropdownButton<String>(
-                  items: [],
-                  onChanged: (value) {
-                    value = value;
-                  },
-                  underline: Container(color: Colors.transparent),
-                  icon: Image.asset(
-                    'assets/items/menu.png',
-                    scale: 3,
-                  ),
-                ))
-          ],
-        ),
         body: Container(
           decoration: const BoxDecoration(
               image: DecorationImage(

@@ -2,23 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class TrackElement extends StatefulWidget {
-  const TrackElement({Key? key}) : super(key: key);
+  final List<String> trackNames;
+  final List<String> trackLikes;
+  const TrackElement(
+      {required this.trackNames, required this.trackLikes, Key? key})
+      : super(key: key);
 
   @override
   State<TrackElement> createState() {
-    return TrackElementState();
+    return _TrackElementState();
   }
 }
 
-class TrackElementState extends State<TrackElement> {
-  late List<String> trackNames;
-  late List<String> trackLikes;
+class _TrackElementState extends State<TrackElement> {
+  final List<Widget> listTracks = [];
 
   @override
   void initState() {
+    for (int i = 0; i < widget.trackNames.length; i++) {
+      listTracks.add(_trackElement(widget.trackNames[i], widget.trackLikes[i]));
+    }
     super.initState();
-    trackNames = ["Track 1", "Track 2", "Track 3", "Track 4", "Track 5"];
-    trackLikes = ["45k", "345", "1k", "4k", "115k"];
   }
 
   Widget _trackElement(String trackName, String trackLike) {
@@ -75,13 +79,6 @@ class TrackElementState extends State<TrackElement> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(0.0),
-      scrollDirection: Axis.vertical,
-      itemCount: trackNames.length,
-      itemBuilder: (context, index) {
-        return _trackElement(trackNames[index], trackLikes[index]);
-      },
-    );
+    return Column(children: listTracks);
   }
 }

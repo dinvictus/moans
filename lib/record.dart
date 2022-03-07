@@ -26,7 +26,7 @@ final TextStyle _textStyleTime =
     GoogleFonts.inter(color: const Color(0xff878789));
 
 class MainRecordItem extends StatefulWidget {
-  MainRecordItem({Key? key}) : super(key: key);
+  const MainRecordItem({Key? key}) : super(key: key);
 
   @override
   State<MainRecordItem> createState() {
@@ -265,17 +265,17 @@ class PlayRecordItemState extends State<PlayRecordItem> {
               ),
               Container(
                 margin: EdgeInsets.fromLTRB(0, 0, 0, _height / 9),
-                height: _width / 6,
-                width: _width / 6,
+                height: 68,
+                width: 68,
                 child: ValueListenableBuilder<ButtonState>(
                   valueListenable: Utilities.managerForRecord.buttonNotifier,
                   builder: (_, value, __) {
                     switch (value) {
                       case ButtonState.loading:
                         return Container(
-                            width: _width / 6,
-                            height: _width / 6,
-                            padding: EdgeInsets.all(_width / 35),
+                            height: 68,
+                            width: 68,
+                            padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(50.0)),
