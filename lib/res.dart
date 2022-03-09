@@ -3,14 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:moans/elements/audiomanager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+enum Languages { english, russian }
+
 class Utilities {
   static init() async {
-    curLang = _englishStrings;
-    currentLanguage = "English";
+    currentLanguage = Languages.english;
     showHelpNotification = false;
     preferences = await SharedPreferences.getInstance();
-    if (preferences.getString(_keyLanguage) != null) {
-      currentLanguage = preferences.getString(_keyLanguage)!;
+    if (preferences.getInt(_keyLanguage) != null) {
+      currentLanguage = Languages.values[preferences.getInt(_keyLanguage)!];
     }
     if (preferences.getBool(_keyHelpNotification) != null) {
       showHelpNotification = preferences.getBool(_keyHelpNotification)!;
@@ -39,22 +40,17 @@ class Utilities {
   }
 
   static late bool showHelpNotification;
-  static const String _keyLanguage = "Language";
+  static const String _keyLanguage = "Languages";
   static const String _keyHelpNotification = "HelpNotification";
   static late SharedPreferences preferences;
   static late AudioHandler audioHandler;
   static late AudioManager managerForRecord;
   static String url = "https://05a2-178-66-32-212.ngrok.io/";
   static ValueNotifier<int> curPage = ValueNotifier(0);
-  static late Map curLang;
+  static ValueNotifier<Map> curLang = ValueNotifier<Map>(_englishStrings);
   static String email = "test@test";
-  static late String currentLanguage;
-  static List<String> listLanguages = ["English", "Русский"];
+  static late Languages currentLanguage;
   static ValueNotifier<String> forShare = ValueNotifier("Share");
-  static String langForSaveTrack = "English";
-  static ValueNotifier<int> tagsCountForSave = ValueNotifier(0);
-  static ValueNotifier<int> descLength = ValueNotifier(0);
-  static ValueNotifier<int> titleLength = ValueNotifier(0);
   static ValueNotifier<bool> isPlaying = ValueNotifier(false);
   static const Map _englishStrings = {
     "18eText":
@@ -114,6 +110,7 @@ class Utilities {
     "Shure": "Are you shure?",
     "Yes": "Yes",
     "No": "No",
+    "Edit": "Edit",
   };
 
   static const Map _russianStrings = {
@@ -174,60 +171,24 @@ class Utilities {
     "Shure": "Вы уверены?",
     "Yes": "Да",
     "No": "Нет",
+    "Edit": "Изменить",
   };
-  static void changeLanguage(String language) {
+  static void changeLanguage(Languages language) {
     switch (language) {
-      case "English":
+      case Languages.english:
         forShare.value = "Share";
-        curLang = _englishStrings;
+        curLang.value = _englishStrings;
         break;
-      case "Русский":
+      case Languages.russian:
         forShare.value = "Поделиться";
-        curLang = _russianStrings;
+        curLang.value = _russianStrings;
         break;
     }
     currentLanguage = language;
-    preferences.setString(_keyLanguage, language);
+    preferences.setInt(_keyLanguage, Languages.values.indexOf(language));
   }
 }
 
 class MColors {
   static const Color mainColor = Color(0xff9900a7);
-}
-
-class Images {
-  static final Map<String, dynamic> imagesItems = {
-    "arrow": Image.asset("assets/items/arrow.png", scale: 2.5),
-    "feedon": Image.asset("assets/items/feedon.png", scale: 3),
-    "feedoff": Image.asset("assets/items/feedoff.png", scale: 3),
-    "recordon": Image.asset("assets/items/recordon.png", scale: 3),
-    "recordoff": Image.asset("assets/items/recordoff.png", scale: 3),
-    "profileon": Image.asset("assets/items/profileon.png", scale: 3),
-    "profileoff": Image.asset("assets/items/profileoff.png", scale: 3),
-    "play": Image.asset("assets/items/play.png"),
-    "pause": Image.asset("assets/items/pause.png"),
-    "likeon": Image.asset("assets/items/likeon.png"),
-    "likeoff": Image.asset("assets/items/likeoff.png"),
-    "share": Image.asset("assets/items/share.png"),
-    "recordbut": Image.asset("assets/items/recordbut.png"),
-    "ok": Image.asset("assets/items/ok.png"),
-    // "doc": AssetImage("assets/items/doc.png"),
-    "edit": Image.asset("assets/items/edit.png"),
-    "arrowright": Image.asset("assets/items/arrowright.png", scale: 2),
-    "cross": Image.asset("assets/items/cross.png"),
-    "backbut": Image.asset("assets/items/backbut.png", scale: 3),
-    "checkmark": Image.asset("assets/items/checkmark.png", scale: 3),
-    "toast": Image.asset("assets/items/toast.png"),
-    "googlelogo": Image.asset("assets/items/googlelogo.png"),
-    "facebooklogo": Image.asset("assets/items/facebooklogo.png"),
-  };
-
-  static const Map<String, DecorationImage> imagesDecoration = {
-    "back": DecorationImage(
-        image: AssetImage("assets/back/back.png"), fit: BoxFit.fill),
-    "backrecord": DecorationImage(
-        image: AssetImage("assets/back/backrecord.png"), fit: BoxFit.fill),
-    "backfeed": DecorationImage(
-        image: AssetImage("assets/back/backfeed.png"), fit: BoxFit.fill),
-  };
 }

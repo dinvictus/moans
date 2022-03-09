@@ -10,11 +10,11 @@ class TagItem extends StatefulWidget {
   const TagItem(this._tags, this._index, {Key? key}) : super(key: key);
   @override
   State<TagItem> createState() {
-    return TagItemState();
+    return _TagItemState();
   }
 }
 
-class TagItemState extends State<TagItem> {
+class _TagItemState extends State<TagItem> {
   late final int averageSymbols;
   final TextStyle _textStyle = GoogleFonts.montserrat(
     color: MColors.mainColor,
@@ -29,13 +29,13 @@ class TagItemState extends State<TagItem> {
   late ScrollController _scrollController;
   final List<Container> elementsList = [];
 
-  _animateForward() {
+  animateForward() {
     _scrollController.animateTo(_scrollController.position.maxScrollExtent,
         duration: Duration(seconds: averageSymbols),
         curve: const Interval(0.05, 1));
   }
 
-  _animateRewerse() {
+  animateRewerse() {
     _scrollController.animateTo(0,
         duration: Duration(seconds: averageSymbols),
         curve: const Interval(0.05, 1));
@@ -68,10 +68,10 @@ class TagItemState extends State<TagItem> {
     _scrollController.addListener(() {
       if (_scrollController.offset ==
           _scrollController.position.maxScrollExtent) {
-        Timer(const Duration(seconds: 1), _animateRewerse);
+        Timer(const Duration(seconds: 1), animateRewerse);
       }
       if (_scrollController.offset == 0) {
-        Timer(const Duration(seconds: 1), _animateForward);
+        Timer(const Duration(seconds: 1), animateForward);
       }
     });
     Utilities.curPage.addListener(() {
@@ -79,7 +79,7 @@ class TagItemState extends State<TagItem> {
         _scrollController.jumpTo(0.01);
       }
       if (widget._index == Utilities.curPage.value) {
-        _animateForward();
+        animateForward();
       }
     });
   }
@@ -94,7 +94,7 @@ class TagItemState extends State<TagItem> {
   Widget build(BuildContext context) {
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
-        _animateForward();
+        animateForward();
       }
     });
     return Center(

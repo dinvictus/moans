@@ -6,41 +6,54 @@ import 'package:moans/elements/savetagitem.dart';
 import 'package:moans/res.dart';
 
 class SaveTag extends StatefulWidget {
-  const SaveTag({Key? key}) : super(key: key);
+  final List<String> listTagsString;
+  final Function(int count) changeTagsCount;
+  const SaveTag(
+      {required this.listTagsString, required this.changeTagsCount, Key? key})
+      : super(key: key);
   @override
   State<StatefulWidget> createState() {
-    return SaveTagState();
+    return _SaveTagState();
   }
 }
 
-class SaveTagState extends State<SaveTag> {
+class _SaveTagState extends State<SaveTag> {
   final List<Widget> _listTags = [];
-  final List<String> _listTagsString = [];
+  // final List<String> _listTagsString = [];
   final _scrollController = ScrollController();
   final _tagController = TextEditingController();
+
+  loadingTags() {
+    for (String tag in widget.listTagsString) {
+      _listTags.add(SaveTagItem(tag, _delTagItem));
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    if (widget.listTagsString.isNotEmpty) {
+      loadingTags();
+    }
     pageAudioRecordNotifier.addListener(() {
       if (pageAudioRecordNotifier.value == AudioRecordState.main) {
-        if (this.mounted) {
+        if (mounted) {
           setState(() {
             _listTags.clear();
-            _listTagsString.clear();
+            widget.listTagsString.clear();
           });
         }
       }
     });
   }
 
-  void _delTagItem(text) {
+  _delTagItem(text) {
     setState(() {
-      for (int i = 0; i < _listTagsString.length; i++) {
-        if (_listTagsString[i] == text) {
-          _listTagsString.removeAt(i);
+      for (int i = 0; i < widget.listTagsString.length; i++) {
+        if (widget.listTagsString[i] == text) {
+          widget.listTagsString.removeAt(i);
           _listTags.removeAt(i);
-          Utilities.tagsCountForSave.value = _listTags.length;
+          widget.changeTagsCount(_listTags.length);
         }
       }
     });
@@ -59,7 +72,7 @@ class SaveTagState extends State<SaveTag> {
     });
   }
 
-  void _textChanged(String text) {
+  _textChanged(String text) {
     if (_listTags.length >= 16) {
       _tagController.text = "";
     }
@@ -73,8 +86,8 @@ class SaveTagState extends State<SaveTag> {
       setState(() {
         if (temp != "") {
           _listTags.add(SaveTagItem(temp, _delTagItem));
-          _listTagsString.add(temp);
-          Utilities.tagsCountForSave.value = _listTags.length;
+          widget.listTagsString.add(temp);
+          widget.changeTagsCount(_listTags.length);
           _animate();
         }
         _tagController.text = text.substring(temp.length + 1);

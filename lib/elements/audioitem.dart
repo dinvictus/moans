@@ -347,14 +347,13 @@ class _AudioItemState extends State<AudioItem>
                       const SizedBox(height: 3),
                       SizedBox(
                           width: 71,
-                          child: ValueListenableBuilder<String>(
-                            valueListenable: Utilities.forShare,
-                            builder: (_, value, __) {
-                              return Text(Utilities.curLang["Share"],
-                                  textAlign: TextAlign.center,
-                                  style: _textStyleLS);
-                            },
-                          )),
+                          child: ValueListenableBuilder<Map>(
+                              valueListenable: Utilities.curLang,
+                              builder: (_, lang, __) {
+                                return Text(lang["Share"],
+                                    textAlign: TextAlign.center,
+                                    style: _textStyleLS);
+                              })),
                       SizedBox(height: height / 70)
                     ]),
                     const SizedBox(width: 15),

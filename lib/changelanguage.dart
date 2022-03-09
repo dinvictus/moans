@@ -4,35 +4,31 @@ import 'package:moans/res.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ChangeLanguage extends StatefulWidget {
-  final List<String> _listLanguagesString;
   final Function() toRefreshParent;
+  final Function? changeSaveTrackLanguage;
+  final Languages curLanguage;
   final bool updateFeed;
   final bool saveTrack;
-  const ChangeLanguage(this._listLanguagesString, this.toRefreshParent,
-      this.updateFeed, this.saveTrack,
+  const ChangeLanguage(this.curLanguage, this.toRefreshParent, this.updateFeed,
+      this.saveTrack, this.changeSaveTrackLanguage,
       {Key? key})
       : super(key: key);
 
   @override
   State<ChangeLanguage> createState() {
-    return ChangeLanguageState();
+    return _ChangeLanguageState();
   }
 }
 
-class ChangeLanguageState extends State<ChangeLanguage> {
+class _ChangeLanguageState extends State<ChangeLanguage> {
   final List<Container> _listLanguagesButtons = [];
+  late Languages curLanguage = widget.curLanguage;
 
   _init() {
-    for (int i = 0; i < widget._listLanguagesString.length; i++) {
+    for (int i = 0; i < Languages.values.length; i++) {
       setState(() {
         _listLanguagesButtons.add(_langButton(
-            widget._listLanguagesString[i],
-            (widget.saveTrack
-                        ? Utilities.langForSaveTrack
-                        : Utilities.currentLanguage) ==
-                    widget._listLanguagesString[i]
-                ? true
-                : false));
+            Languages.values[i], curLanguage == Languages.values[i]));
       });
     }
   }
@@ -43,7 +39,7 @@ class ChangeLanguageState extends State<ChangeLanguage> {
     _init();
   }
 
-  Container _langButton(String language, bool active) {
+  Container _langButton(Languages language, bool active) {
     return Container(
         margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
         child: ElevatedButton(
@@ -61,16 +57,23 @@ class ChangeLanguageState extends State<ChangeLanguage> {
                 ? Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(language),
+                      Text(language == Languages.english
+                          ? "English"
+                          : "Русский"),
                       Image.asset("assets/items/checkmark.png", scale: 3)
                     ],
                   )
-                : SizedBox(width: double.infinity, child: Text(language))));
+                : SizedBox(
+                    width: double.infinity,
+                    child: Text(language == Languages.english
+                        ? "English"
+                        : "Русский"))));
   }
 
-  _changeLanguage(String language) {
+  _changeLanguage(Languages language) {
+    curLanguage = language;
     widget.saveTrack
-        ? Utilities.langForSaveTrack = language
+        ? widget.changeSaveTrackLanguage!(language)
         : Utilities.changeLanguage(language);
     widget.toRefreshParent();
     _listLanguagesButtons.clear();
@@ -105,10 +108,14 @@ class ChangeLanguageState extends State<ChangeLanguage> {
                     const SizedBox(
                       width: 15,
                     ),
-                    Text(
-                      Utilities.curLang["Back"],
-                      style: GoogleFonts.inter(),
-                    )
+                    ValueListenableBuilder<Map>(
+                        valueListenable: Utilities.curLang,
+                        builder: (_, lang, __) {
+                          return Text(
+                            lang["Back"],
+                            style: GoogleFonts.inter(),
+                          );
+                        })
                   ],
                 ))),
       ),

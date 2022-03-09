@@ -30,78 +30,82 @@ class ConfirmEmailState extends State<ConfirmEmail> {
                     image: AssetImage('assets/back/back.png'),
                     fit: BoxFit.fill)),
             child: SingleChildScrollView(
-              physics: const ClampingScrollPhysics(),
-              child: Column(
-                children: [
-                  Container(
-                      alignment: Alignment.topRight,
-                      child: MyDropButton(
-                          notifyParent: refresh, updateFeed: false)),
-                  Container(
-                      padding: const EdgeInsets.fromLTRB(20, 40, 20, 0),
-                      child: Column(
+                physics: const ClampingScrollPhysics(),
+                child: ValueListenableBuilder<Map>(
+                    valueListenable: Utilities.curLang,
+                    builder: (_, lang, __) {
+                      return Column(
                         children: [
                           Container(
-                              alignment: Alignment.topLeft,
-                              child: Text(
-                                Utilities.curLang["Thank"],
-                                style: GoogleFonts.inter(
-                                    color: Colors.white,
-                                    fontSize: height / 20,
-                                    fontWeight: FontWeight.bold),
+                              alignment: Alignment.topRight,
+                              child: MyDropButton(
+                                  notifyParent: refresh, updateFeed: false)),
+                          Container(
+                              padding: const EdgeInsets.fromLTRB(20, 40, 20, 0),
+                              child: Column(
+                                children: [
+                                  Container(
+                                      alignment: Alignment.topLeft,
+                                      child: Text(
+                                        lang["Thank"],
+                                        style: GoogleFonts.inter(
+                                            color: Colors.white,
+                                            fontSize: height / 20,
+                                            fontWeight: FontWeight.bold),
+                                      )),
+                                  Container(height: height / 20),
+                                  RichText(
+                                      text: TextSpan(
+                                          text: lang["ConfEmail"],
+                                          style: GoogleFonts.inter(
+                                              color: Colors.white,
+                                              fontSize: height / 50),
+                                          children: [
+                                            TextSpan(
+                                                text: Utilities.email + "\n\n",
+                                                style: const TextStyle(
+                                                  color: MColors.mainColor,
+                                                )),
+                                            TextSpan(text: lang["ToConfEmail"]),
+                                            TextSpan(
+                                                text: lang["OurEmail"],
+                                                style: const TextStyle(
+                                                    color: MColors.mainColor,
+                                                    decoration: TextDecoration
+                                                        .underline)),
+                                          ]),
+                                      textAlign: TextAlign.left),
+                                  Container(height: height / 13),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: height / 15,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        primary: MColors.mainColor,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(25.0)),
+                                      ),
+                                      child: Text(
+                                        lang["Update"],
+                                        style: GoogleFonts.inter(
+                                            color: Colors.white,
+                                            fontSize: height / 50),
+                                      ),
+                                      onPressed: () {
+                                        // Проверка email на подтверждение, потом далее
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const MainScreen()));
+                                      },
+                                    ),
+                                  ),
+                                ],
                               )),
-                          Container(height: height / 20),
-                          RichText(
-                              text: TextSpan(
-                                  text: Utilities.curLang["ConfEmail"],
-                                  style: GoogleFonts.inter(
-                                      color: Colors.white,
-                                      fontSize: height / 50),
-                                  children: [
-                                    TextSpan(
-                                        text: Utilities.email + "\n\n",
-                                        style: const TextStyle(
-                                          color: MColors.mainColor,
-                                        )),
-                                    TextSpan(
-                                        text: Utilities.curLang["ToConfEmail"]),
-                                    TextSpan(
-                                        text: Utilities.curLang["OurEmail"],
-                                        style: const TextStyle(
-                                            color: MColors.mainColor,
-                                            decoration:
-                                                TextDecoration.underline)),
-                                  ]),
-                              textAlign: TextAlign.left),
-                          Container(height: height / 13),
-                          SizedBox(
-                            width: double.infinity,
-                            height: height / 15,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                primary: MColors.mainColor,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(25.0)),
-                              ),
-                              child: Text(
-                                Utilities.curLang["Update"],
-                                style: GoogleFonts.inter(
-                                    color: Colors.white, fontSize: height / 50),
-                              ),
-                              onPressed: () {
-                                // Проверка email на подтверждение, потом далее
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const MainScreen()));
-                              },
-                            ),
-                          ),
                         ],
-                      )),
-                ],
-              ),
-            )));
+                      );
+                    }))));
   }
 }

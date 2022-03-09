@@ -73,52 +73,60 @@ class MainScreenState extends State<MainScreen> {
                       color: Colors.black38, spreadRadius: 0, blurRadius: 10)
                 ]),
             height: height / 10,
-            child: BottomNavigationBar(
-              selectedItemColor: Colors.white,
-              unselectedItemColor: const Color(0xffcc80d3),
-              selectedFontSize: 12,
-              unselectedFontSize: 12,
-              selectedLabelStyle: const TextStyle(height: 1.8),
-              elevation: 0.0,
-              backgroundColor: Colors.transparent,
-              items: [
-                BottomNavigationBarItem(
-                  icon: _selectionIndex == 0
-                      ? const Image(
-                          image: AssetImage("assets/items/feedon.png"),
-                          height: 30,
-                          width: 30)
-                      : const Image(
-                          image: AssetImage("assets/items/feedoff.png"),
-                          height: 30,
-                          width: 30),
-                  label: Utilities.curLang["Feed"],
-                ),
-                BottomNavigationBarItem(
-                    icon: _selectionIndex == 1
-                        ? const Image(
-                            image: AssetImage("assets/items/recordon.png"),
-                            height: 30,
-                            width: 30)
-                        : const Image(
-                            image: AssetImage("assets/items/recordoff.png"),
-                            height: 30,
-                            width: 30),
-                    label: Utilities.curLang["Record"]),
-                BottomNavigationBarItem(
-                    icon: _selectionIndex == 2
-                        ? const Image(
-                            image: AssetImage("assets/items/profileon.png"),
-                            height: 30,
-                            width: 30)
-                        : const Image(
-                            image: AssetImage("assets/items/profileoff.png"),
-                            height: 30,
-                            width: 30),
-                    label: Utilities.curLang["Profile"]),
-              ],
-              currentIndex: _selectionIndex,
-              onTap: onItemTapped,
-            )));
+            child: ValueListenableBuilder<Map>(
+                valueListenable: Utilities.curLang,
+                builder: (_, lang, __) {
+                  return BottomNavigationBar(
+                    selectedItemColor: Colors.white,
+                    unselectedItemColor: const Color(0xffcc80d3),
+                    selectedFontSize: 12,
+                    unselectedFontSize: 12,
+                    selectedLabelStyle: const TextStyle(height: 1.8),
+                    elevation: 0.0,
+                    backgroundColor: Colors.transparent,
+                    items: [
+                      BottomNavigationBarItem(
+                        icon: _selectionIndex == 0
+                            ? const Image(
+                                image: AssetImage("assets/items/feedon.png"),
+                                height: 30,
+                                width: 30)
+                            : const Image(
+                                image: AssetImage("assets/items/feedoff.png"),
+                                height: 30,
+                                width: 30),
+                        label: lang["Feed"],
+                      ),
+                      BottomNavigationBarItem(
+                          icon: _selectionIndex == 1
+                              ? const Image(
+                                  image:
+                                      AssetImage("assets/items/recordon.png"),
+                                  height: 30,
+                                  width: 30)
+                              : const Image(
+                                  image:
+                                      AssetImage("assets/items/recordoff.png"),
+                                  height: 30,
+                                  width: 30),
+                          label: lang["Record"]),
+                      BottomNavigationBarItem(
+                          icon: _selectionIndex == 2
+                              ? const Image(
+                                  image:
+                                      AssetImage("assets/items/profileon.png"),
+                                  height: 30,
+                                  width: 30)
+                              : const Image(
+                                  image:
+                                      AssetImage("assets/items/profileoff.png"),
+                                  height: 30,
+                                  width: 30),
+                          label: lang["Profile"]),
+                    ],
+                    currentIndex: _selectionIndex,
+                    onTap: onItemTapped,
+                  );
+                })));
   }
 }

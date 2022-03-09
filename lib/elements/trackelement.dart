@@ -1,11 +1,19 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:moans/elements/postitem.dart';
+import 'package:moans/res.dart';
 
 class TrackElement extends StatefulWidget {
   final List<String> trackNames;
   final List<String> trackLikes;
+  final List<int> trackIds;
   const TrackElement(
-      {required this.trackNames, required this.trackLikes, Key? key})
+      {required this.trackNames,
+      required this.trackLikes,
+      required this.trackIds,
+      Key? key})
       : super(key: key);
 
   @override
@@ -16,30 +24,46 @@ class TrackElement extends StatefulWidget {
 
 class _TrackElementState extends State<TrackElement> {
   final List<Widget> listTracks = [];
+  late double width;
+
+  back() {
+    Navigator.pop(context);
+  }
 
   @override
   void initState() {
-    for (int i = 0; i < widget.trackNames.length; i++) {
-      listTracks.add(_trackElement(widget.trackNames[i], widget.trackLikes[i]));
-    }
     super.initState();
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      width = MediaQuery.of(context).size.width;
+      for (int i = 0; i < widget.trackNames.length; i++) {
+        listTracks.add(_trackElement(
+            widget.trackNames[i], widget.trackLikes[i], widget.trackIds[i]));
+      }
+      setState(() {});
+    });
   }
 
-  Widget _trackElement(String trackName, String trackLike) {
+  Widget _trackElement(String trackName, String trackLike, int trackId) {
     Widget trackElement = Container(
       padding: const EdgeInsets.only(bottom: 10),
       margin: const EdgeInsets.only(bottom: 10),
       decoration: const BoxDecoration(
           border: Border(bottom: BorderSide(color: Color(0xff4b4b4f)))),
-      height: 50,
+      height: 60,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(trackName,
-              style: GoogleFonts.inter(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w400)),
+          Container(
+            alignment: Alignment.centerLeft,
+            width: width / 2.2,
+            child: Text(trackName,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+                style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 20)),
+          ),
           Row(
             children: [
               Container(
@@ -65,7 +89,12 @@ class _TrackElementState extends State<TrackElement> {
                         primary: Colors.transparent,
                         elevation: 0,
                         padding: const EdgeInsets.all(0)),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => PostItem(back, trackId)));
+                    },
                     child: Image.asset("assets/items/edit.png"),
                   )),
             ],

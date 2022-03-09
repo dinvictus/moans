@@ -7,20 +7,29 @@ import '../res.dart';
 
 class PostItem extends StatefulWidget {
   final Function() back;
-  const PostItem(this.back, {Key? key}) : super(key: key);
+  final int trackId;
+  const PostItem(this.back, this.trackId, {Key? key}) : super(key: key);
 
   @override
   State<PostItem> createState() {
-    return PostItemState();
+    return _PostItemState();
   }
 }
 
-class PostItemState extends State<PostItem> {
+class _PostItemState extends State<PostItem> {
+  ValueNotifier<int> tagsCountForSave = ValueNotifier(0);
+  ValueNotifier<int> descLength = ValueNotifier(0);
+  ValueNotifier<int> titleLength = ValueNotifier(0);
+  ValueNotifier<Languages> curLanguage =
+      ValueNotifier<Languages>(Languages.english);
+
+  late final List<String> listTags;
   bool she = true;
   bool he = true;
   bool they = true;
-  late final TextEditingController _descController;
-  late final TextEditingController _titleController;
+  bool isLoading = true;
+  final TextEditingController _descController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
   final TextStyle _textStyleSave =
       GoogleFonts.inter(color: const Color(0xffcfcfd0));
   InputDecoration _inputDecoration(String hint) {
@@ -38,269 +47,318 @@ class PostItemState extends State<PostItem> {
     setState(() {});
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _descController = TextEditingController();
-    _titleController = TextEditingController();
-    pageAudioRecordNotifier.addListener(() {
-      if (pageAudioRecordNotifier.value == AudioRecordState.main) {
-        _descController.text = "";
-        _titleController.text = "";
-      }
+  changeTagsCount(int count) {
+    tagsCountForSave.value = count;
+  }
+
+  changeLanguage(Languages language) {
+    curLanguage.value = language;
+  }
+
+  loadingTrackInfo() async {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      Utilities.showLoadingScreen(context);
+    });
+    // Запрос на получение информации о треке по id
+    Future.delayed(Duration(seconds: 3), () {
+      _descController.text = "Описание, загруженное по запросу";
+      _titleController.text = "Загруженное название";
+      listTags = ["tag1", "tag2", "tagggggg3", "tagggg4", "tagggg555555"];
+      curLanguage.value = Languages.russian;
+      descLength.value = _descController.text.length;
+      titleLength.value = _titleController.text.length;
+      tagsCountForSave.value = listTags.length;
+      she = false;
+      setState(() {
+        isLoading = false;
+      });
+      Navigator.of(context).pop();
     });
   }
 
   @override
-  void dispose() {
-    // _descController.dispose();
-    // _titleController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    if (widget.trackId != -1) {
+      loadingTrackInfo();
+    } else {
+      listTags = [];
+      isLoading = false;
+      pageAudioRecordNotifier.addListener(() {
+        if (pageAudioRecordNotifier.value == AudioRecordState.main) {
+          _descController.text = "";
+          _titleController.text = "";
+          tagsCountForSave.value = 0;
+          descLength.value = 0;
+          titleLength.value = 0;
+          curLanguage.value = Languages.english;
+        }
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
-    return Scaffold(
-        backgroundColor: Colors.transparent,
-        extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          backgroundColor: Colors.transparent,
-          leadingWidth: 100,
-          leading: Container(
-              margin: const EdgeInsets.fromLTRB(10, 10, 0, 10),
-              child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      elevation: 0,
-                      padding: const EdgeInsets.all(0),
-                      primary: Colors.transparent),
-                  onPressed: widget.back,
-                  child: Row(
-                    children: [
-                      Image.asset("assets/items/backbut.png", scale: 3),
-                      const SizedBox(
-                        width: 15,
-                      ),
-                      Text(
-                        Utilities.curLang["Back"],
-                        style: GoogleFonts.inter(),
-                      )
-                    ],
-                  ))),
-          elevation: 0,
-          centerTitle: true,
-          title: Text(
-            Utilities.curLang["Save"],
-            textAlign: TextAlign.center,
-            style: GoogleFonts.inter(color: Colors.white, fontSize: 20),
-          ),
-        ),
-        body: Container(
-            padding: EdgeInsets.fromLTRB(10, height / 8, 10, 0),
-            child: SingleChildScrollView(
-                child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(Utilities.curLang["SaveTitle"], style: _textStyleSave),
-                    ValueListenableBuilder<int>(
-                      valueListenable: Utilities.titleLength,
-                      builder: (_, value, __) {
-                        return Text(value == 0 ? "" : value.toString() + "/30",
-                            style: GoogleFonts.inter(
-                                color: value >= 30
-                                    ? const Color(0xffa72627)
-                                    : Colors.white));
-                      },
-                    )
-                  ],
-                ),
-                TextField(
-                    controller: _titleController,
-                    onChanged: (value) {
-                      if (value.length >= 31) {
-                        Utilities.titleLength.value = 30;
-                        _titleController.text =
-                            _titleController.text.substring(0, 30);
-                        _titleController.selection = TextSelection.fromPosition(
-                            TextPosition(offset: _titleController.text.length));
-                      } else {
-                        Utilities.titleLength.value = value.length;
-                      }
-                    },
-                    decoration: _inputDecoration("Track name"),
-                    style: GoogleFonts.inter(color: Colors.white)),
-                SizedBox(height: height / 35),
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(Utilities.curLang["SaveDesc"],
-                          style: _textStyleSave),
-                      ValueListenableBuilder<int>(
-                        valueListenable: Utilities.descLength,
-                        builder: (_, value, __) {
-                          return Text(
-                            value == 0 ? "" : value.toString() + "/150",
-                            style: GoogleFonts.inter(
-                                color: value >= 150
-                                    ? const Color(0xffa72627)
-                                    : Colors.white),
-                          );
-                        },
-                      )
-                    ]),
-                TextField(
-                  controller: _descController,
-                  onChanged: (value) {
-                    if (value.length >= 151) {
-                      _descController.text =
-                          _descController.text.substring(0, 150);
-                      _descController.selection = TextSelection.fromPosition(
-                          TextPosition(offset: _descController.text.length));
-                      Utilities.descLength.value = 150;
-                    } else {
-                      Utilities.descLength.value = value.length;
-                    }
-                  },
-                  decoration: _inputDecoration(""),
-                  minLines: 4,
-                  maxLines: 4,
-                  style: GoogleFonts.inter(color: Colors.white),
-                ),
-                SizedBox(height: height / 35),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(Utilities.curLang["SaveTags"], style: _textStyleSave),
-                    ValueListenableBuilder<int>(
-                      valueListenable: Utilities.tagsCountForSave,
-                      builder: (_, value, __) {
-                        return Text(value == 0 ? "" : value.toString() + "/16",
-                            style: GoogleFonts.inter(
-                                color: value == 16
-                                    ? const Color(0xffa72627)
-                                    : Colors.white));
-                      },
-                    )
-                  ],
-                ),
-                const SaveTag(),
-                SizedBox(height: height / 30),
-                ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => ChangeLanguage(
-                                  Utilities.listLanguages,
-                                  refresh,
-                                  false,
-                                  true)));
-                    },
-                    style: ElevatedButton.styleFrom(
-                        primary: Colors.transparent,
-                        elevation: 0,
-                        padding: const EdgeInsets.all(13),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(50.0),
-                            side: const BorderSide(color: Colors.white))),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          Utilities.langForSaveTrack,
-                          style: _textStyleSave,
-                        ),
-                        Image.asset(
-                          "assets/items/arrowright.png",
-                          scale: 2,
-                        ),
-                      ],
-                    )),
-                SizedBox(height: height / 30),
-                Text(
-                  Utilities.curLang["SaveVoice"],
-                  style: _textStyleSave,
-                ),
-                SizedBox(height: height / 40),
-                Row(
-                  children: [
-                    Container(
-                        margin: const EdgeInsets.only(right: 10),
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                            border: Border.all(color: Colors.white)),
-                        child: Checkbox(
-                          activeColor: Colors.transparent,
-                          value: she,
-                          tristate: false,
-                          onChanged: (value) {
-                            setState(() {
-                              !he && !they ? null : she = value!;
-                            });
-                          },
-                        )),
-                    Text(Utilities.curLang["she/her"],
-                        style: GoogleFonts.inter(color: Colors.white)),
-                    const Spacer(),
-                    Container(
-                        margin: const EdgeInsets.only(right: 10),
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                            border: Border.all(color: Colors.white)),
-                        child: Checkbox(
-                          activeColor: Colors.transparent,
-                          value: he,
-                          tristate: false,
-                          onChanged: (value) {
-                            setState(() {
-                              !she && !they ? null : he = value!;
-                            });
-                          },
-                        )),
-                    Text(Utilities.curLang["he/him"],
-                        style: GoogleFonts.inter(color: Colors.white)),
-                    const Spacer(),
-                    Container(
-                        margin: const EdgeInsets.only(right: 10),
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                            border: Border.all(color: Colors.white)),
-                        child: Checkbox(
-                          activeColor: Colors.transparent,
-                          value: they,
-                          tristate: false,
-                          onChanged: (value) {
-                            setState(() {
-                              !he && !she ? null : they = value!;
-                            });
-                          },
-                        )),
-                    Text(Utilities.curLang["they/them"],
-                        style: GoogleFonts.inter(color: Colors.white)),
-                  ],
-                ),
-                SizedBox(height: height / 25),
-                Container(
-                    height: height / 13,
-                    margin: const EdgeInsets.fromLTRB(15, 0, 15, 15),
-                    width: double.infinity,
+    return ValueListenableBuilder<Map>(
+        valueListenable: Utilities.curLang,
+        builder: (_, lang, __) {
+          return Scaffold(
+              backgroundColor: Colors.transparent,
+              extendBodyBehindAppBar: true,
+              appBar: AppBar(
+                automaticallyImplyLeading: false,
+                backgroundColor: Colors.transparent,
+                leadingWidth: 100,
+                leading: Container(
+                    margin: const EdgeInsets.fromLTRB(10, 10, 0, 10),
                     child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                            primary: MColors.mainColor,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(50.0))),
-                        onPressed: () {},
-                        child: Text(Utilities.curLang["SavePost"],
-                            style: GoogleFonts.inter(
-                                fontSize: 16, fontWeight: FontWeight.w500))))
-              ],
-            ))));
+                            elevation: 0,
+                            padding: const EdgeInsets.all(0),
+                            primary: Colors.transparent),
+                        onPressed: widget.back,
+                        child: Row(
+                          children: [
+                            Image.asset("assets/items/backbut.png", scale: 3),
+                            const SizedBox(
+                              width: 15,
+                            ),
+                            Text(
+                              lang["Back"],
+                              style: GoogleFonts.inter(),
+                            )
+                          ],
+                        ))),
+                elevation: 0,
+                centerTitle: true,
+                title: Text(
+                  widget.trackId == -1 ? lang["Save"] : lang["Edit"],
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(color: Colors.white, fontSize: 20),
+                ),
+              ),
+              body: Container(
+                  padding: EdgeInsets.fromLTRB(10, height / 8, 10, 0),
+                  child: SingleChildScrollView(
+                      child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(lang["SaveTitle"], style: _textStyleSave),
+                          ValueListenableBuilder<int>(
+                            valueListenable: titleLength,
+                            builder: (_, value, __) {
+                              return Text(
+                                  value == 0 ? "" : value.toString() + "/30",
+                                  style: GoogleFonts.inter(
+                                      color: value >= 30
+                                          ? const Color(0xffa72627)
+                                          : Colors.white));
+                            },
+                          )
+                        ],
+                      ),
+                      TextField(
+                          controller: _titleController,
+                          onChanged: (value) {
+                            if (value.length >= 31) {
+                              titleLength.value = 30;
+                              _titleController.text =
+                                  _titleController.text.substring(0, 30);
+                              _titleController.selection =
+                                  TextSelection.fromPosition(TextPosition(
+                                      offset: _titleController.text.length));
+                            } else {
+                              titleLength.value = value.length;
+                            }
+                          },
+                          decoration: _inputDecoration("Track name"),
+                          style: GoogleFonts.inter(color: Colors.white)),
+                      SizedBox(height: height / 35),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(lang["SaveDesc"], style: _textStyleSave),
+                            ValueListenableBuilder<int>(
+                              valueListenable: descLength,
+                              builder: (_, value, __) {
+                                return Text(
+                                  value == 0 ? "" : value.toString() + "/150",
+                                  style: GoogleFonts.inter(
+                                      color: value >= 150
+                                          ? const Color(0xffa72627)
+                                          : Colors.white),
+                                );
+                              },
+                            )
+                          ]),
+                      TextField(
+                        controller: _descController,
+                        onChanged: (value) {
+                          if (value.length >= 151) {
+                            _descController.text =
+                                _descController.text.substring(0, 150);
+                            _descController.selection =
+                                TextSelection.fromPosition(TextPosition(
+                                    offset: _descController.text.length));
+                            descLength.value = 150;
+                          } else {
+                            descLength.value = value.length;
+                          }
+                        },
+                        decoration: _inputDecoration(""),
+                        minLines: 4,
+                        maxLines: 4,
+                        style: GoogleFonts.inter(color: Colors.white),
+                      ),
+                      SizedBox(height: height / 35),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(lang["SaveTags"], style: _textStyleSave),
+                          ValueListenableBuilder<int>(
+                            valueListenable: tagsCountForSave,
+                            builder: (_, value, __) {
+                              return Text(
+                                  value == 0 ? "" : value.toString() + "/16",
+                                  style: GoogleFonts.inter(
+                                      color: value == 16
+                                          ? const Color(0xffa72627)
+                                          : Colors.white));
+                            },
+                          )
+                        ],
+                      ),
+                      isLoading
+                          ? const TextField(enabled: false)
+                          : SaveTag(
+                              listTagsString: listTags,
+                              changeTagsCount: changeTagsCount),
+                      SizedBox(height: height / 30),
+                      ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ChangeLanguage(
+                                        curLanguage.value,
+                                        refresh,
+                                        false,
+                                        true,
+                                        changeLanguage)));
+                          },
+                          style: ElevatedButton.styleFrom(
+                              primary: Colors.transparent,
+                              elevation: 0,
+                              padding: const EdgeInsets.all(13),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(50.0),
+                                  side: const BorderSide(color: Colors.white))),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                curLanguage.value == Languages.english
+                                    ? "English"
+                                    : "Русский",
+                                style: _textStyleSave,
+                              ),
+                              Image.asset(
+                                "assets/items/arrowright.png",
+                                scale: 2,
+                              ),
+                            ],
+                          )),
+                      SizedBox(height: height / 30),
+                      Text(
+                        lang["SaveVoice"],
+                        style: _textStyleSave,
+                      ),
+                      SizedBox(height: height / 40),
+                      Row(
+                        children: [
+                          Container(
+                              margin: const EdgeInsets.only(right: 10),
+                              width: 20,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.white)),
+                              child: Checkbox(
+                                activeColor: Colors.transparent,
+                                value: she,
+                                tristate: false,
+                                onChanged: (value) {
+                                  setState(() {
+                                    !he && !they ? null : she = value!;
+                                  });
+                                },
+                              )),
+                          Text(lang["she/her"],
+                              style: GoogleFonts.inter(color: Colors.white)),
+                          const Spacer(),
+                          Container(
+                              margin: const EdgeInsets.only(right: 10),
+                              width: 20,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.white)),
+                              child: Checkbox(
+                                activeColor: Colors.transparent,
+                                value: he,
+                                tristate: false,
+                                onChanged: (value) {
+                                  setState(() {
+                                    !she && !they ? null : he = value!;
+                                  });
+                                },
+                              )),
+                          Text(lang["he/him"],
+                              style: GoogleFonts.inter(color: Colors.white)),
+                          const Spacer(),
+                          Container(
+                              margin: const EdgeInsets.only(right: 10),
+                              width: 20,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.white)),
+                              child: Checkbox(
+                                activeColor: Colors.transparent,
+                                value: they,
+                                tristate: false,
+                                onChanged: (value) {
+                                  setState(() {
+                                    !he && !she ? null : they = value!;
+                                  });
+                                },
+                              )),
+                          Text(lang["they/them"],
+                              style: GoogleFonts.inter(color: Colors.white)),
+                        ],
+                      ),
+                      SizedBox(height: height / 25),
+                      Container(
+                          height: height / 13,
+                          margin: const EdgeInsets.fromLTRB(15, 0, 15, 15),
+                          width: double.infinity,
+                          child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  primary: MColors.mainColor,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(50.0))),
+                              onPressed: () {},
+                              child: Text(
+                                  widget.trackId == -1
+                                      ? lang["SavePost"]
+                                      : lang["Edit"],
+                                  style: GoogleFonts.inter(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500))))
+                    ],
+                  ))));
+        });
   }
 }

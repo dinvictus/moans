@@ -61,7 +61,7 @@ class LogInState extends State<LogIn> {
   String? get _errorTextEmail {
     final text = _controllerEmail.value.text.toString();
     if (!text.contains("@") || !text.contains(".")) {
-      return Utilities.curLang["EmailNotCorrect"];
+      return Utilities.curLang.value["EmailNotCorrect"];
     }
     return null;
   }
@@ -69,7 +69,7 @@ class LogInState extends State<LogIn> {
   String? get _errorTextPass {
     final text = _controllerPass.value.text.toString();
     if (text.length <= 8) {
-      return Utilities.curLang["ShortPass"];
+      return Utilities.curLang.value["ShortPass"];
     }
     return null;
   }
@@ -105,249 +105,270 @@ class LogInState extends State<LogIn> {
           ),
           extendBodyBehindAppBar: true,
           body: SingleChildScrollView(
-            physics: MediaQuery.of(context).viewInsets.bottom == 0
-                ? const NeverScrollableScrollPhysics()
-                : const BouncingScrollPhysics(),
-            scrollDirection: Axis.vertical,
-            child: Column(
-              children: [
-                Container(
-                  margin: EdgeInsets.only(top: height / 10),
-                  padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
-                  child: Column(
-                    children: [
-                      Container(
-                        alignment: Alignment.topLeft,
-                        child: Text(
-                          Utilities.curLang["login"],
-                          style: GoogleFonts.inter(
-                              color: Colors.white,
-                              fontSize: height / 20,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      Container(height: height / 30),
-                      Container(
-                          alignment: Alignment.topLeft,
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(Utilities.curLang["Email"],
-                                    style: GoogleFonts.inter(
-                                        color: _getColorErrorEmail(),
-                                        fontSize: 12)),
-                                Text(
-                                  _submitter && _errorTextEmail != null
-                                      ? _errorTextEmail!
-                                      : "",
+              physics: MediaQuery.of(context).viewInsets.bottom == 0
+                  ? const NeverScrollableScrollPhysics()
+                  : const BouncingScrollPhysics(),
+              scrollDirection: Axis.vertical,
+              child: ValueListenableBuilder<Map>(
+                  valueListenable: Utilities.curLang,
+                  builder: (_, lang, __) {
+                    return Column(
+                      children: [
+                        Container(
+                          margin: EdgeInsets.only(top: height / 10),
+                          padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
+                          child: Column(
+                            children: [
+                              Container(
+                                alignment: Alignment.topLeft,
+                                child: Text(
+                                  lang["login"],
                                   style: GoogleFonts.inter(
-                                      color: const Color(0xffa72627),
-                                      fontSize: 12),
+                                      color: Colors.white,
+                                      fontSize: height / 20,
+                                      fontWeight: FontWeight.bold),
                                 ),
-                              ])),
-                      TextField(
-                        controller: _controllerEmail,
-                        style: TextStyle(color: _getColorErrorEmail()),
-                        autofocus: true,
-                        decoration: InputDecoration(
-                          enabledBorder: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: Color(0xff878789)),
-                          ),
-                          focusedBorder: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
-                          ),
-                          hintText: "example@example.com",
-                          hintStyle: const TextStyle(color: Color(0xff878789)),
-                          errorText: _submitter ? _errorTextEmail : null,
-                          errorStyle: const TextStyle(fontSize: 0, height: 0),
-                        ),
-                        onChanged: (_) => setState(() {
-                          _submitter = false;
-                        }),
-                      ),
-                      Container(
-                          height: height / 20,
-                          alignment: Alignment.bottomLeft,
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(Utilities.curLang["Password"],
-                                    style: GoogleFonts.inter(
-                                        color: _getColorPassword(),
-                                        fontSize: 12)),
-                                Text(
-                                  _submitter && _errorTextPass != null
-                                      ? _errorTextPass!
-                                      : "",
-                                  style: GoogleFonts.inter(
-                                      color: const Color(0xffa72627),
-                                      fontSize: 12),
-                                ),
-                              ])),
-                      TextField(
-                        controller: _controllerPass,
-                        obscureText: true,
-                        style: TextStyle(color: _getColorPassword()),
-                        decoration: InputDecoration(
-                          enabledBorder: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: Color(0xff878789)),
-                          ),
-                          focusedBorder: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
-                          ),
-                          errorText: _submitter ? _errorTextPass : null,
-                          errorStyle: const TextStyle(fontSize: 0, height: 0),
-                        ),
-                        onChanged: (_) => setState(() {
-                          _submitter = false;
-                        }),
-                      ),
-                      Container(height: height / 20),
-                      SizedBox(
-                        width: double.infinity,
-                        height: height / 15,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            onSurface: Colors.white,
-                            primary: MColors.mainColor,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(25.0)),
-                          ),
-                          child: Text(
-                            Utilities.curLang["login"],
-                            style: GoogleFonts.inter(
-                                color: Colors.white, fontSize: height / 50),
-                          ),
-                          onPressed: _controllerEmail.value.text.isNotEmpty &&
-                                  _controllerPass.value.text.isNotEmpty
-                              ? _submit
-                              : null,
-                        ),
-                      ),
-                      Container(
-                          height: height / 12,
-                          alignment: Alignment.center,
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  Utilities.curLang["LogQues"],
-                                  style: GoogleFonts.inter(
-                                      color: const Color(0xffcfcfd0),
-                                      fontSize: height / 50),
-                                ),
-                                Container(width: 10),
-                                GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const SignUp()));
-                                    },
-                                    child: Text(
-                                      Utilities.curLang["Signup"],
-                                      style: GoogleFonts.inter(
-                                          color: MColors.mainColor,
-                                          fontSize: height / 50,
-                                          decoration: TextDecoration.underline),
-                                    ))
-                              ])),
-                      SizedBox(
-                          height: 30,
-                          child: Text(
-                            Utilities.curLang["Continue"],
-                            style: GoogleFonts.inter(
-                                color: const Color(0xffcfcfd0)),
-                          )),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          SizedBox(
-                              height: 40,
-                              width: 110,
-                              child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                      primary: const Color(0xfff7f7f7),
-                                      padding: const EdgeInsets.fromLTRB(
-                                          10, 5, 15, 5)),
-                                  onPressed: () async {
-                                    GoogleSignIn _googleSignIn = GoogleSignIn(
-                                      scopes: [
-                                        'email',
-                                        'https://www.googleapis.com/auth/contacts.readonly',
-                                      ],
-                                    );
-                                    try {
-                                      await _googleSignIn.signIn();
-                                    } catch (error) {
-                                      print(error);
-                                    }
-                                  },
+                              ),
+                              Container(height: height / 30),
+                              Container(
+                                  alignment: Alignment.topLeft,
                                   child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Image.asset(
-                                          "assets/items/googlelogo.png"),
-                                      Text("Google",
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(lang["Email"],
+                                            style: GoogleFonts.inter(
+                                                color: _getColorErrorEmail(),
+                                                fontSize: 12)),
+                                        Text(
+                                          _submitter && _errorTextEmail != null
+                                              ? _errorTextEmail!
+                                              : "",
                                           style: GoogleFonts.inter(
-                                              color: Colors.black)),
-                                    ],
-                                  ))),
-                          SizedBox(
-                            height: 40,
-                            width: 110,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                                  primary: const Color(0xff395693)),
-                              onPressed: () {},
-                              child: Row(
+                                              color: const Color(0xffa72627),
+                                              fontSize: 12),
+                                        ),
+                                      ])),
+                              TextField(
+                                controller: _controllerEmail,
+                                style: TextStyle(color: _getColorErrorEmail()),
+                                autofocus: true,
+                                decoration: InputDecoration(
+                                  enabledBorder: const UnderlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Color(0xff878789)),
+                                  ),
+                                  focusedBorder: const UnderlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.white),
+                                  ),
+                                  hintText: "example@example.com",
+                                  hintStyle:
+                                      const TextStyle(color: Color(0xff878789)),
+                                  errorText:
+                                      _submitter ? _errorTextEmail : null,
+                                  errorStyle:
+                                      const TextStyle(fontSize: 0, height: 0),
+                                ),
+                                onChanged: (_) => setState(() {
+                                  _submitter = false;
+                                }),
+                              ),
+                              Container(
+                                  height: height / 20,
+                                  alignment: Alignment.bottomLeft,
+                                  child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(lang["Password"],
+                                            style: GoogleFonts.inter(
+                                                color: _getColorPassword(),
+                                                fontSize: 12)),
+                                        Text(
+                                          _submitter && _errorTextPass != null
+                                              ? _errorTextPass!
+                                              : "",
+                                          style: GoogleFonts.inter(
+                                              color: const Color(0xffa72627),
+                                              fontSize: 12),
+                                        ),
+                                      ])),
+                              TextField(
+                                controller: _controllerPass,
+                                obscureText: true,
+                                style: TextStyle(color: _getColorPassword()),
+                                decoration: InputDecoration(
+                                  enabledBorder: const UnderlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Color(0xff878789)),
+                                  ),
+                                  focusedBorder: const UnderlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.white),
+                                  ),
+                                  errorText: _submitter ? _errorTextPass : null,
+                                  errorStyle:
+                                      const TextStyle(fontSize: 0, height: 0),
+                                ),
+                                onChanged: (_) => setState(() {
+                                  _submitter = false;
+                                }),
+                              ),
+                              Container(height: height / 20),
+                              SizedBox(
+                                width: double.infinity,
+                                height: height / 15,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    onSurface: Colors.white,
+                                    primary: MColors.mainColor,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(25.0)),
+                                  ),
+                                  child: Text(
+                                    lang["login"],
+                                    style: GoogleFonts.inter(
+                                        color: Colors.white,
+                                        fontSize: height / 50),
+                                  ),
+                                  onPressed: _controllerEmail
+                                              .value.text.isNotEmpty &&
+                                          _controllerPass.value.text.isNotEmpty
+                                      ? _submit
+                                      : null,
+                                ),
+                              ),
+                              Container(
+                                  height: height / 12,
+                                  alignment: Alignment.center,
+                                  child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          lang["LogQues"],
+                                          style: GoogleFonts.inter(
+                                              color: const Color(0xffcfcfd0),
+                                              fontSize: height / 50),
+                                        ),
+                                        Container(width: 10),
+                                        GestureDetector(
+                                            onTap: () {
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          const SignUp()));
+                                            },
+                                            child: Text(
+                                              lang["Signup"],
+                                              style: GoogleFonts.inter(
+                                                  color: MColors.mainColor,
+                                                  fontSize: height / 50,
+                                                  decoration:
+                                                      TextDecoration.underline),
+                                            ))
+                                      ])),
+                              SizedBox(
+                                  height: 30,
+                                  child: Text(
+                                    lang["Continue"],
+                                    style: GoogleFonts.inter(
+                                        color: const Color(0xffcfcfd0)),
+                                  )),
+                              Row(
                                 mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  Image.asset("assets/items/facebooklogo.png"),
-                                  Text(
-                                    "Facebook",
-                                    style:
-                                        GoogleFonts.inter(color: Colors.white),
+                                  SizedBox(
+                                      height: 40,
+                                      width: 110,
+                                      child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                              primary: const Color(0xfff7f7f7),
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      10, 5, 15, 5)),
+                                          onPressed: () async {
+                                            GoogleSignIn _googleSignIn =
+                                                GoogleSignIn(
+                                              scopes: [
+                                                'email',
+                                                'https://www.googleapis.com/auth/contacts.readonly',
+                                              ],
+                                            );
+                                            try {
+                                              await _googleSignIn.signIn();
+                                            } catch (error) {
+                                              print(error);
+                                            }
+                                          },
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Image.asset(
+                                                  "assets/items/googlelogo.png"),
+                                              Text("Google",
+                                                  style: GoogleFonts.inter(
+                                                      color: Colors.black)),
+                                            ],
+                                          ))),
+                                  SizedBox(
+                                    height: 40,
+                                    width: 110,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              10, 5, 10, 5),
+                                          primary: const Color(0xff395693)),
+                                      onPressed: () {},
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Image.asset(
+                                              "assets/items/facebooklogo.png"),
+                                          Text(
+                                            "Facebook",
+                                            style: GoogleFonts.inter(
+                                                color: Colors.white),
+                                          )
+                                        ],
+                                      ),
+                                    ),
                                   )
                                 ],
                               ),
-                            ),
-                          )
-                        ],
-                      ),
-                      Container(
-                        height: height / 10,
-                        alignment: Alignment.bottomCenter,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              Utilities.curLang["Forgotpass"],
-                              style: GoogleFonts.inter(
-                                color: const Color(0xff878789),
-                                fontSize: height / 50,
-                              ),
-                            ),
-                            Container(height: 5),
-                            Text(Utilities.curLang["Click"],
-                                style: GoogleFonts.inter(
-                                    color: MColors.mainColor,
-                                    fontSize: height / 50,
-                                    decoration: TextDecoration.underline))
-                          ],
+                              Container(
+                                height: height / 10,
+                                alignment: Alignment.bottomCenter,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      lang["Forgotpass"],
+                                      style: GoogleFonts.inter(
+                                        color: const Color(0xff878789),
+                                        fontSize: height / 50,
+                                      ),
+                                    ),
+                                    Container(height: 5),
+                                    Text(lang["Click"],
+                                        style: GoogleFonts.inter(
+                                            color: MColors.mainColor,
+                                            fontSize: height / 50,
+                                            decoration:
+                                                TextDecoration.underline))
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
                         ),
-                      )
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+                      ],
+                    );
+                  })),
         ));
   }
 }

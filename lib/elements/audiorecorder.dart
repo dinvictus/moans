@@ -60,9 +60,6 @@ class AudioRecorder {
   }
 
   back() async {
-    Utilities.descLength.value = 0;
-    Utilities.tagsCountForSave.value = 0;
-    Utilities.titleLength.value = 0;
     Utilities.managerForRecord.stop();
     Utilities.managerForRecord.resetDuration();
     if (await _audioRecorder.isRecording()) {

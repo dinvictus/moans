@@ -37,14 +37,18 @@ class MyDropButtonState extends State<MyDropButton>
                 context,
                 MaterialPageRoute(
                     builder: (context) => ChangeLanguage(
-                        Utilities.listLanguages,
+                        Utilities.currentLanguage,
                         widget.notifyParent,
                         widget.updateFeed,
-                        false)));
+                        false,
+                        null)));
           },
           child: Row(
             children: [
-              Text(Utilities.currentLanguage,
+              Text(
+                  Utilities.currentLanguage == Languages.english
+                      ? "English"
+                      : "Русский",
                   style: const TextStyle(color: MColors.mainColor)),
               const SizedBox(width: 7),
               Image.asset("assets/items/arrow.png", scale: 2.5),
