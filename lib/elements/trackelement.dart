@@ -93,7 +93,8 @@ class _TrackElementState extends State<TrackElement> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => PostItem(back, trackId)));
+                              builder: (context) =>
+                                  PostItem(back, trackId, "")));
                     },
                     child: Image.asset("assets/items/edit.png"),
                   )),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:moans/login.dart';
 import 'package:moans/mainscreen.dart';
+import 'package:moans/signup.dart';
 import 'res.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'elements/dropbutton.dart';
@@ -50,9 +51,7 @@ class ConfirmAgeState extends State<ConfirmAge> {
               appBar: AppBar(
                 elevation: 0,
                 backgroundColor: Colors.transparent,
-                actions: [
-                  MyDropButton(notifyParent: refresh, updateFeed: false)
-                ],
+                actions: const [MyDropButton()],
               ),
               body: Container(
                 alignment: Alignment.center,

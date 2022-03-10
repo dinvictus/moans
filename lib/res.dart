@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:moans/elements/audiomanager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum Languages { english, russian }
+enum Languages { russian, english }
 
 class Utilities {
   static init() async {
@@ -39,6 +39,9 @@ class Utilities {
         });
   }
 
+  static int languageId = 0;
+  static int voiceId = 5;
+  static String authToken = "";
   static late bool showHelpNotification;
   static const String _keyLanguage = "Languages";
   static const String _keyHelpNotification = "HelpNotification";
@@ -50,7 +53,6 @@ class Utilities {
   static ValueNotifier<Map> curLang = ValueNotifier<Map>(_englishStrings);
   static String email = "test@test";
   static late Languages currentLanguage;
-  static ValueNotifier<String> forShare = ValueNotifier("Share");
   static ValueNotifier<bool> isPlaying = ValueNotifier(false);
   static const Map _englishStrings = {
     "18eText":
@@ -176,11 +178,9 @@ class Utilities {
   static void changeLanguage(Languages language) {
     switch (language) {
       case Languages.english:
-        forShare.value = "Share";
         curLang.value = _englishStrings;
         break;
       case Languages.russian:
-        forShare.value = "Поделиться";
         curLang.value = _russianStrings;
         break;
     }

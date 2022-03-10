@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:moans/changelanguage.dart';
 import 'package:moans/elements/audiorecorder.dart';
@@ -8,7 +11,9 @@ import '../res.dart';
 class PostItem extends StatefulWidget {
   final Function() back;
   final int trackId;
-  const PostItem(this.back, this.trackId, {Key? key}) : super(key: key);
+  final String pathToFile;
+  const PostItem(this.back, this.trackId, this.pathToFile, {Key? key})
+      : super(key: key);
 
   @override
   State<PostItem> createState() {
@@ -41,6 +46,35 @@ class _PostItemState extends State<PostItem> {
         ),
         hintText: hint,
         hintStyle: _textStyleSave);
+  }
+
+  postTrack() async {
+    print(widget.pathToFile);
+    String tags = "";
+    for (String tag in listTags) {
+      tags += tag + " ";
+    }
+    var request = http.MultipartRequest('POST',
+        Uri.parse("https://75db-92-101-232-21.ngrok.io/tracks/addTrack"));
+    request.headers.addAll({
+      "Authorization": "Bearer " + Utilities.authToken,
+      "Content-Type": "application/json"
+    });
+    request.fields["name"] = _titleController.text;
+    request.fields["description"] = _descController.text;
+    request.fields["voice"] = "5";
+    request.fields["language_id"] =
+        Languages.values.indexOf(curLanguage.value).toString();
+    request.fields["tag"] = tags;
+    print(tags);
+    request.files
+        .add(await http.MultipartFile.fromPath("record", widget.pathToFile));
+
+    var res = await request.send();
+    var responced = await http.Response.fromStream(res);
+    print(json.decode(responced.body));
+    print(res.headers);
+    print(res.statusCode);
   }
 
   refresh() {
@@ -245,8 +279,6 @@ class _PostItemState extends State<PostItem> {
                                 MaterialPageRoute(
                                     builder: (context) => ChangeLanguage(
                                         curLanguage.value,
-                                        refresh,
-                                        false,
                                         true,
                                         changeLanguage)));
                           },
@@ -349,7 +381,7 @@ class _PostItemState extends State<PostItem> {
                                   shape: RoundedRectangleBorder(
                                       borderRadius:
                                           BorderRadius.circular(50.0))),
-                              onPressed: () {},
+                              onPressed: postTrack,
                               child: Text(
                                   widget.trackId == -1
                                       ? lang["SavePost"]

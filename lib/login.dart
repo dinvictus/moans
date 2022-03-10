@@ -3,6 +3,7 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:moans/elements/dropbutton.dart';
+import 'package:moans/mainscreen.dart';
 import 'package:moans/signup.dart';
 import 'res.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -37,16 +38,21 @@ class LogInState extends State<LogIn> {
       var _passhash = sha256.convert(_passbyte);
       var _user = {
         "email": _controllerEmail.value.text.toString(),
-        "passw": _passhash.toString()
+        "password": _passhash.toString()
       };
       var _responce = await http.post(
-          Uri.parse("http://25.40.18.156:8000/registration"),
+          Uri.parse("https://75db-92-101-232-21.ngrok.io/auth/"),
           body: jsonEncode(_user),
           headers: {"Content-Type": "application/json"});
-      if (_responce.body == "true") {
-        // Далее
+      print(_responce.statusCode);
+      if (_responce.statusCode == 200) {
+        Map userInfo = jsonDecode(_responce.body);
+        Utilities.authToken = userInfo["access_token"];
+        print(userInfo["access_token"]);
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const MainScreen()));
       } else {
-        // Пользователь с таким email уже зарегестрирован.
+        print(_responce.body);
       }
     }
   }
@@ -101,7 +107,7 @@ class LogInState extends State<LogIn> {
             backgroundColor: Colors.transparent,
             automaticallyImplyLeading: false,
             elevation: 0,
-            actions: [MyDropButton(notifyParent: refresh, updateFeed: false)],
+            actions: [const MyDropButton()],
           ),
           extendBodyBehindAppBar: true,
           body: SingleChildScrollView(

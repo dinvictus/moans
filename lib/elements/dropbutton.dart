@@ -3,11 +3,7 @@ import 'package:moans/changelanguage.dart';
 import 'package:moans/res.dart';
 
 class MyDropButton extends StatefulWidget {
-  final Function() notifyParent;
-  final bool updateFeed;
-  const MyDropButton(
-      {Key? key, required this.notifyParent, required this.updateFeed})
-      : super(key: key);
+  const MyDropButton({Key? key}) : super(key: key);
 
   @override
   State<MyDropButton> createState() {
@@ -37,11 +33,7 @@ class MyDropButtonState extends State<MyDropButton>
                 context,
                 MaterialPageRoute(
                     builder: (context) => ChangeLanguage(
-                        Utilities.currentLanguage,
-                        widget.notifyParent,
-                        widget.updateFeed,
-                        false,
-                        null)));
+                        Utilities.currentLanguage, false, null)));
           },
           child: Row(
             children: [

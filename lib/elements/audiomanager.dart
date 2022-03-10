@@ -89,6 +89,10 @@ class AudioManager extends BaseAudioHandler with SeekHandler {
     }
   }
 
+  getUR() {
+    return url;
+  }
+
   void _notifyAudioHandlerAboutPlaybackEvents() {
     _audioPlayer.playbackEventStream.listen((PlaybackEvent event) {
       final playing = _audioPlayer.playing;

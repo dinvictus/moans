@@ -1,8 +1,6 @@
 import 'dart:io';
-
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:moans/elements/helprefresher.dart';
 import 'package:moans/elements/postitem.dart';
 import 'package:moans/res.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -395,7 +393,6 @@ class RecordState extends State<Record> with AutomaticKeepAliveClientMixin {
   void initState() {
     super.initState();
     _audioRecorder = AudioRecorder();
-    HelpRefresh.toUpdateRecord = refresh;
   }
 
   @override
@@ -459,7 +456,8 @@ class RecordState extends State<Record> with AutomaticKeepAliveClientMixin {
                 MainRecordItem(),
                 RecordRecordItem(),
                 PlayRecordItem(),
-                PostItem(_audioRecorder.backSave, -1),
+                PostItem(
+                    _audioRecorder.backSave, -1, _audioRecorder.pathToFile!),
               ],
             );
           }),

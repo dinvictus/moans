@@ -27,6 +27,7 @@ class AudioRecorder {
   late Timer _timer;
   bool _isRecording = false;
   bool _isFile = false;
+  String? pathToFile = "";
 
   init() async {
     final status = await Permission.microphone.request();
@@ -36,6 +37,10 @@ class AudioRecorder {
       _audioRecorder = Record();
       _isInitialize = true;
     }
+  }
+
+  String? getPath() {
+    return pathToFile;
   }
 
   loadFile(String ur) {
@@ -103,7 +108,8 @@ class AudioRecorder {
     } else {
       if (await _audioRecorder.isRecording()) {
         _isRecording = false;
-        Utilities.managerForRecord.setUR(await _stop());
+        pathToFile = await _stop();
+        Utilities.managerForRecord.setUR(pathToFile);
       }
     }
   }

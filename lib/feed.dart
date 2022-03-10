@@ -1,8 +1,8 @@
+import 'dart:convert';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:moans/elements/audiomanager.dart';
-import 'package:moans/elements/helprefresher.dart';
 import 'package:moans/res.dart';
 import 'elements/audioitem.dart';
 
@@ -20,24 +20,45 @@ int curpage = 0;
 class FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
   int prepage = 1;
   late PageController _controller;
-  final List<AudioItem> _pages = [];
-  final List<AudioManager> _handlers = [];
+  final List<AudioItem> pages = [];
+  final List<AudioManager> handlers = [];
   bool toastViewed = Utilities.showHelpNotification;
   refresh() {
     setState(() {});
   }
 
-  _initFirst() async {
-    _pages.add(AudioItem(0));
-    _pages.add(AudioItem(1));
-    _pages.add(AudioItem(2));
+  loadTracks() async {
+    int count = pages.length + 10;
+    for (int i = pages.length; i < count; i++) {
+      pages.add(AudioItem(i));
+    }
+    String trackInfoStr = "";
+    await Future.delayed(Duration(seconds: 5), () {
+      // Запрос к сереру на получение оффсета
+      trackInfoStr =
+          '[ { "id": 1, "name": "Turn back", "likes": 0, "description": "Rock-Opera Orfey", "path": "tracks/user_1/2022-03-10 21:15:07.605295.mp3", "tags": "orfey song"  }, { "id": 2, "name": "Step to the Darkness", "likes": 0, "description": "Rock-Opera Orfey", "path": "tracks/user_1/2022-03-10 21:16:23.436729.mp3", "tags": "orfey song"  }, { "id": 3, "name": "Witchers Doll", "likes": 0, "description": "King and Chester", "path": "tracks/user_1/2022-03-10 21:17:26.009230.mp3", "tags": "KaCh song"  } ]';
+    });
+    var trackInfo = jsonDecode(trackInfoStr);
+    if (trackInfo.length < 10) {
+      for (int i = count - 1; i > count - 11 + trackInfo.length; i--) {
+        pages.removeAt(i);
+      }
+    }
+    int j = 0;
+    for (int i = count - 10; i < count - 10 + trackInfo.length; i++) {
+      List<String> tags = trackInfo[j]["tags"].toString().split(" ");
+      pages[i].addInfo(trackInfo[j]["name"], trackInfo[j]["description"], tags,
+          trackInfo[j]["likes"], trackInfo[j]["id"]);
+      handlers.add(pages[i].audioManager);
+      j++;
+    }
+  }
+
+  initFirst() async {
     Utilities.managerForRecord = AudioManager("", "Record", 0);
-    _handlers.add(Utilities.managerForRecord);
-    _handlers.add(_pages[0].audioManager);
-    _handlers.add(_pages[1].audioManager);
-    _handlers.add(_pages[2].audioManager);
+    handlers.add(Utilities.managerForRecord);
     Utilities.audioHandler = await AudioService.init(
-        builder: () => AudioSwitchHandler(_handlers),
+        builder: () => AudioSwitchHandler(handlers),
         config: const AudioServiceConfig(
             androidNotificationIcon: "drawable/noti",
             androidNotificationChannelId: 'com.ryanheise.myapp.channel.audio',
@@ -49,8 +70,8 @@ class FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
   void initState() {
     super.initState();
     _controller = PageController(initialPage: curpage, keepPage: true);
-    HelpRefresh.toUpdateFeed2 = refresh;
-    _initFirst();
+    loadTracks();
+    initFirst();
   }
 
   @override
@@ -89,8 +110,9 @@ class FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
                   image: AssetImage('assets/back/backfeed.png'),
                   fit: BoxFit.fill)),
           child: PageView.builder(
+            itemCount: pages.length,
             itemBuilder: (context, position) {
-              return _pages[position];
+              return pages[position];
             },
             controller: _controller,
             scrollDirection: Axis.vertical,
@@ -100,10 +122,8 @@ class FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
                 Utilities.helpNotificationViewied();
               });
               Utilities.curPage.value = value;
-              if (value > prepage) {
-                prepage = value;
-                _pages.add(AudioItem(value + 1));
-                _handlers.add(_pages[value + 1].audioManager);
+              if (value == pages.length - 1) {
+                loadTracks();
               }
             },
           ),

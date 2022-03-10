@@ -8,19 +8,30 @@ import '../res.dart';
 import 'audiomanager.dart';
 import 'tag.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'helprefresher.dart';
 
 class AudioItem extends StatefulWidget {
   AudioItem(this._indexPage, {Key? key}) : super(key: key);
-  late final AudioManager audioManager = AudioManager(
-      "https://0fa8-92-101-232-21.ngrok.io/tracks/get_audio?track_id=3",
-      _trackName,
-      _indexPage + 1);
+  late final String _titleTrack;
+  late final String _descriptionTrack;
+  late final List<String> _listTags;
+  late final int _countLikes;
+  late final AudioManager audioManager;
+  final ValueNotifier<bool> _isloading = ValueNotifier<bool>(true);
+  addInfo(String title, String description, List<String> tags, int likes,
+      int idTrack) {
+    _titleTrack = title;
+    _descriptionTrack = description;
+    _listTags = tags;
+    _countLikes = likes;
+    audioManager = AudioManager(
+        Utilities.url + "tracks/get_audio?track_id=" + idTrack.toString(),
+        _titleTrack,
+        _indexPage + 1);
+    _isloading.value = false;
+  }
+
   final int _indexPage;
-  String _trackName = "123456789ghfjtufhgjfthgjfhdrjghtjghqertyuiof";
-  String _trackDisk =
-      "Привет. К чему-то пришёл В общем. Одним запросом выдавать и инфу, и трек - не вариант. А если необходимо загрузить несколько треков, то тем более.";
-  late final _tags;
+
   @override
   State<AudioItem> createState() {
     return _AudioItemState();
@@ -30,18 +41,21 @@ class AudioItem extends StatefulWidget {
 class _AudioItemState extends State<AudioItem>
     with AutomaticKeepAliveClientMixin {
   bool liked = false;
-  bool live = true;
-  String likes = "12k";
   final TextStyle _textStyleTime =
       GoogleFonts.inter(color: const Color(0xff878789));
   final TextStyle _textStyleLS =
       GoogleFonts.inter(color: Colors.white, fontSize: 12);
   late ValueNotifier<double> notifierforLikeSize;
-  final ValueNotifier<bool> _isloading = ValueNotifier<bool>(true);
 
-  refresh() {
-    setState(() {});
-  }
+  Widget loadingWidget = Container(
+      width: 68,
+      height: 68,
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(50.0)),
+      child: const CircularProgressIndicator(
+        color: Colors.black,
+      ));
 
   _liked() {
     // Запрос к серверу на поставку лайка.
@@ -61,55 +75,15 @@ class _AudioItemState extends State<AudioItem>
     });
   }
 
-  _getInfo() async {
-    try {
-      var _response = await http.get(Uri.parse(
-          "https://0fa8-92-101-232-21.ngrok.io/tracks/one?track_id=3"));
-      Map info = jsonDecode(_response.body);
-      setState(() {
-        widget._trackName = info["name"];
-        widget._trackDisk = info["description"];
-      });
-    } catch (e) {
-      // Ошибка подключения
-    }
-  }
-
   @override
   void initState() {
-    _getInfo();
     super.initState();
-    HelpRefresh.toUpdateFeed = refresh;
     notifierforLikeSize = ValueNotifier<double>(32);
-    Timer(Duration(seconds: 1), () {
-      widget._tags = [
-        "Всееем привеееееееееееет",
-        "tag1",
-        "taываывg1",
-        "tag1",
-        "tag1",
-        "tag1",
-        "tag1",
-        "tag1",
-        "taываывg1",
-        "tag1",
-        "tag1",
-        "tag1",
-        "tag1",
-        "tag1",
-        "taываывg1",
-        "tag1",
-        "tag1",
-        "tag1",
-      ];
-      _isloading.value = false;
+    widget._isloading.addListener(() {
+      if (mounted) {
+        setState(() {});
+      }
     });
-  }
-
-  @override
-  void dispose() {
-    widget.audioManager.dispose();
-    super.dispose();
   }
 
   @override
@@ -126,7 +100,7 @@ class _AudioItemState extends State<AudioItem>
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 ValueListenableBuilder<bool>(
-                  valueListenable: _isloading,
+                  valueListenable: widget._isloading,
                   builder: (_, isloading, __) {
                     return ListView(
                       shrinkWrap: true,
@@ -177,7 +151,7 @@ class _AudioItemState extends State<AudioItem>
                                 children: [
                                   SizedBox(
                                       width: width - 50,
-                                      child: Text(widget._trackName,
+                                      child: Text(widget._titleTrack,
                                           textAlign: TextAlign.center,
                                           style: GoogleFonts.inter(
                                               color: Colors.white,
@@ -186,12 +160,12 @@ class _AudioItemState extends State<AudioItem>
                                   SizedBox(height: height / 25),
                                   SizedBox(
                                       width: width - 40,
-                                      child: Text(widget._trackDisk,
+                                      child: Text(widget._descriptionTrack,
                                           textAlign: TextAlign.center,
                                           style: GoogleFonts.inter(
                                               color: const Color(0xffcfcfd0),
                                               fontSize: height / 40))),
-                                  TagItem(widget._tags, widget._indexPage),
+                                  TagItem(widget._listTags, widget._indexPage),
                                 ],
                               ),
                       ],
@@ -201,25 +175,32 @@ class _AudioItemState extends State<AudioItem>
                 Container(
                   margin: const EdgeInsets.fromLTRB(30, 0, 30, 30),
                   height: height / 60,
-                  child: ValueListenableBuilder<ProgressBarState>(
-                    valueListenable: widget.audioManager.progressNotifier,
-                    builder: (_, value, __) {
-                      return ProgressBar(
-                        thumbColor: Colors.white,
-                        thumbGlowRadius: 20,
-                        thumbRadius: 7,
-                        timeLabelPadding: 10,
-                        timeLabelTextStyle: _textStyleTime,
-                        bufferedBarColor: const Color(0xff898994),
-                        progressBarColor: Colors.white,
-                        baseBarColor: const Color(0xff4b4b4f),
-                        progress: value.current,
-                        buffered: value.buffered,
-                        total: value.total,
-                        onSeek: widget.audioManager.seek,
-                      );
-                    },
-                  ),
+                  child: ValueListenableBuilder<bool>(
+                      valueListenable: widget._isloading,
+                      builder: (_, isloading, __) {
+                        return isloading
+                            ? Container()
+                            : ValueListenableBuilder<ProgressBarState>(
+                                valueListenable:
+                                    widget.audioManager.progressNotifier,
+                                builder: (_, value, __) {
+                                  return ProgressBar(
+                                    thumbColor: Colors.white,
+                                    thumbGlowRadius: 20,
+                                    thumbRadius: 7,
+                                    timeLabelPadding: 10,
+                                    timeLabelTextStyle: _textStyleTime,
+                                    bufferedBarColor: const Color(0xff898994),
+                                    progressBarColor: Colors.white,
+                                    baseBarColor: const Color(0xff4b4b4f),
+                                    progress: value.current,
+                                    buffered: value.buffered,
+                                    total: value.total,
+                                    onSeek: widget.audioManager.seek,
+                                  );
+                                },
+                              );
+                      }),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -229,58 +210,54 @@ class _AudioItemState extends State<AudioItem>
                           0, 0, width / 2 - 10 - 34 - 71, height / 5),
                       height: 68,
                       width: 68,
-                      child: ValueListenableBuilder<ButtonState>(
-                        valueListenable: widget.audioManager.buttonNotifier,
-                        builder: (_, value, __) {
-                          switch (value) {
-                            case ButtonState.loading:
-                              return Container(
-                                  width: 68,
-                                  height: 68,
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius:
-                                          BorderRadius.circular(50.0)),
-                                  child: const CircularProgressIndicator(
-                                    color: Colors.black,
-                                  ));
-                            case ButtonState.paused:
-                              return ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                    elevation: 0,
-                                    padding: const EdgeInsets.fromLTRB(
-                                        20, 17, 17, 17),
-                                    primary: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(50.0))),
-                                child: Image.asset("assets/items/play.png"),
-                                onPressed: () {
-                                  try {
-                                    Utilities.audioHandler
-                                        .switchToHandler(widget._indexPage + 1);
-                                    Utilities.audioHandler.play();
-                                  } catch (e) {
-                                    print("error");
-                                  }
-                                },
-                              );
-                            case ButtonState.playing:
-                              return ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                    elevation: 0,
-                                    padding: const EdgeInsets.all(17),
-                                    primary: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(50.0))),
-                                child: Image.asset("assets/items/pause.png"),
-                                onPressed: widget.audioManager.pause,
-                              );
-                          }
-                        },
-                      ),
+                      child: widget._isloading.value
+                          ? loadingWidget
+                          : ValueListenableBuilder<ButtonState>(
+                              valueListenable:
+                                  widget.audioManager.buttonNotifier,
+                              builder: (_, value, __) {
+                                switch (value) {
+                                  case ButtonState.loading:
+                                    return loadingWidget;
+                                  case ButtonState.paused:
+                                    return ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                          elevation: 0,
+                                          padding: const EdgeInsets.fromLTRB(
+                                              20, 17, 17, 17),
+                                          primary: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(50.0))),
+                                      child:
+                                          Image.asset("assets/items/play.png"),
+                                      onPressed: () {
+                                        try {
+                                          Utilities.audioHandler
+                                              .switchToHandler(
+                                                  widget._indexPage + 1);
+                                          Utilities.audioHandler.play();
+                                        } catch (e) {
+                                          print("error");
+                                        }
+                                      },
+                                    );
+                                  case ButtonState.playing:
+                                    return ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                          elevation: 0,
+                                          padding: const EdgeInsets.all(17),
+                                          primary: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(50.0))),
+                                      child:
+                                          Image.asset("assets/items/pause.png"),
+                                      onPressed: widget.audioManager.pause,
+                                    );
+                                }
+                              },
+                            ),
                     ),
                     Column(children: [
                       ValueListenableBuilder<double>(
@@ -308,7 +285,7 @@ class _AudioItemState extends State<AudioItem>
                       ),
                       const SizedBox(height: 5),
                       ValueListenableBuilder<bool>(
-                          valueListenable: _isloading,
+                          valueListenable: widget._isloading,
                           builder: (_, isloading, __) {
                             return isloading
                                 ? SizedBox(
@@ -329,7 +306,8 @@ class _AudioItemState extends State<AudioItem>
                                                           BorderRadius.circular(
                                                               15))))
                                         ]))
-                                : Text(likes, style: _textStyleLS);
+                                : Text(widget._countLikes.toString(),
+                                    style: _textStyleLS);
                           }),
                       SizedBox(height: height / 25),
                       SizedBox(

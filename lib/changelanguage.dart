@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:moans/elements/helprefresher.dart';
 import 'package:moans/res.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ChangeLanguage extends StatefulWidget {
-  final Function() toRefreshParent;
   final Function? changeSaveTrackLanguage;
   final Languages curLanguage;
-  final bool updateFeed;
   final bool saveTrack;
-  const ChangeLanguage(this.curLanguage, this.toRefreshParent, this.updateFeed,
-      this.saveTrack, this.changeSaveTrackLanguage,
+  const ChangeLanguage(
+      this.curLanguage, this.saveTrack, this.changeSaveTrackLanguage,
       {Key? key})
       : super(key: key);
 
@@ -75,12 +72,9 @@ class _ChangeLanguageState extends State<ChangeLanguage> {
     widget.saveTrack
         ? widget.changeSaveTrackLanguage!(language)
         : Utilities.changeLanguage(language);
-    widget.toRefreshParent();
+
     _listLanguagesButtons.clear();
     _init();
-    if (widget.updateFeed) {
-      HelpRefresh.toUpdateFeed;
-    }
   }
 
   @override

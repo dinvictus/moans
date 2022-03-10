@@ -86,9 +86,7 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
               extendBodyBehindAppBar: true,
               backgroundColor: const Color(0xff000014),
               appBar: AppBar(
-                actions: [
-                  MyDropButton(notifyParent: widget._toUpdate, updateFeed: true)
-                ],
+                actions: const [MyDropButton()],
                 automaticallyImplyLeading: false,
                 backgroundColor: Colors.transparent,
                 elevation: 0,
