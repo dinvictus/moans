@@ -54,8 +54,8 @@ class _PostItemState extends State<PostItem> {
     for (String tag in listTags) {
       tags += tag + " ";
     }
-    var request = http.MultipartRequest('POST',
-        Uri.parse("https://75db-92-101-232-21.ngrok.io/tracks/addTrack"));
+    var request = http.MultipartRequest(
+        'POST', Uri.parse(Utilities.url + "tracks/addTrack"));
     request.headers.addAll({
       "Authorization": "Bearer " + Utilities.authToken,
       "Content-Type": "application/json"
@@ -75,10 +75,6 @@ class _PostItemState extends State<PostItem> {
     print(json.decode(responced.body));
     print(res.headers);
     print(res.statusCode);
-  }
-
-  refresh() {
-    setState(() {});
   }
 
   changeTagsCount(int count) {

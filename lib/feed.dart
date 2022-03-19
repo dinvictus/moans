@@ -1,56 +1,124 @@
 import 'dart:convert';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:moans/elements/audiomanager.dart';
 import 'package:moans/res.dart';
 import 'elements/audioitem.dart';
+import 'package:http/http.dart' as http;
 
 class Feed extends StatefulWidget {
   const Feed({Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
-    return FeedState();
+    return _FeedState();
   }
 }
 
 int curpage = 0;
 
-class FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
+class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
   int prepage = 1;
+  int counterForViewedTracks = 0;
   late PageController _controller;
   final List<AudioItem> pages = [];
   final List<AudioManager> handlers = [];
   bool toastViewed = Utilities.showHelpNotification;
-  refresh() {
-    setState(() {});
+
+  loadViewedTracs(int count) async {
+    int countAddedTracks = 0;
+    int counterPageFinal = pages.length - count;
+    int counterPage = counterPageFinal;
+    counterForViewedTracks += count;
+    while (countAddedTracks != count) {
+      final uri = Uri.parse(Utilities.url +
+          "tracks/track_seen" +
+          "?language_id=" +
+          Languages.values.indexOf(Utilities.currentLanguage).toString() +
+          "&voice=5&limit=" +
+          count.toString() +
+          "&skip=" +
+          counterForViewedTracks.toString());
+      try {
+        var responce = await http.get(uri, headers: {
+          "Authorization": "Bearer " + Utilities.authToken,
+          "Content-Type": "application/json"
+        });
+        var trackInfoViewed = jsonDecode(responce.body);
+        if (responce.statusCode == 200) {
+          int j = 0;
+          for (int i = counterPage;
+              i < counterPage + trackInfoViewed.length;
+              i++) {
+            List<String> tags =
+                trackInfoViewed[j]["tags"].toString().split(" ");
+            pages[i].addInfo(
+                trackInfoViewed[j]["name"],
+                trackInfoViewed[j]["description"],
+                tags,
+                trackInfoViewed[j]["likes"],
+                trackInfoViewed[j]["id"]);
+            handlers.add(pages[i].audioManager);
+            j++;
+            countAddedTracks++;
+          }
+          if (countAddedTracks < count) {
+            counterForViewedTracks = 0;
+            counterPage = counterPageFinal + countAddedTracks;
+          }
+        } else {
+          print(responce.body);
+          break;
+        }
+      } catch (e) {
+        print(e);
+      }
+    }
   }
 
   loadTracks() async {
-    int count = pages.length + 10;
-    for (int i = pages.length; i < count; i++) {
+    int counter = pages.length;
+    for (int i = counter; i < counter + 10; i++) {
       pages.add(AudioItem(i));
     }
-    String trackInfoStr = "";
-    await Future.delayed(Duration(seconds: 5), () {
-      // Запрос к сереру на получение оффсета
-      trackInfoStr =
-          '[ { "id": 1, "name": "Turn back", "likes": 0, "description": "Rock-Opera Orfey", "path": "tracks/user_1/2022-03-10 21:15:07.605295.mp3", "tags": "orfey song"  }, { "id": 2, "name": "Step to the Darkness", "likes": 0, "description": "Rock-Opera Orfey", "path": "tracks/user_1/2022-03-10 21:16:23.436729.mp3", "tags": "orfey song"  }, { "id": 3, "name": "Witchers Doll", "likes": 0, "description": "King and Chester", "path": "tracks/user_1/2022-03-10 21:17:26.009230.mp3", "tags": "KaCh song"  } ]';
-    });
-    var trackInfo = jsonDecode(trackInfoStr);
-    if (trackInfo.length < 10) {
-      for (int i = count - 1; i > count - 11 + trackInfo.length; i--) {
-        pages.removeAt(i);
+
+    final uri = Uri.parse(Utilities.url +
+        "tracks/track_feed" +
+        "?language_id=" +
+        Languages.values.indexOf(Utilities.currentLanguage).toString() +
+        "&voice=5&limit=10&skip=0");
+    try {
+      var responce = await http.get(uri, headers: {
+        "Authorization": "Bearer " + Utilities.authToken,
+        "Content-Type": "application/json"
+      });
+
+      if (responce.statusCode == 200) {
+        var trackInfoNotViewed = jsonDecode(responce.body);
+        if (trackInfoNotViewed.length != 0) {
+          int j = 0;
+          for (int i = counter; i < counter + trackInfoNotViewed.length; i++) {
+            List<String> tags =
+                trackInfoNotViewed[j]["tags"].toString().split(" ");
+            pages[i].addInfo(
+                trackInfoNotViewed[j]["name"],
+                trackInfoNotViewed[j]["description"],
+                tags,
+                trackInfoNotViewed[j]["likes"],
+                trackInfoNotViewed[j]["id"]);
+            handlers.add(pages[i].audioManager);
+            j++;
+          }
+        }
+
+        if (trackInfoNotViewed.length < 10) {
+          await loadViewedTracs(10 - trackInfoNotViewed.length as int);
+        }
+      } else {
+        print(responce.body);
       }
-    }
-    int j = 0;
-    for (int i = count - 10; i < count - 10 + trackInfo.length; i++) {
-      List<String> tags = trackInfo[j]["tags"].toString().split(" ");
-      pages[i].addInfo(trackInfo[j]["name"], trackInfo[j]["description"], tags,
-          trackInfo[j]["likes"], trackInfo[j]["id"]);
-      handlers.add(pages[i].audioManager);
-      j++;
+    } catch (e) {
+      print(e);
     }
   }
 
@@ -123,7 +191,7 @@ class FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
               });
               Utilities.curPage.value = value;
               if (value == pages.length - 1) {
-                loadTracks();
+                await loadTracks();
               }
             },
           ),

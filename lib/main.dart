@@ -7,11 +7,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'elements/dropbutton.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(Moans());
 }
 
-class MyApp extends StatelessWidget {
-  MyApp({Key? key}) : super(key: key) {
+class Moans extends StatelessWidget {
+  Moans({Key? key}) : super(key: key) {
     WidgetsFlutterBinding.ensureInitialized();
     Utilities.init();
   }
@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
             BottomSheetThemeData(backgroundColor: Colors.black.withOpacity(0)),
       ),
       debugShowCheckedModeBanner: false,
-      home: ConfirmAge(),
+      home: const ConfirmAge(),
     );
   }
 }
@@ -31,14 +31,10 @@ class MyApp extends StatelessWidget {
 class ConfirmAge extends StatefulWidget {
   const ConfirmAge({Key? key}) : super(key: key);
   @override
-  State<ConfirmAge> createState() => ConfirmAgeState();
+  State<ConfirmAge> createState() => _ConfirmAgeState();
 }
 
-class ConfirmAgeState extends State<ConfirmAge> {
-  refresh() {
-    setState(() {});
-  }
-
+class _ConfirmAgeState extends State<ConfirmAge> {
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -107,7 +103,7 @@ class ConfirmAgeState extends State<ConfirmAge> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            const MainScreen())); // Заменить на Login
+                                            const LogIn())); // Заменить на Login
                               },
                             ),
                           ),

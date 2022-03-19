@@ -12,12 +12,12 @@ class ConfirmEmail extends StatefulWidget {
   final String pass;
   const ConfirmEmail(this.email, this.pass, {Key? key}) : super(key: key);
   @override
-  State<StatefulWidget> createState() {
-    return ConfirmEmailState();
+  State<ConfirmEmail> createState() {
+    return _ConfirmEmailState();
   }
 }
 
-class ConfirmEmailState extends State<ConfirmEmail> {
+class _ConfirmEmailState extends State<ConfirmEmail> {
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -105,7 +105,7 @@ class ConfirmEmailState extends State<ConfirmEmail> {
                                           };
                                           var _responce = await http.post(
                                               Uri.parse(
-                                                  "https://75db-92-101-232-21.ngrok.io/auth/"),
+                                                  Utilities.url + "auth/"),
                                               body: jsonEncode(_user),
                                               headers: {
                                                 "Content-Type":

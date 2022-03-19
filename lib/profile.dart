@@ -22,11 +22,29 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
   bool he = true;
   bool they = true;
   ValueNotifier<bool> isLoading = ValueNotifier<bool>(true);
+  late List<String> trackNames;
+  late List<String> trackLikes;
+  late List<int> trackIds;
 
   @override
   void initState() {
     super.initState();
-    Timer(Duration(seconds: 3), () {
+    loadingTracks();
+  }
+
+  loadingTracks() async {
+    isLoading.value = true;
+    setState(() {});
+    await Future.delayed(Duration(seconds: 3), () {
+      trackNames = [
+        "Track 12345678",
+        "hellothisismytracknameand",
+        "Всем привет это моё название трека и он должен быть 50 символ",
+        "Всем привет это моё название трека и он должен быть 50 символ",
+        "Всем привет это моё название трека и он должен быть 50 символ"
+      ];
+      trackLikes = ["45k", "345", "1k", "4k", "115k"];
+      trackIds = [1, 2, 3, 4, 5];
       isLoading.value = false;
       setState(() {});
     });
@@ -66,18 +84,9 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
         color: const Color(0xff4b4b4f))
   ]);
 
-  final List<String> trackNames = [
-    "Track 12345678",
-    "hellothisismytracknameand",
-    "Всем привет это моё название трека и он должен быть 50 символ",
-    "Всем привет это моё название трека и он должен быть 50 символ",
-    "Всем привет это моё название трека и он должен быть 50 символ"
-  ];
-  final List<String> trackLikes = ["45k", "345", "1k", "4k", "115k"];
-  final List<int> trackIds = [1, 2, 3, 4, 5];
-
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     double height = MediaQuery.of(context).size.height;
     return ValueListenableBuilder<Map>(
         valueListenable: Utilities.curLang,
@@ -104,145 +113,159 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                       image: DecorationImage(
                           image: AssetImage('assets/back/back.png'),
                           fit: BoxFit.fill)),
-                  child: SingleChildScrollView(
-                    physics: isLoading.value
-                        ? const NeverScrollableScrollPhysics()
-                        : const BouncingScrollPhysics(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(Utilities.email,
-                            style: GoogleFonts.inter(
-                                color: Colors.white,
-                                fontSize: height / 25,
-                                fontWeight: FontWeight.bold)),
-                        SizedBox(height: height / 40),
-                        GestureDetector(
-                            onTap: () {
-                              if (!isLoading.value) {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const ChangePassword()));
-                              }
-                            },
-                            child: Text(lang["ChangePas"],
-                                style: GoogleFonts.inter(
-                                    color: MColors.mainColor,
-                                    fontSize: height / 45,
-                                    decoration: TextDecoration.underline))),
-                        SizedBox(height: height / 20),
-                        Text(lang["Voice"],
-                            style: GoogleFonts.inter(
-                                color: Colors.white,
-                                fontSize: height / 35,
-                                fontWeight: FontWeight.bold)),
-                        SizedBox(height: height / 25),
-                        Row(
+                  child: RefreshIndicator(
+                      displacement: 0,
+                      backgroundColor: Colors.transparent,
+                      color: MColors.mainColor,
+                      triggerMode: RefreshIndicatorTriggerMode.anywhere,
+                      onRefresh: () async {
+                        await loadingTracks();
+                      },
+                      child: SingleChildScrollView(
+                        physics: isLoading.value
+                            ? const NeverScrollableScrollPhysics()
+                            : const BouncingScrollPhysics(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                                margin: const EdgeInsets.only(right: 10),
-                                width: 20,
-                                height: 20,
-                                decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.white)),
-                                child: Checkbox(
-                                  activeColor: Colors.transparent,
-                                  value: she,
-                                  tristate: false,
-                                  onChanged: (value) {
-                                    if (!isLoading.value) {
-                                      setState(() {
-                                        !he && !they ? null : she = value!;
-                                      });
-                                    }
-                                  },
-                                )),
-                            Text(lang["she/her"],
-                                style: GoogleFonts.inter(color: Colors.white)),
-                            const Spacer(),
-                            Container(
-                                margin: const EdgeInsets.only(right: 10),
-                                width: 20,
-                                height: 20,
-                                decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.white)),
-                                child: Checkbox(
-                                  activeColor: Colors.transparent,
-                                  value: he,
-                                  tristate: false,
-                                  onChanged: (value) {
-                                    if (!isLoading.value) {
-                                      setState(() {
-                                        !she && !they ? null : he = value!;
-                                      });
-                                    }
-                                  },
-                                )),
-                            Text(lang["he/him"],
-                                style: GoogleFonts.inter(color: Colors.white)),
-                            const Spacer(),
-                            Container(
-                                margin: const EdgeInsets.only(right: 10),
-                                width: 20,
-                                height: 20,
-                                decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.white)),
-                                child: Checkbox(
-                                  activeColor: Colors.transparent,
-                                  value: they,
-                                  tristate: false,
-                                  onChanged: (value) {
-                                    if (!isLoading.value) {
-                                      setState(() {
-                                        !he && !she ? null : they = value!;
-                                      });
-                                    }
-                                  },
-                                )),
-                            Text(lang["they/them"],
-                                style: GoogleFonts.inter(color: Colors.white)),
+                            Text(Utilities.email,
+                                style: GoogleFonts.inter(
+                                    color: Colors.white,
+                                    fontSize: height / 25,
+                                    fontWeight: FontWeight.bold)),
+                            SizedBox(height: height / 40),
+                            GestureDetector(
+                                onTap: () {
+                                  if (!isLoading.value) {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const ChangePassword()));
+                                  }
+                                },
+                                child: Text(lang["ChangePas"],
+                                    style: GoogleFonts.inter(
+                                        color: MColors.mainColor,
+                                        fontSize: height / 45,
+                                        decoration: TextDecoration.underline))),
+                            SizedBox(height: height / 20),
+                            Text(lang["Voice"],
+                                style: GoogleFonts.inter(
+                                    color: Colors.white,
+                                    fontSize: height / 35,
+                                    fontWeight: FontWeight.bold)),
+                            SizedBox(height: height / 25),
+                            Row(
+                              children: [
+                                Container(
+                                    margin: const EdgeInsets.only(right: 10),
+                                    width: 20,
+                                    height: 20,
+                                    decoration: BoxDecoration(
+                                        border:
+                                            Border.all(color: Colors.white)),
+                                    child: Checkbox(
+                                      activeColor: Colors.transparent,
+                                      value: she,
+                                      tristate: false,
+                                      onChanged: (value) {
+                                        if (!isLoading.value) {
+                                          setState(() {
+                                            !he && !they ? null : she = value!;
+                                          });
+                                        }
+                                      },
+                                    )),
+                                Text(lang["she/her"],
+                                    style:
+                                        GoogleFonts.inter(color: Colors.white)),
+                                const Spacer(),
+                                Container(
+                                    margin: const EdgeInsets.only(right: 10),
+                                    width: 20,
+                                    height: 20,
+                                    decoration: BoxDecoration(
+                                        border:
+                                            Border.all(color: Colors.white)),
+                                    child: Checkbox(
+                                      activeColor: Colors.transparent,
+                                      value: he,
+                                      tristate: false,
+                                      onChanged: (value) {
+                                        if (!isLoading.value) {
+                                          setState(() {
+                                            !she && !they ? null : he = value!;
+                                          });
+                                        }
+                                      },
+                                    )),
+                                Text(lang["he/him"],
+                                    style:
+                                        GoogleFonts.inter(color: Colors.white)),
+                                const Spacer(),
+                                Container(
+                                    margin: const EdgeInsets.only(right: 10),
+                                    width: 20,
+                                    height: 20,
+                                    decoration: BoxDecoration(
+                                        border:
+                                            Border.all(color: Colors.white)),
+                                    child: Checkbox(
+                                      activeColor: Colors.transparent,
+                                      value: they,
+                                      tristate: false,
+                                      onChanged: (value) {
+                                        if (!isLoading.value) {
+                                          setState(() {
+                                            !he && !she ? null : they = value!;
+                                          });
+                                        }
+                                      },
+                                    )),
+                                Text(lang["they/them"],
+                                    style:
+                                        GoogleFonts.inter(color: Colors.white)),
+                              ],
+                            ),
+                            SizedBox(height: height / 12),
+                            Text(lang["MyRec"],
+                                style: GoogleFonts.inter(
+                                    color: Colors.white,
+                                    fontSize: height / 25,
+                                    fontWeight: FontWeight.bold)),
+                            SizedBox(height: height / 30),
+                            ValueListenableBuilder<bool>(
+                                valueListenable: isLoading,
+                                builder: (_, isloading, child) {
+                                  return isloading
+                                      ? Shimmer(
+                                          linearGradient: shimmerGradient,
+                                          child: ListView(
+                                              shrinkWrap: true,
+                                              padding: EdgeInsets.zero,
+                                              children: [
+                                                ShimmerLoading(
+                                                    isLoading: isloading,
+                                                    child: Column(
+                                                      children: [
+                                                        forLoadingShimmer,
+                                                        forLoadingShimmer,
+                                                        forLoadingShimmer,
+                                                        forLoadingShimmer,
+                                                        forLoadingShimmer,
+                                                      ],
+                                                    ))
+                                              ]),
+                                        )
+                                      : TrackElement(
+                                          trackNames: trackNames,
+                                          trackLikes: trackLikes,
+                                          trackIds: trackIds);
+                                })
                           ],
                         ),
-                        SizedBox(height: height / 12),
-                        Text(lang["MyRec"],
-                            style: GoogleFonts.inter(
-                                color: Colors.white,
-                                fontSize: height / 25,
-                                fontWeight: FontWeight.bold)),
-                        SizedBox(height: height / 30),
-                        ValueListenableBuilder<bool>(
-                            valueListenable: isLoading,
-                            builder: (_, isloading, child) {
-                              return isloading
-                                  ? Shimmer(
-                                      linearGradient: shimmerGradient,
-                                      child: ListView(
-                                          shrinkWrap: true,
-                                          padding: EdgeInsets.zero,
-                                          children: [
-                                            ShimmerLoading(
-                                                isLoading: isloading,
-                                                child: Column(
-                                                  children: [
-                                                    forLoadingShimmer,
-                                                    forLoadingShimmer,
-                                                    forLoadingShimmer,
-                                                    forLoadingShimmer,
-                                                    forLoadingShimmer,
-                                                  ],
-                                                ))
-                                          ]),
-                                    )
-                                  : TrackElement(
-                                      trackNames: trackNames,
-                                      trackLikes: trackLikes,
-                                      trackIds: trackIds);
-                            })
-                      ],
-                    ),
-                  )));
+                      ))));
         });
   }
 

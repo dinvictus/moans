@@ -13,45 +13,40 @@ class SignUp extends StatefulWidget {
   const SignUp({Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() {
-    return SignUpState();
+  State<SignUp> createState() {
+    return _SignUpState();
   }
 }
 
-class SignUpState extends State<SignUp> {
-  final _controllerEmail = TextEditingController();
-  final _controllerPass = TextEditingController();
-  bool _submitter = false;
-  refresh() {
-    setState(() {});
-  }
-
-  Future<void> _submit() async {
+class _SignUpState extends State<SignUp> {
+  final controllerEmail = TextEditingController();
+  final controllerPass = TextEditingController();
+  bool submitter = false;
+  submit() async {
     setState(() {
-      _submitter = true;
+      submitter = true;
     });
-    if (_errorTextEmail == null && _errorTextPass == null) {
-      var _passbyte = utf8.encode(_controllerPass.value.text);
-      var _passhash = sha256.convert(_passbyte);
-      var _user = {
-        "email": _controllerEmail.value.text.toString(),
-        "password": _passhash.toString(),
-        "password2": _passhash.toString()
+    if (errorTextEmail == null && errorTextPass == null) {
+      var passbyte = utf8.encode(controllerPass.value.text);
+      var passhash = sha256.convert(passbyte);
+      var user = {
+        "email": controllerEmail.value.text.toString(),
+        "password": passhash.toString(),
+        "password2": passhash.toString()
       };
-      Utilities.email = _controllerEmail.value.text.toString();
 
-      var _responce = await http.post(
-          Uri.parse("https://75db-92-101-232-21.ngrok.io/users/"),
-          body: jsonEncode(_user),
+      var responce = await http.post(Uri.parse(Utilities.url + "users/"),
+          body: jsonEncode(user),
           headers: {"Content-Type": "application/json"});
-      print(_responce.statusCode);
+      print(responce.statusCode);
 
-      if (_responce.statusCode == 200) {
+      if (responce.statusCode == 200) {
+        Utilities.email = controllerEmail.value.text.toString();
         Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) =>
-                    ConfirmEmail(_controllerEmail.text, _controllerPass.text)));
+                    ConfirmEmail(controllerEmail.text, controllerPass.text)));
       } else {
         // Пользователь с таким email уже зарегестрирован.
       }
@@ -60,35 +55,35 @@ class SignUpState extends State<SignUp> {
 
   @override
   void dispose() {
-    _controllerEmail.dispose();
-    _controllerPass.dispose();
+    controllerEmail.dispose();
+    controllerPass.dispose();
     super.dispose();
   }
 
-  String? get _errorTextEmail {
-    final text = _controllerEmail.value.text.toString();
+  String? get errorTextEmail {
+    final text = controllerEmail.value.text.toString();
     if (!text.contains("@") || !text.contains(".")) {
       return Utilities.curLang.value["EmailNotCorrect"];
     }
     return null;
   }
 
-  String? get _errorTextPass {
-    final text = _controllerPass.value.text.toString();
+  String? get errorTextPass {
+    final text = controllerPass.value.text.toString();
     if (text.length <= 8) {
       return Utilities.curLang.value["ShortPass"];
     }
     return null;
   }
 
-  Color _getColorErrorEmail() {
-    return _submitter && _errorTextEmail != null
+  Color getColorErrorEmail() {
+    return submitter && errorTextEmail != null
         ? const Color(0xffa72627)
         : Colors.white;
   }
 
-  Color _getColorPassword() {
-    return _submitter && _errorTextPass != null
+  Color getColorPassword() {
+    return submitter && errorTextPass != null
         ? const Color(0xffa72627)
         : Colors.white;
   }
@@ -147,13 +142,13 @@ class SignUpState extends State<SignUp> {
                                             Text(
                                               lang["Email"],
                                               style: GoogleFonts.inter(
-                                                  color: _getColorErrorEmail(),
+                                                  color: getColorErrorEmail(),
                                                   fontSize: 12),
                                             ),
                                             Text(
-                                              _submitter &&
-                                                      _errorTextEmail != null
-                                                  ? _errorTextEmail!
+                                              submitter &&
+                                                      errorTextEmail != null
+                                                  ? errorTextEmail!
                                                   : "",
                                               style: GoogleFonts.inter(
                                                   color:
@@ -162,9 +157,9 @@ class SignUpState extends State<SignUp> {
                                             ),
                                           ])),
                                   TextField(
-                                    controller: _controllerEmail,
+                                    controller: controllerEmail,
                                     style:
-                                        TextStyle(color: _getColorErrorEmail()),
+                                        TextStyle(color: getColorErrorEmail()),
                                     autofocus: true,
                                     decoration: InputDecoration(
                                       enabledBorder: const UnderlineInputBorder(
@@ -179,12 +174,12 @@ class SignUpState extends State<SignUp> {
                                       hintStyle: const TextStyle(
                                           color: Color(0xff878789)),
                                       errorText:
-                                          _submitter ? _errorTextEmail : null,
+                                          submitter ? errorTextEmail : null,
                                       errorStyle: const TextStyle(
                                           fontSize: 0, height: 0),
                                     ),
                                     onChanged: (_) => setState(() {
-                                      _submitter = false;
+                                      submitter = false;
                                     }),
                                   ),
                                   Container(
@@ -196,12 +191,11 @@ class SignUpState extends State<SignUp> {
                                           children: [
                                             Text(lang["CreatePass"],
                                                 style: GoogleFonts.inter(
-                                                    color: _getColorPassword(),
+                                                    color: getColorPassword(),
                                                     fontSize: 12)),
                                             Text(
-                                              _submitter &&
-                                                      _errorTextPass != null
-                                                  ? _errorTextPass!
+                                              submitter && errorTextPass != null
+                                                  ? errorTextPass!
                                                   : "",
                                               style: GoogleFonts.inter(
                                                   color:
@@ -210,10 +204,9 @@ class SignUpState extends State<SignUp> {
                                             ),
                                           ])),
                                   TextField(
-                                    controller: _controllerPass,
+                                    controller: controllerPass,
                                     obscureText: true,
-                                    style:
-                                        TextStyle(color: _getColorPassword()),
+                                    style: TextStyle(color: getColorPassword()),
                                     decoration: InputDecoration(
                                       enabledBorder: const UnderlineInputBorder(
                                         borderSide: BorderSide(
@@ -224,12 +217,12 @@ class SignUpState extends State<SignUp> {
                                             BorderSide(color: Colors.white),
                                       ),
                                       errorText:
-                                          _submitter ? _errorTextPass : null,
+                                          submitter ? errorTextPass : null,
                                       errorStyle: const TextStyle(
                                           fontSize: 0, height: 0),
                                     ),
                                     onChanged: (_) => setState(() {
-                                      _submitter = false;
+                                      submitter = false;
                                     }),
                                   ),
                                   Container(
@@ -282,11 +275,11 @@ class SignUpState extends State<SignUp> {
                                             color: Colors.white,
                                             fontSize: height / 50),
                                       ),
-                                      onPressed: _controllerEmail
+                                      onPressed: controllerEmail
                                                   .value.text.isNotEmpty &&
-                                              _controllerPass
+                                              controllerPass
                                                   .value.text.isNotEmpty
-                                          ? _submit
+                                          ? submit
                                           : null,
                                     ),
                                   ),

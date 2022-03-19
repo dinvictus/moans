@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:moans/res.dart';
 import 'package:record/record.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 enum AudioRecordState { main, record, playrecord, saverecord }
@@ -31,7 +31,8 @@ class AudioRecorder {
 
   init() async {
     final status = await Permission.microphone.request();
-    if (status != PermissionStatus.granted) {
+    if (status != PermissionStatus.granted ||
+        status == PermissionStatus.limited) {
       // Нет разрешения для использования микрофона
     } else {
       _audioRecorder = Record();
@@ -65,6 +66,7 @@ class AudioRecorder {
   }
 
   back() async {
+    FocusManager.instance.primaryFocus?.unfocus();
     Utilities.managerForRecord.stop();
     Utilities.managerForRecord.resetDuration();
     if (await _audioRecorder.isRecording()) {
@@ -79,17 +81,22 @@ class AudioRecorder {
   }
 
   backSave() {
+    FocusManager.instance.primaryFocus?.unfocus();
     pageAudioRecordNotifier.value = AudioRecordState.playrecord;
   }
 
   _record() async {
-    if (_isInitialize && !await _audioRecorder.isRecording()) {
-      Utilities.isPlaying.value = Utilities.isPlaying.value ? false : true;
-      pageAudioRecordNotifier.value = AudioRecordState.record;
-      _audioRecorder.start();
-      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-        timeNotifier.value = TimeRecordState(Duration(seconds: timer.tick));
-      });
+    final status = await Permission.microphone.request();
+    if (status == PermissionStatus.granted ||
+        status == PermissionStatus.limited) {
+      if (_isInitialize && !await _audioRecorder.isRecording()) {
+        Utilities.isPlaying.value = Utilities.isPlaying.value ? false : true;
+        pageAudioRecordNotifier.value = AudioRecordState.record;
+        _audioRecorder.start();
+        _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+          timeNotifier.value = TimeRecordState(Duration(seconds: timer.tick));
+        });
+      }
     }
   }
 

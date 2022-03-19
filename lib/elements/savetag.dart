@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:moans/elements/audiorecorder.dart';
 import 'package:moans/elements/savetagitem.dart';
-import 'package:moans/res.dart';
 
 class SaveTag extends StatefulWidget {
   final List<String> listTagsString;
@@ -12,20 +11,20 @@ class SaveTag extends StatefulWidget {
       {required this.listTagsString, required this.changeTagsCount, Key? key})
       : super(key: key);
   @override
-  State<StatefulWidget> createState() {
+  State<SaveTag> createState() {
     return _SaveTagState();
   }
 }
 
 class _SaveTagState extends State<SaveTag> {
-  final List<Widget> _listTags = [];
+  final List<Widget> listTags = [];
   // final List<String> _listTagsString = [];
-  final _scrollController = ScrollController();
-  final _tagController = TextEditingController();
+  final scrollController = ScrollController();
+  final tagController = TextEditingController();
 
   loadingTags() {
     for (String tag in widget.listTagsString) {
-      _listTags.add(SaveTagItem(tag, _delTagItem));
+      listTags.add(SaveTagItem(tag, _delTagItem));
     }
   }
 
@@ -39,7 +38,8 @@ class _SaveTagState extends State<SaveTag> {
       if (pageAudioRecordNotifier.value == AudioRecordState.main) {
         if (mounted) {
           setState(() {
-            _listTags.clear();
+            tagController.clear();
+            listTags.clear();
             widget.listTagsString.clear();
           });
         }
@@ -52,8 +52,8 @@ class _SaveTagState extends State<SaveTag> {
       for (int i = 0; i < widget.listTagsString.length; i++) {
         if (widget.listTagsString[i] == text) {
           widget.listTagsString.removeAt(i);
-          _listTags.removeAt(i);
-          widget.changeTagsCount(_listTags.length);
+          listTags.removeAt(i);
+          widget.changeTagsCount(listTags.length);
         }
       }
     });
@@ -62,9 +62,8 @@ class _SaveTagState extends State<SaveTag> {
   _animate() {
     Timer(const Duration(milliseconds: 100), () {
       setState(() {
-        if (_listTags.length >= 2) {
-          _scrollController.animateTo(
-              _scrollController.position.maxScrollExtent,
+        if (listTags.length >= 2) {
+          scrollController.animateTo(scrollController.position.maxScrollExtent,
               duration: const Duration(milliseconds: 300),
               curve: Curves.linear);
         }
@@ -73,24 +72,24 @@ class _SaveTagState extends State<SaveTag> {
   }
 
   _textChanged(String text) {
-    if (_listTags.length >= 16) {
-      _tagController.text = "";
+    if (listTags.length >= 16) {
+      tagController.text = "";
     }
-    if (_tagController.text.length >= 25) {
-      _tagController.text = _tagController.text.substring(0, 24);
-      _tagController.selection = TextSelection.fromPosition(
-          TextPosition(offset: _tagController.text.length));
+    if (tagController.text.length >= 25) {
+      tagController.text = tagController.text.substring(0, 24);
+      tagController.selection = TextSelection.fromPosition(
+          TextPosition(offset: tagController.text.length));
     }
     if (text.isNotEmpty && text.substring(text.length - 1) == " ") {
       String temp = text.trim().replaceAll(" ", "");
       setState(() {
         if (temp != "") {
-          _listTags.add(SaveTagItem(temp, _delTagItem));
+          listTags.add(SaveTagItem(temp, _delTagItem));
           widget.listTagsString.add(temp);
-          widget.changeTagsCount(_listTags.length);
+          widget.changeTagsCount(listTags.length);
           _animate();
         }
-        _tagController.text = text.substring(temp.length + 1);
+        tagController.text = text.substring(temp.length + 1);
       });
     }
   }
@@ -105,18 +104,18 @@ class _SaveTagState extends State<SaveTag> {
                 borderSide: BorderSide(width: 2, color: Colors.white)),
             enabledBorder: const UnderlineInputBorder(
                 borderSide: BorderSide(width: 2, color: Color(0xff878789))),
-            prefixIcon: _listTags.isNotEmpty
+            prefixIcon: listTags.isNotEmpty
                 ? ConstrainedBox(
                     constraints: BoxConstraints(maxWidth: 0.725 * width),
                     child: SingleChildScrollView(
-                        controller: _scrollController,
+                        controller: scrollController,
                         scrollDirection: Axis.horizontal,
                         child: Row(
                             mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: _listTags)))
+                            children: listTags)))
                 : null),
-        controller: _tagController,
+        controller: tagController,
         onChanged: _textChanged);
   }
 }

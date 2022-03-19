@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:moans/elements/shimmer.dart';
@@ -40,14 +38,14 @@ class AudioItem extends StatefulWidget {
 
 class _AudioItemState extends State<AudioItem>
     with AutomaticKeepAliveClientMixin {
-  bool liked = false;
+  bool likedBool = false;
   final TextStyle _textStyleTime =
       GoogleFonts.inter(color: const Color(0xff878789));
   final TextStyle _textStyleLS =
       GoogleFonts.inter(color: Colors.white, fontSize: 12);
   late ValueNotifier<double> notifierforLikeSize;
 
-  Widget loadingWidget = Container(
+  final Widget loadingWidget = Container(
       width: 68,
       height: 68,
       padding: const EdgeInsets.all(10),
@@ -57,33 +55,29 @@ class _AudioItemState extends State<AudioItem>
         color: Colors.black,
       ));
 
-  _liked() {
-    // Запрос к серверу на поставку лайка.
-    liked = true;
+  animateLikeButton() {
     notifierforLikeSize.value = 42;
     Timer(const Duration(milliseconds: 100), () {
       notifierforLikeSize.value = 32;
     });
   }
 
-  _unLiked() {
+  liked() {
+    // Запрос к серверу на поставку лайка.
+    likedBool = true;
+    animateLikeButton();
+  }
+
+  unLiked() {
     // Запрос к серверу на удаление лайка.
-    liked = false;
-    notifierforLikeSize.value = 42;
-    Timer(const Duration(milliseconds: 100), () {
-      notifierforLikeSize.value = 32;
-    });
+    likedBool = false;
+    animateLikeButton();
   }
 
   @override
   void initState() {
     super.initState();
     notifierforLikeSize = ValueNotifier<double>(32);
-    widget._isloading.addListener(() {
-      if (mounted) {
-        setState(() {});
-      }
-    });
   }
 
   @override
@@ -206,59 +200,68 @@ class _AudioItemState extends State<AudioItem>
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Container(
-                      margin: EdgeInsets.fromLTRB(
-                          0, 0, width / 2 - 10 - 34 - 71, height / 5),
-                      height: 68,
-                      width: 68,
-                      child: widget._isloading.value
-                          ? loadingWidget
-                          : ValueListenableBuilder<ButtonState>(
-                              valueListenable:
-                                  widget.audioManager.buttonNotifier,
-                              builder: (_, value, __) {
-                                switch (value) {
-                                  case ButtonState.loading:
-                                    return loadingWidget;
-                                  case ButtonState.paused:
-                                    return ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                          elevation: 0,
-                                          padding: const EdgeInsets.fromLTRB(
-                                              20, 17, 17, 17),
-                                          primary: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(50.0))),
-                                      child:
-                                          Image.asset("assets/items/play.png"),
-                                      onPressed: () {
-                                        try {
-                                          Utilities.audioHandler
-                                              .switchToHandler(
-                                                  widget._indexPage + 1);
-                                          Utilities.audioHandler.play();
-                                        } catch (e) {
-                                          print("error");
+                        margin: EdgeInsets.fromLTRB(
+                            0, 0, width / 2 - 10 - 34 - 71, height / 5),
+                        height: 68,
+                        width: 68,
+                        child: ValueListenableBuilder<bool>(
+                            valueListenable: widget._isloading,
+                            builder: (_, isloading, __) {
+                              return isloading
+                                  ? loadingWidget
+                                  : ValueListenableBuilder<ButtonState>(
+                                      valueListenable:
+                                          widget.audioManager.buttonNotifier,
+                                      builder: (_, value, __) {
+                                        switch (value) {
+                                          case ButtonState.loading:
+                                            return loadingWidget;
+                                          case ButtonState.paused:
+                                            return ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                  elevation: 0,
+                                                  padding:
+                                                      const EdgeInsets.fromLTRB(
+                                                          20, 17, 17, 17),
+                                                  primary: Colors.white,
+                                                  shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              50.0))),
+                                              child: Image.asset(
+                                                  "assets/items/play.png"),
+                                              onPressed: () {
+                                                try {
+                                                  Utilities.audioHandler
+                                                      .switchToHandler(
+                                                          widget._indexPage +
+                                                              1);
+                                                  Utilities.audioHandler.play();
+                                                } catch (e) {
+                                                  print("error");
+                                                }
+                                              },
+                                            );
+                                          case ButtonState.playing:
+                                            return ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                  elevation: 0,
+                                                  padding:
+                                                      const EdgeInsets.all(17),
+                                                  primary: Colors.white,
+                                                  shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              50.0))),
+                                              child: Image.asset(
+                                                  "assets/items/pause.png"),
+                                              onPressed:
+                                                  widget.audioManager.pause,
+                                            );
                                         }
                                       },
                                     );
-                                  case ButtonState.playing:
-                                    return ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                          elevation: 0,
-                                          padding: const EdgeInsets.all(17),
-                                          primary: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(50.0))),
-                                      child:
-                                          Image.asset("assets/items/pause.png"),
-                                      onPressed: widget.audioManager.pause,
-                                    );
-                                }
-                              },
-                            ),
-                    ),
+                            })),
                     Column(children: [
                       ValueListenableBuilder<double>(
                         valueListenable: notifierforLikeSize,
@@ -275,9 +278,9 @@ class _AudioItemState extends State<AudioItem>
                                           borderRadius:
                                               BorderRadius.circular(50.0))),
                                   onPressed: () {
-                                    !liked ? _liked() : _unLiked();
+                                    !likedBool ? liked() : unLiked();
                                   },
-                                  child: liked
+                                  child: likedBool
                                       ? Image.asset('assets/items/likeon.png')
                                       : Image.asset(
                                           'assets/items/likeoff.png')));

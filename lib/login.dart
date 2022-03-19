@@ -15,33 +15,27 @@ class LogIn extends StatefulWidget {
   const LogIn({Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() {
-    return LogInState();
+  State<LogIn> createState() {
+    return _LogInState();
   }
 }
 
-class LogInState extends State<LogIn> {
-  final _controllerEmail = TextEditingController();
-  final _controllerPass = TextEditingController();
-  final _scrollController = ScrollController();
+class _LogInState extends State<LogIn> {
+  final controllerEmail = TextEditingController();
+  final controllerPass = TextEditingController();
   bool _submitter = false;
-  refresh() {
-    setState(() {});
-  }
-
-  Future<void> _submit() async {
+  submit() async {
     setState(() {
       _submitter = true;
     });
-    if (_errorTextEmail == null && _errorTextPass == null) {
-      var _passbyte = utf8.encode(_controllerPass.value.text);
+    if (errorTextEmail == null && errorTextPass == null) {
+      var _passbyte = utf8.encode(controllerPass.value.text);
       var _passhash = sha256.convert(_passbyte);
       var _user = {
-        "email": _controllerEmail.value.text.toString(),
+        "email": controllerEmail.value.text.toString(),
         "password": _passhash.toString()
       };
-      var _responce = await http.post(
-          Uri.parse("https://75db-92-101-232-21.ngrok.io/auth/"),
+      var _responce = await http.post(Uri.parse(Utilities.url + "auth/"),
           body: jsonEncode(_user),
           headers: {"Content-Type": "application/json"});
       print(_responce.statusCode);
@@ -59,37 +53,57 @@ class LogInState extends State<LogIn> {
 
   @override
   void dispose() {
-    _controllerEmail.dispose();
-    _controllerPass.dispose();
+    controllerEmail.dispose();
+    controllerPass.dispose();
     super.dispose();
   }
 
-  String? get _errorTextEmail {
-    final text = _controllerEmail.value.text.toString();
+  String? get errorTextEmail {
+    final text = controllerEmail.value.text.toString();
     if (!text.contains("@") || !text.contains(".")) {
       return Utilities.curLang.value["EmailNotCorrect"];
     }
     return null;
   }
 
-  String? get _errorTextPass {
-    final text = _controllerPass.value.text.toString();
+  String? get errorTextPass {
+    final text = controllerPass.value.text.toString();
     if (text.length <= 8) {
       return Utilities.curLang.value["ShortPass"];
     }
     return null;
   }
 
-  Color _getColorErrorEmail() {
-    return _submitter && _errorTextEmail != null
+  Color getColorErrorEmail() {
+    return _submitter && errorTextEmail != null
         ? const Color(0xffa72627)
         : Colors.white;
   }
 
-  Color _getColorPassword() {
-    return _submitter && _errorTextPass != null
+  Color getColorPassword() {
+    return _submitter && errorTextPass != null
         ? const Color(0xffa72627)
         : Colors.white;
+  }
+
+  googleAuth() async {
+    GoogleSignIn _googleSignIn = GoogleSignIn(
+      scopes: [
+        'email',
+      ],
+    );
+    await _googleSignIn.disconnect();
+    try {
+      await _googleSignIn.signIn();
+      print(_googleSignIn.currentUser!.email.toString());
+      final GoogleSignInAuthentication googleAuth =
+          await _googleSignIn.currentUser!.authentication;
+      print(googleAuth.idToken);
+      // Переход дальше
+    } catch (error) {
+      // Окошко с ошибкой
+      print(error);
+    }
   }
 
   @override
@@ -107,7 +121,7 @@ class LogInState extends State<LogIn> {
             backgroundColor: Colors.transparent,
             automaticallyImplyLeading: false,
             elevation: 0,
-            actions: [const MyDropButton()],
+            actions: const [MyDropButton()],
           ),
           extendBodyBehindAppBar: true,
           body: SingleChildScrollView(
@@ -144,11 +158,11 @@ class LogInState extends State<LogIn> {
                                       children: [
                                         Text(lang["Email"],
                                             style: GoogleFonts.inter(
-                                                color: _getColorErrorEmail(),
+                                                color: getColorErrorEmail(),
                                                 fontSize: 12)),
                                         Text(
-                                          _submitter && _errorTextEmail != null
-                                              ? _errorTextEmail!
+                                          _submitter && errorTextEmail != null
+                                              ? errorTextEmail!
                                               : "",
                                           style: GoogleFonts.inter(
                                               color: const Color(0xffa72627),
@@ -156,8 +170,8 @@ class LogInState extends State<LogIn> {
                                         ),
                                       ])),
                               TextField(
-                                controller: _controllerEmail,
-                                style: TextStyle(color: _getColorErrorEmail()),
+                                controller: controllerEmail,
+                                style: TextStyle(color: getColorErrorEmail()),
                                 autofocus: true,
                                 decoration: InputDecoration(
                                   enabledBorder: const UnderlineInputBorder(
@@ -170,8 +184,7 @@ class LogInState extends State<LogIn> {
                                   hintText: "example@example.com",
                                   hintStyle:
                                       const TextStyle(color: Color(0xff878789)),
-                                  errorText:
-                                      _submitter ? _errorTextEmail : null,
+                                  errorText: _submitter ? errorTextEmail : null,
                                   errorStyle:
                                       const TextStyle(fontSize: 0, height: 0),
                                 ),
@@ -188,11 +201,11 @@ class LogInState extends State<LogIn> {
                                       children: [
                                         Text(lang["Password"],
                                             style: GoogleFonts.inter(
-                                                color: _getColorPassword(),
+                                                color: getColorPassword(),
                                                 fontSize: 12)),
                                         Text(
-                                          _submitter && _errorTextPass != null
-                                              ? _errorTextPass!
+                                          _submitter && errorTextPass != null
+                                              ? errorTextPass!
                                               : "",
                                           style: GoogleFonts.inter(
                                               color: const Color(0xffa72627),
@@ -200,9 +213,9 @@ class LogInState extends State<LogIn> {
                                         ),
                                       ])),
                               TextField(
-                                controller: _controllerPass,
+                                controller: controllerPass,
                                 obscureText: true,
-                                style: TextStyle(color: _getColorPassword()),
+                                style: TextStyle(color: getColorPassword()),
                                 decoration: InputDecoration(
                                   enabledBorder: const UnderlineInputBorder(
                                     borderSide:
@@ -211,7 +224,7 @@ class LogInState extends State<LogIn> {
                                   focusedBorder: const UnderlineInputBorder(
                                     borderSide: BorderSide(color: Colors.white),
                                   ),
-                                  errorText: _submitter ? _errorTextPass : null,
+                                  errorText: _submitter ? errorTextPass : null,
                                   errorStyle:
                                       const TextStyle(fontSize: 0, height: 0),
                                 ),
@@ -237,10 +250,10 @@ class LogInState extends State<LogIn> {
                                         color: Colors.white,
                                         fontSize: height / 50),
                                   ),
-                                  onPressed: _controllerEmail
+                                  onPressed: controllerEmail
                                               .value.text.isNotEmpty &&
-                                          _controllerPass.value.text.isNotEmpty
-                                      ? _submit
+                                          controllerPass.value.text.isNotEmpty
+                                      ? submit
                                       : null,
                                 ),
                               ),
@@ -295,20 +308,7 @@ class LogInState extends State<LogIn> {
                                               padding:
                                                   const EdgeInsets.fromLTRB(
                                                       10, 5, 15, 5)),
-                                          onPressed: () async {
-                                            GoogleSignIn _googleSignIn =
-                                                GoogleSignIn(
-                                              scopes: [
-                                                'email',
-                                                'https://www.googleapis.com/auth/contacts.readonly',
-                                              ],
-                                            );
-                                            try {
-                                              await _googleSignIn.signIn();
-                                            } catch (error) {
-                                              print(error);
-                                            }
-                                          },
+                                          onPressed: () => googleAuth(),
                                           child: Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
@@ -320,30 +320,30 @@ class LogInState extends State<LogIn> {
                                                       color: Colors.black)),
                                             ],
                                           ))),
-                                  SizedBox(
-                                    height: 40,
-                                    width: 110,
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              10, 5, 10, 5),
-                                          primary: const Color(0xff395693)),
-                                      onPressed: () {},
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Image.asset(
-                                              "assets/items/facebooklogo.png"),
-                                          Text(
-                                            "Facebook",
-                                            style: GoogleFonts.inter(
-                                                color: Colors.white),
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  )
+                                  // SizedBox(
+                                  //   height: 40,
+                                  //   width: 110,
+                                  //   child: ElevatedButton(
+                                  //     style: ElevatedButton.styleFrom(
+                                  //         padding: const EdgeInsets.fromLTRB(
+                                  //             10, 5, 10, 5),
+                                  //         primary: const Color(0xff395693)),
+                                  //     onPressed: () {},
+                                  //     child: Row(
+                                  //       mainAxisAlignment:
+                                  //           MainAxisAlignment.spaceBetween,
+                                  //       children: [
+                                  //         Image.asset(
+                                  //             "assets/items/facebooklogo.png"),
+                                  //         Text(
+                                  //           "Facebook",
+                                  //           style: GoogleFonts.inter(
+                                  //               color: Colors.white),
+                                  //         )
+                                  //       ],
+                                  //     ),
+                                  //   ),
+                                  // )
                                 ],
                               ),
                               Container(

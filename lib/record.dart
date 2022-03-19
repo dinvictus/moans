@@ -102,7 +102,6 @@ class MainRecordItemState extends State<MainRecordItem> {
                                   await FilePicker.platform.pickFiles(
                                       type: FileType.custom,
                                       allowedExtensions: ['mp3', 'aac']);
-
                               if (result != null) {
                                 // File file = File(result.files.single.path!);
                                 _audioRecorder
@@ -214,11 +213,11 @@ class PlayRecordItem extends StatefulWidget {
 
   @override
   State<PlayRecordItem> createState() {
-    return PlayRecordItemState();
+    return _PlayRecordItemState();
   }
 }
 
-class PlayRecordItemState extends State<PlayRecordItem> {
+class _PlayRecordItemState extends State<PlayRecordItem> {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<Map>(
@@ -453,9 +452,9 @@ class RecordState extends State<Record> with AutomaticKeepAliveClientMixin {
               physics: const NeverScrollableScrollPhysics(),
               scrollDirection: Axis.horizontal,
               children: [
-                MainRecordItem(),
-                RecordRecordItem(),
-                PlayRecordItem(),
+                const MainRecordItem(),
+                const RecordRecordItem(),
+                const PlayRecordItem(),
                 PostItem(
                     _audioRecorder.backSave, -1, _audioRecorder.pathToFile!),
               ],

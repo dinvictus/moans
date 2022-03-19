@@ -48,7 +48,7 @@ class Utilities {
   static late SharedPreferences preferences;
   static late AudioHandler audioHandler;
   static late AudioManager managerForRecord;
-  static String url = "https://05a2-178-66-32-212.ngrok.io/";
+  static String url = "https://9747-92-101-232-21.ngrok.io/";
   static ValueNotifier<int> curPage = ValueNotifier(0);
   static ValueNotifier<Map> curLang = ValueNotifier<Map>(_englishStrings);
   static String email = "test@test";

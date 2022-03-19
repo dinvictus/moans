@@ -42,8 +42,7 @@ class MainScreenState extends State<MainScreen> {
           scrollDirection: Axis.horizontal,
           onPageChanged: (value) {
             setState(() {
-              // HelpRefresh.toUpdate();
-              FocusScope.of(context).unfocus();
+              FocusManager.instance.primaryFocus?.unfocus();
               if (value == 0) {
                 _selectionIndex = 0;
               }
