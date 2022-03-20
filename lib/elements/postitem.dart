@@ -48,6 +48,10 @@ class _PostItemState extends State<PostItem> {
         hintStyle: _textStyleSave);
   }
 
+  editTrack() async {}
+
+  toDraftTrack() async {}
+
   postTrack() async {
     print(widget.pathToFile);
     String tags = "";
@@ -79,6 +83,18 @@ class _PostItemState extends State<PostItem> {
 
   changeTagsCount(int count) {
     tagsCountForSave.value = count;
+  }
+
+  ElevatedButton _getButton(Function() func, String text) {
+    return ElevatedButton(
+        style: ElevatedButton.styleFrom(
+            primary: MColors.mainColor,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(50.0))),
+        onPressed: func,
+        child: Text(text,
+            style:
+                GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500)));
   }
 
   changeLanguage(Languages language) {
@@ -130,6 +146,7 @@ class _PostItemState extends State<PostItem> {
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
     return ValueListenableBuilder<Map>(
         valueListenable: Utilities.curLang,
         builder: (_, lang, __) {
@@ -368,23 +385,28 @@ class _PostItemState extends State<PostItem> {
                       ),
                       SizedBox(height: height / 25),
                       Container(
-                          height: height / 13,
+                          alignment: Alignment.center,
+                          height: height / 8,
                           margin: const EdgeInsets.fromLTRB(15, 0, 15, 15),
                           width: double.infinity,
-                          child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  primary: MColors.mainColor,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(50.0))),
-                              onPressed: postTrack,
-                              child: Text(
-                                  widget.trackId == -1
-                                      ? lang["SavePost"]
-                                      : lang["Edit"],
-                                  style: GoogleFonts.inter(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500))))
+                          child: widget.trackId != -1
+                              ? Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    SizedBox(
+                                        width: width / 3,
+                                        height: height / 13,
+                                        child: _getButton(
+                                            () => editTrack(), lang["Edit"])),
+                                    SizedBox(
+                                        width: width / 3,
+                                        height: height / 13,
+                                        child: _getButton(() => toDraftTrack(),
+                                            lang["ToDraft"]))
+                                  ],
+                                )
+                              : _getButton(() => postTrack(), lang["SavePost"]))
                     ],
                   ))));
         });

@@ -1,5 +1,4 @@
-import 'dart:async';
-
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:moans/changepass.dart';
 import 'package:moans/elements/dropbutton.dart';
@@ -7,10 +6,10 @@ import 'package:moans/elements/shimmer.dart';
 import 'package:moans/elements/trackelement.dart';
 import 'package:moans/res.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:convert';
 
 class Profile extends StatefulWidget {
-  final Function() _toUpdate;
-  const Profile(this._toUpdate, {Key? key}) : super(key: key);
+  const Profile({Key? key}) : super(key: key);
   @override
   State<StatefulWidget> createState() {
     return _ProfileState();
@@ -22,32 +21,109 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
   bool he = true;
   bool they = true;
   ValueNotifier<bool> isLoading = ValueNotifier<bool>(true);
-  late List<String> trackNames;
-  late List<String> trackLikes;
-  late List<int> trackIds;
+  final List<String> trackNames = [];
+  final List<String> trackLikes = [];
+  final List<int> trackIds = [];
+  final List<int> trackStatuses = [];
 
   @override
   void initState() {
     super.initState();
+    initVoice();
     loadingTracks();
+  }
+
+  String getLikeString(int countLikes) {
+    if (countLikes > 1000000) {
+      return (countLikes ~/ 1000000).toString() + "M";
+    }
+    if (countLikes > 1000) {
+      return (countLikes ~/ 1000).toString() + "k";
+    }
+    return countLikes.toString();
+  }
+
+  initVoice() {
+    print(Utilities.curVoice.name);
+    setState(() {
+      if (Utilities.curVoice == Voices.sheHeThey) {
+        she = true;
+        he = true;
+        they = true;
+        return;
+      }
+      if (Utilities.curVoice == Voices.she ||
+          Utilities.curVoice == Voices.sheHe ||
+          Utilities.curVoice == Voices.sheThey) {
+        she = true;
+      }
+      if (Utilities.curVoice == Voices.he ||
+          Utilities.curVoice == Voices.sheHe ||
+          Utilities.curVoice == Voices.heThey) {
+        he = true;
+      }
+      if (Utilities.curVoice == Voices.they ||
+          Utilities.curVoice == Voices.heThey ||
+          Utilities.curVoice == Voices.sheThey) {
+        they = true;
+      }
+    });
+  }
+
+  changeVoice() {
+    Utilities.changeVoice((she ? 1 : 0) * 1 +
+        (he ? 1 : 0) * 2 +
+        (they ? 1 : 0) * 3 +
+        ((she ^ he ^ they) && !(she && he && they) ? 0 : 1) -
+        1);
+    // if (she && he && they) {
+    //   Utilities.changeVoice(Voices.sheHeThey);
+    // }
+    // if (she && !he && !they) {
+    //   Utilities.changeVoice(Voices.she);
+    // }
+    // if (she && he && !they) {
+    //   Utilities.changeVoice(Voices.sheHe);
+    // }
+    // if (she && !he && they) {
+    //   Utilities.changeVoice(Voices.sheThey);
+    // }
+    // if (!she && he && they) {
+    //   Utilities.changeVoice(Voices.heThey);
+    // }
+    // if (!she && !he && they) {
+    //   Utilities.changeVoice(Voices.they);
+    // }
+    // if (!she && he && !they) {
+    //   Utilities.changeVoice(Voices.he);
+    // }
   }
 
   loadingTracks() async {
     isLoading.value = true;
     setState(() {});
-    await Future.delayed(Duration(seconds: 3), () {
-      trackNames = [
-        "Track 12345678",
-        "hellothisismytracknameand",
-        "Всем привет это моё название трека и он должен быть 50 символ",
-        "Всем привет это моё название трека и он должен быть 50 символ",
-        "Всем привет это моё название трека и он должен быть 50 символ"
-      ];
-      trackLikes = ["45k", "345", "1k", "4k", "115k"];
-      trackIds = [1, 2, 3, 4, 5];
-      isLoading.value = false;
-      setState(() {});
-    });
+    Map<String, String> forMyTracks = {"limit": "100", "skip": "0"};
+    var responce = await http.get(
+        Utilities.getUri(Utilities.url + "tracks/user_tracks", forMyTracks),
+        headers: {
+          "Authorization": "Bearer " + Utilities.authToken,
+          "Content-Type": "application/json"
+        });
+    var myTracksInfo = jsonDecode(responce.body);
+    for (int i = 0; i < myTracksInfo.length; i++) {
+      trackNames.add(myTracksInfo[i]["name"]);
+      trackIds.add(myTracksInfo[i]["id"]);
+      trackStatuses.add(int.parse(myTracksInfo[i]["status"]));
+      trackLikes.add(getLikeString(myTracksInfo[i]["likes"]));
+    }
+    if (responce.statusCode == 200) {
+      setState(() {
+        isLoading.value = false;
+      });
+    } else {
+      print(responce.body);
+      print(responce.statusCode);
+    }
   }
 
   Widget forLoadingShimmer = Column(children: [
@@ -173,6 +249,7 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                                         if (!isLoading.value) {
                                           setState(() {
                                             !he && !they ? null : she = value!;
+                                            changeVoice();
                                           });
                                         }
                                       },
@@ -196,6 +273,7 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                                         if (!isLoading.value) {
                                           setState(() {
                                             !she && !they ? null : he = value!;
+                                            changeVoice();
                                           });
                                         }
                                       },
@@ -219,6 +297,7 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                                         if (!isLoading.value) {
                                           setState(() {
                                             !he && !she ? null : they = value!;
+                                            changeVoice();
                                           });
                                         }
                                       },
@@ -261,7 +340,8 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                                       : TrackElement(
                                           trackNames: trackNames,
                                           trackLikes: trackLikes,
-                                          trackIds: trackIds);
+                                          trackIds: trackIds,
+                                          trackStatuses: trackStatuses);
                                 })
                           ],
                         ),

@@ -4,12 +4,19 @@ import 'package:moans/elements/audiomanager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum Languages { russian, english }
+enum Voices { she, he, they, sheHe, sheThey, heThey, sheHeThey }
+enum Statuses { draft, publish, banned, deleted }
 
 class Utilities {
   static init() async {
     currentLanguage = Languages.english;
     showHelpNotification = false;
     preferences = await SharedPreferences.getInstance();
+    if (preferences.getInt(_keyVoices) != null) {
+      curVoice = Voices.values.elementAt(preferences.getInt(_keyVoices)!);
+      print(preferences.getInt(_keyVoices));
+      print(curVoice.name);
+    }
     if (preferences.getInt(_keyLanguage) != null) {
       currentLanguage = Languages.values[preferences.getInt(_keyLanguage)!];
     }
@@ -39,22 +46,38 @@ class Utilities {
         });
   }
 
+  static Uri getUri(String uri, Map<String, String> parameters) {
+    String finalUri = uri + "?";
+    parameters.forEach((key, value) {
+      finalUri += key + "=" + value + "&";
+    });
+    return Uri.parse(finalUri.substring(0, finalUri.length - 1));
+  }
+
+  static changeVoice(int iDvoice) {
+    preferences.setInt(_keyVoices, iDvoice);
+    curVoice = Voices.values.elementAt(iDvoice);
+  }
+
+  static Voices curVoice = Voices.sheHeThey;
   static int languageId = 0;
   static int voiceId = 5;
   static String authToken = "";
   static late bool showHelpNotification;
   static const String _keyLanguage = "Languages";
   static const String _keyHelpNotification = "HelpNotification";
+  static const String _keyVoices = "Voices";
   static late SharedPreferences preferences;
   static late AudioHandler audioHandler;
   static late AudioManager managerForRecord;
-  static String url = "https://9747-92-101-232-21.ngrok.io/";
+  static String url = "https://b885-92-101-232-21.ngrok.io/";
   static ValueNotifier<int> curPage = ValueNotifier(0);
   static ValueNotifier<Map> curLang = ValueNotifier<Map>(_englishStrings);
   static String email = "test@test";
   static late Languages currentLanguage;
   static ValueNotifier<bool> isPlaying = ValueNotifier(false);
   static const Map _englishStrings = {
+    "lang": "English",
     "18eText":
         "18 or over and legal with the acknowledgement that you are not offended by audio recordings of any nature? Wonderful! Come on in!",
     "18eQuesText": "How old are you?",
@@ -113,9 +136,11 @@ class Utilities {
     "Yes": "Yes",
     "No": "No",
     "Edit": "Edit",
+    "ToDraft": "To draft",
   };
 
   static const Map _russianStrings = {
+    "lang": "Русский",
     "18eText":
         "Тебе больше восемнадцати лет и ты подтверждаешь, что не будешь оскорблен аудио-записями любого содержания? Замечательно! Заходи!",
     "18eQuesText": "Сколько вам лет?",
@@ -174,6 +199,7 @@ class Utilities {
     "Yes": "Да",
     "No": "Нет",
     "Edit": "Изменить",
+    "ToDraft": "В черновики",
   };
   static void changeLanguage(Languages language) {
     switch (language) {

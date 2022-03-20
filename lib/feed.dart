@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:moans/elements/audiomanager.dart';
+import 'package:moans/elements/endfeeditem.dart';
 import 'package:moans/res.dart';
 import 'elements/audioitem.dart';
 import 'package:http/http.dart' as http;
@@ -10,7 +11,7 @@ class Feed extends StatefulWidget {
   const Feed({Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() {
+  State<Feed> createState() {
     return _FeedState();
   }
 }
@@ -18,12 +19,16 @@ class Feed extends StatefulWidget {
 int curpage = 0;
 
 class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
-  int prepage = 1;
   int counterForViewedTracks = 0;
-  late PageController _controller;
-  final List<AudioItem> pages = [];
+  late PageController controller;
+  final List<dynamic> pages = [];
   final List<AudioManager> handlers = [];
   bool toastViewed = Utilities.showHelpNotification;
+  bool tracksEnd = false;
+
+  refreshFeed() {
+    // Очистка ленты и загрузка её заново
+  }
 
   loadViewedTracs(int count) async {
     int countAddedTracks = 0;
@@ -31,19 +36,21 @@ class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
     int counterPage = counterPageFinal;
     counterForViewedTracks += count;
     while (countAddedTracks != count) {
-      final uri = Uri.parse(Utilities.url +
-          "tracks/track_seen" +
-          "?language_id=" +
-          Languages.values.indexOf(Utilities.currentLanguage).toString() +
-          "&voice=5&limit=" +
-          count.toString() +
-          "&skip=" +
-          counterForViewedTracks.toString());
+      Map<String, String> forTracksViewedInfo = {
+        "language_id":
+            Languages.values.indexOf(Utilities.currentLanguage).toString(),
+        "voice": (Voices.values.indexOf(Utilities.curVoice) + 1).toString(),
+        "limit": count.toString(),
+        "skip": counterForViewedTracks.toString()
+      };
       try {
-        var responce = await http.get(uri, headers: {
-          "Authorization": "Bearer " + Utilities.authToken,
-          "Content-Type": "application/json"
-        });
+        var responce = await http.get(
+            Utilities.getUri(
+                Utilities.url + "tracks/track_seen", forTracksViewedInfo),
+            headers: {
+              "Authorization": "Bearer " + Utilities.authToken,
+              "Content-Type": "application/json"
+            });
         var trackInfoViewed = jsonDecode(responce.body);
         if (responce.statusCode == 200) {
           int j = 0;
@@ -63,8 +70,14 @@ class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
             countAddedTracks++;
           }
           if (countAddedTracks < count) {
-            counterForViewedTracks = 0;
-            counterPage = counterPageFinal + countAddedTracks;
+            tracksEnd = true;
+            int voidPages = pages.length - 1 - (count - countAddedTracks);
+            for (int i = pages.length - 1; i > voidPages; i--) {
+              pages.removeAt(i);
+            }
+            pages.add(EndFeedItem(refreshFeed));
+            setState(() {});
+            break;
           }
         } else {
           print(responce.body);
@@ -82,16 +95,21 @@ class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
       pages.add(AudioItem(i));
     }
 
-    final uri = Uri.parse(Utilities.url +
-        "tracks/track_feed" +
-        "?language_id=" +
-        Languages.values.indexOf(Utilities.currentLanguage).toString() +
-        "&voice=5&limit=10&skip=0");
+    Map<String, String> forTracksNotViewedInfo = {
+      "language_id":
+          Languages.values.indexOf(Utilities.currentLanguage).toString(),
+      "voice": (Voices.values.indexOf(Utilities.curVoice) + 1).toString(),
+      "limit": "10",
+      "skip": "0"
+    };
     try {
-      var responce = await http.get(uri, headers: {
-        "Authorization": "Bearer " + Utilities.authToken,
-        "Content-Type": "application/json"
-      });
+      var responce = await http.get(
+          Utilities.getUri(
+              Utilities.url + "tracks/track_feed", forTracksNotViewedInfo),
+          headers: {
+            "Authorization": "Bearer " + Utilities.authToken,
+            "Content-Type": "application/json"
+          });
 
       if (responce.statusCode == 200) {
         var trackInfoNotViewed = jsonDecode(responce.body);
@@ -137,9 +155,9 @@ class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
   @override
   void initState() {
     super.initState();
-    _controller = PageController(initialPage: curpage, keepPage: true);
-    loadTracks();
+    controller = PageController(initialPage: curpage, keepPage: true);
     initFirst();
+    loadTracks();
   }
 
   @override
@@ -159,7 +177,7 @@ class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
                       alignment: Alignment.bottomCenter,
                       child: GestureDetector(
                           onVerticalDragUpdate: (details) {
-                            _controller.animateToPage(1,
+                            controller.animateToPage(1,
                                 duration: const Duration(milliseconds: 500),
                                 curve: Curves.ease);
                           },
@@ -182,7 +200,7 @@ class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
             itemBuilder: (context, position) {
               return pages[position];
             },
-            controller: _controller,
+            controller: controller,
             scrollDirection: Axis.vertical,
             onPageChanged: (value) async {
               setState(() {
@@ -190,7 +208,7 @@ class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
                 Utilities.helpNotificationViewied();
               });
               Utilities.curPage.value = value;
-              if (value == pages.length - 1) {
+              if (value == pages.length - 1 && !tracksEnd) {
                 await loadTracks();
               }
             },

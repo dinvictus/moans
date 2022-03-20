@@ -37,11 +37,12 @@ class MyDropButtonState extends State<MyDropButton>
           },
           child: Row(
             children: [
-              Text(
-                  Utilities.currentLanguage == Languages.english
-                      ? "English"
-                      : "Русский",
-                  style: const TextStyle(color: MColors.mainColor)),
+              ValueListenableBuilder<Map>(
+                  valueListenable: Utilities.curLang,
+                  builder: (_, lang, __) {
+                    return Text(lang["lang"],
+                        style: const TextStyle(color: MColors.mainColor));
+                  }),
               const SizedBox(width: 7),
               Image.asset("assets/items/arrow.png", scale: 2.5),
             ],

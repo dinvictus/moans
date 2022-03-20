@@ -199,8 +199,7 @@ class AudioManager extends BaseAudioHandler with SeekHandler {
           id: _indexPage.toString(),
           title: title,
           duration: progressNotifier.value.total,
-          artUri:
-              Uri.parse("https://0fa8-92-101-232-21.ngrok.io/tracks/get_logo"));
+          artUri: Uri.parse(Utilities.url + "tracks/get_logo"));
       mediaItem.add(_source);
       initDuration = true;
     }

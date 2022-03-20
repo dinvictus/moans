@@ -25,10 +25,6 @@ class MainScreenState extends State<MainScreen> {
     });
   }
 
-  refresh() {
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -57,7 +53,7 @@ class MainScreenState extends State<MainScreen> {
           children: [
             Feed(),
             Record(),
-            Profile(refresh),
+            Profile(),
           ],
         ),
         bottomNavigationBar: Container(
