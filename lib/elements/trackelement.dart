@@ -8,11 +8,13 @@ class TrackElement extends StatefulWidget {
   final List<String> trackLikes;
   final List<int> trackIds;
   final List<int> trackStatuses;
+  final Function() toUpdate;
   const TrackElement(
       {required this.trackNames,
       required this.trackLikes,
       required this.trackIds,
       required this.trackStatuses,
+      required this.toUpdate,
       Key? key})
       : super(key: key);
 
@@ -28,6 +30,7 @@ class _TrackElementState extends State<TrackElement> {
 
   back() {
     Navigator.pop(context);
+    widget.toUpdate();
   }
 
   @override
@@ -40,7 +43,7 @@ class _TrackElementState extends State<TrackElement> {
             widget.trackNames[i],
             widget.trackLikes[i],
             widget.trackIds[i],
-            Statuses.values.elementAt(widget.trackStatuses[i] - 1)));
+            Statuses.values.elementAt(widget.trackStatuses[i])));
       }
       setState(() {});
     });
@@ -128,6 +131,14 @@ class _TrackElementState extends State<TrackElement> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: listTracks);
+    return widget.trackNames.isEmpty
+        ? ValueListenableBuilder<Map>(
+            valueListenable: Utilities.curLang,
+            builder: (_, lang, __) {
+              return Text(lang["NoTracks"],
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(color: Colors.white));
+            })
+        : Column(children: listTracks);
   }
 }

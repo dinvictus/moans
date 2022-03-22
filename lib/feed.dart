@@ -1,11 +1,9 @@
-import 'dart:convert';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:moans/elements/audiomanager.dart';
 import 'package:moans/elements/endfeeditem.dart';
 import 'package:moans/res.dart';
 import 'elements/audioitem.dart';
-import 'package:http/http.dart' as http;
 
 class Feed extends StatefulWidget {
   const Feed({Key? key}) : super(key: key);
@@ -27,7 +25,10 @@ class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
   bool tracksEnd = false;
 
   refreshFeed() {
-    // Очистка ленты и загрузка её заново
+    pages.clear();
+    handlers.removeRange(1, handlers.length);
+    setState(() {});
+    loadTracks();
   }
 
   loadViewedTracs(int count) async {
@@ -39,20 +40,14 @@ class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
       Map<String, String> forTracksViewedInfo = {
         "language_id":
             Languages.values.indexOf(Utilities.currentLanguage).toString(),
-        "voice": (Voices.values.indexOf(Utilities.curVoice) + 1).toString(),
+        "voice": (Voices.values.indexOf(Utilities.curVoice)).toString(),
         "limit": count.toString(),
         "skip": counterForViewedTracks.toString()
       };
-      try {
-        var responce = await http.get(
-            Utilities.getUri(
-                Utilities.url + "tracks/track_seen", forTracksViewedInfo),
-            headers: {
-              "Authorization": "Bearer " + Utilities.authToken,
-              "Content-Type": "application/json"
-            });
-        var trackInfoViewed = jsonDecode(responce.body);
-        if (responce.statusCode == 200) {
+      Map responceInfo = await Server.getViewedTracks(forTracksViewedInfo);
+      switch (responceInfo["status_code"]) {
+        case 200:
+          var trackInfoViewed = responceInfo["tracks_info"];
           int j = 0;
           for (int i = counterPage;
               i < counterPage + trackInfoViewed.length;
@@ -77,14 +72,15 @@ class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
             }
             pages.add(EndFeedItem(refreshFeed));
             setState(() {});
-            break;
+            return;
           }
-        } else {
-          print(responce.body);
           break;
-        }
-      } catch (e) {
-        print(e);
+        case 404:
+          // Ошибка подключения
+          return;
+        default:
+          // Ошибка
+          return;
       }
     }
   }
@@ -98,21 +94,14 @@ class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
     Map<String, String> forTracksNotViewedInfo = {
       "language_id":
           Languages.values.indexOf(Utilities.currentLanguage).toString(),
-      "voice": (Voices.values.indexOf(Utilities.curVoice) + 1).toString(),
+      "voice": (Voices.values.indexOf(Utilities.curVoice)).toString(),
       "limit": "10",
       "skip": "0"
     };
-    try {
-      var responce = await http.get(
-          Utilities.getUri(
-              Utilities.url + "tracks/track_feed", forTracksNotViewedInfo),
-          headers: {
-            "Authorization": "Bearer " + Utilities.authToken,
-            "Content-Type": "application/json"
-          });
-
-      if (responce.statusCode == 200) {
-        var trackInfoNotViewed = jsonDecode(responce.body);
+    Map responceInfo = await Server.getUnViewedTracks(forTracksNotViewedInfo);
+    switch (responceInfo["status_code"]) {
+      case 200:
+        var trackInfoNotViewed = responceInfo["tracks_info"];
         if (trackInfoNotViewed.length != 0) {
           int j = 0;
           for (int i = counter; i < counter + trackInfoNotViewed.length; i++) {
@@ -128,15 +117,16 @@ class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
             j++;
           }
         }
-
         if (trackInfoNotViewed.length < 10) {
           await loadViewedTracs(10 - trackInfoNotViewed.length as int);
         }
-      } else {
-        print(responce.body);
-      }
-    } catch (e) {
-      print(e);
+        break;
+      case 404:
+        // Ошибка подключения к серверу
+        break;
+      default:
+        // Ошибка
+        break;
     }
   }
 

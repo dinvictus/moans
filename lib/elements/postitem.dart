@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:io';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:moans/changelanguage.dart';
 import 'package:moans/elements/audiorecorder.dart';
@@ -26,8 +23,8 @@ class _PostItemState extends State<PostItem> {
   ValueNotifier<int> descLength = ValueNotifier(0);
   ValueNotifier<int> titleLength = ValueNotifier(0);
   ValueNotifier<Languages> curLanguage =
-      ValueNotifier<Languages>(Languages.english);
-
+      ValueNotifier<Languages>(Utilities.currentLanguage);
+  late Voices currentVoice;
   late final List<String> listTags;
   bool she = true;
   bool he = true;
@@ -48,37 +45,69 @@ class _PostItemState extends State<PostItem> {
         hintStyle: _textStyleSave);
   }
 
-  editTrack() async {}
+  int getVoiceCode() {
+    return ((she ? 1 : 0) * 1 +
+        (he ? 1 : 0) * 2 +
+        (they ? 1 : 0) * 3 +
+        ((she ^ he ^ they) && !(she && he && they) ? 0 : 1) -
+        1);
+  }
 
-  toDraftTrack() async {}
-
-  postTrack() async {
-    print(widget.pathToFile);
+  editTrack() async {
     String tags = "";
     for (String tag in listTags) {
       tags += tag + " ";
     }
-    var request = http.MultipartRequest(
-        'POST', Uri.parse(Utilities.url + "tracks/addTrack"));
-    request.headers.addAll({
-      "Authorization": "Bearer " + Utilities.authToken,
-      "Content-Type": "application/json"
-    });
-    request.fields["name"] = _titleController.text;
-    request.fields["description"] = _descController.text;
-    request.fields["voice"] = "5";
-    request.fields["language_id"] =
-        Languages.values.indexOf(curLanguage.value).toString();
-    request.fields["tag"] = tags;
-    print(tags);
-    request.files
-        .add(await http.MultipartFile.fromPath("record", widget.pathToFile));
+    Map<String, String> editTrackInfo = {
+      "id": widget.trackId.toString(),
+      "name": _titleController.text,
+      "description": _descController.text,
+      "voice": getVoiceCode().toString(),
+      "language_id": Languages.values.indexOf(curLanguage.value).toString(),
+      "tags": tags
+    };
 
-    var res = await request.send();
-    var responced = await http.Response.fromStream(res);
-    print(json.decode(responced.body));
-    print(res.headers);
-    print(res.statusCode);
+    int statusCodeEdit = await Server.editTrackInfo(editTrackInfo, context);
+    switch (statusCodeEdit) {
+      case 200:
+        // Редактирование завершено успешно
+        widget.back();
+        break;
+      case 306:
+        // У вас уже существует трек с таким именем
+        break;
+      case 404:
+        // Ошибка подключения к серверу
+        break;
+      default:
+        // Ошибка
+        break;
+    }
+  }
+
+  toDraftTrack() async {}
+
+  postTrack() async {
+    String tags = "";
+    for (String tag in listTags) {
+      tags += tag + " ";
+    }
+    int voiceCode = getVoiceCode();
+
+    Map<String, String> uploadTrackInfo = {
+      "name": _titleController.text,
+      "description": _descController.text,
+      "voice": voiceCode.toString(),
+      "language_id": Languages.values.indexOf(curLanguage.value).toString(),
+      "tag": tags
+    };
+    int statusCodeUpload =
+        await Server.uploadTrack(uploadTrackInfo, widget.pathToFile, context);
+    if (statusCodeUpload == 201) {
+      // Успешно загружено
+    } else {
+      // Ошибка подключения к серверу
+    }
   }
 
   changeTagsCount(int count) {
@@ -102,23 +131,36 @@ class _PostItemState extends State<PostItem> {
   }
 
   loadingTrackInfo() async {
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      Utilities.showLoadingScreen(context);
-    });
-    // Запрос на получение информации о треке по id
-    Future.delayed(Duration(seconds: 3), () {
-      _descController.text = "Описание, загруженное по запросу";
-      _titleController.text = "Загруженное название";
-      listTags = ["tag1", "tag2", "tagggggg3", "tagggg4", "tagggg555555"];
-      curLanguage.value = Languages.russian;
-      descLength.value = _descController.text.length;
-      titleLength.value = _titleController.text.length;
-      tagsCountForSave.value = listTags.length;
-      she = false;
-      setState(() {
-        isLoading = false;
-      });
-      Navigator.of(context).pop();
+    WidgetsBinding.instance!.addPostFrameCallback((_) async {
+      Map responceInfo = await Server.getEditTrackInfo(widget.trackId, context);
+      if (responceInfo["status_code"] == 200) {
+        Map trackEditInfo = responceInfo["track_info"];
+        _titleController.text = trackEditInfo["name"];
+        _descController.text = trackEditInfo["description"];
+        listTags = (trackEditInfo["tags"] as String).split(" ");
+        curLanguage.value =
+            Languages.values.elementAt(trackEditInfo["language_id"]);
+        currentVoice =
+            Voices.values.elementAt(int.parse(trackEditInfo["voice"]));
+        descLength.value = _descController.text.length;
+        titleLength.value = _titleController.text.length;
+        tagsCountForSave.value = listTags.length;
+        setState(() {
+          she = (currentVoice == Voices.she ||
+              currentVoice == Voices.sheHe ||
+              currentVoice == Voices.sheThey);
+          he = (currentVoice == Voices.he ||
+              currentVoice == Voices.sheHe ||
+              currentVoice == Voices.heThey);
+          they = (currentVoice == Voices.they ||
+              currentVoice == Voices.heThey ||
+              currentVoice == Voices.sheThey);
+          isLoading = false;
+        });
+      } else {
+        // Ошибка подключения к серверу
+        Navigator.pop(context);
+      }
     });
   }
 
@@ -386,7 +428,7 @@ class _PostItemState extends State<PostItem> {
                       SizedBox(height: height / 25),
                       Container(
                           alignment: Alignment.center,
-                          height: height / 8,
+                          height: height / 13,
                           margin: const EdgeInsets.fromLTRB(15, 0, 15, 15),
                           width: double.infinity,
                           child: widget.trackId != -1
@@ -406,7 +448,11 @@ class _PostItemState extends State<PostItem> {
                                             lang["ToDraft"]))
                                   ],
                                 )
-                              : _getButton(() => postTrack(), lang["SavePost"]))
+                              : SizedBox(
+                                  width: double.infinity,
+                                  height: height / 13,
+                                  child: _getButton(
+                                      () => postTrack(), lang["SavePost"])))
                     ],
                   ))));
         });

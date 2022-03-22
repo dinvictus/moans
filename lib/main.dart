@@ -7,23 +7,28 @@ import 'package:google_fonts/google_fonts.dart';
 import 'elements/dropbutton.dart';
 
 void main() {
-  runApp(Moans());
+  WidgetsFlutterBinding.ensureInitialized();
+  Utilities.init();
+  runApp(const Moans());
 }
 
 class Moans extends StatelessWidget {
-  Moans({Key? key}) : super(key: key) {
-    WidgetsFlutterBinding.ensureInitialized();
-    Utilities.init();
-  }
+  const Moans({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      builder: (context, child) {
+        return ScrollConfiguration(behavior: NoneOverscroll(), child: child!);
+      },
       theme: ThemeData(
         bottomSheetTheme:
             BottomSheetThemeData(backgroundColor: Colors.black.withOpacity(0)),
       ),
       debugShowCheckedModeBanner: false,
-      home: const ConfirmAge(),
+      home: Utilities.ageConfirm
+          ? (Utilities.authorized ? const MainScreen() : const LogIn())
+          : const ConfirmAge(),
     );
   }
 }

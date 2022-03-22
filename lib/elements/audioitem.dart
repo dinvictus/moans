@@ -62,17 +62,23 @@ class _AudioItemState extends State<AudioItem>
     });
   }
 
-  liked() {
-    // Запрос к серверу на поставку лайка.
-    likedBool = true;
-    animateLikeButton();
+  liked() async {
+    if (!widget._isloading.value) {
+      // Запрос к серверу на поставку лайка.
+      likedBool = true;
+      animateLikeButton();
+    }
   }
 
-  unLiked() {
-    // Запрос к серверу на удаление лайка.
-    likedBool = false;
-    animateLikeButton();
+  unLiked() async {
+    if (!widget._isloading.value) {
+      // Запрос к серверу на удаление лайка.
+      likedBool = false;
+      animateLikeButton();
+    }
   }
+
+  share() async {}
 
   @override
   void initState() {
@@ -173,7 +179,19 @@ class _AudioItemState extends State<AudioItem>
                       valueListenable: widget._isloading,
                       builder: (_, isloading, __) {
                         return isloading
-                            ? Container()
+                            ? ProgressBar(
+                                thumbColor: Colors.white,
+                                thumbGlowRadius: 20,
+                                thumbRadius: 7,
+                                timeLabelPadding: 10,
+                                timeLabelTextStyle: _textStyleTime,
+                                bufferedBarColor: const Color(0xff898994),
+                                progressBarColor: Colors.white,
+                                baseBarColor: const Color(0xff4b4b4f),
+                                onSeek: null,
+                                progress: Duration.zero,
+                                total: Duration.zero,
+                              )
                             : ValueListenableBuilder<ProgressBarState>(
                                 valueListenable:
                                     widget.audioManager.progressNotifier,
@@ -323,7 +341,7 @@ class _AudioItemState extends State<AudioItem>
                                   shape: RoundedRectangleBorder(
                                       borderRadius:
                                           BorderRadius.circular(50.0))),
-                              onPressed: () {},
+                              onPressed: share,
                               child: Image.asset('assets/items/share.png'))),
                       const SizedBox(height: 3),
                       SizedBox(

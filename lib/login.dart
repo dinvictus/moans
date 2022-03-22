@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:moans/elements/dropbutton.dart';
@@ -7,8 +5,6 @@ import 'package:moans/mainscreen.dart';
 import 'package:moans/signup.dart';
 import 'res.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
-import 'package:crypto/crypto.dart';
 import 'signup.dart';
 
 class LogIn extends StatefulWidget {
@@ -29,24 +25,19 @@ class _LogInState extends State<LogIn> {
       _submitter = true;
     });
     if (errorTextEmail == null && errorTextPass == null) {
-      var _passbyte = utf8.encode(controllerPass.value.text);
-      var _passhash = sha256.convert(_passbyte);
-      var _user = {
-        "email": controllerEmail.value.text.toString(),
-        "password": _passhash.toString()
-      };
-      var _responce = await http.post(Uri.parse(Utilities.url + "auth/"),
-          body: jsonEncode(_user),
-          headers: {"Content-Type": "application/json"});
-      print(_responce.statusCode);
-      if (_responce.statusCode == 200) {
-        Map userInfo = jsonDecode(_responce.body);
-        Utilities.authToken = userInfo["access_token"];
-        print(userInfo["access_token"]);
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const MainScreen()));
-      } else {
-        print(_responce.body);
+      int statusCodeLogin = await Server.logIn(
+          controllerEmail.value.text, controllerPass.value.text, context);
+      switch (statusCodeLogin) {
+        case 200:
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const MainScreen()));
+          break;
+        case 404:
+          // Ошибка подключения к серверу
+          break;
+        default:
+          // Ошибка
+          break;
       }
     }
   }
@@ -320,30 +311,6 @@ class _LogInState extends State<LogIn> {
                                                       color: Colors.black)),
                                             ],
                                           ))),
-                                  // SizedBox(
-                                  //   height: 40,
-                                  //   width: 110,
-                                  //   child: ElevatedButton(
-                                  //     style: ElevatedButton.styleFrom(
-                                  //         padding: const EdgeInsets.fromLTRB(
-                                  //             10, 5, 10, 5),
-                                  //         primary: const Color(0xff395693)),
-                                  //     onPressed: () {},
-                                  //     child: Row(
-                                  //       mainAxisAlignment:
-                                  //           MainAxisAlignment.spaceBetween,
-                                  //       children: [
-                                  //         Image.asset(
-                                  //             "assets/items/facebooklogo.png"),
-                                  //         Text(
-                                  //           "Facebook",
-                                  //           style: GoogleFonts.inter(
-                                  //               color: Colors.white),
-                                  //         )
-                                  //       ],
-                                  //     ),
-                                  //   ),
-                                  // )
                                 ],
                               ),
                               Container(

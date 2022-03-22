@@ -3,9 +3,6 @@ import 'mainscreen.dart';
 import 'res.dart';
 import 'elements/dropbutton.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:crypto/crypto.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 
 class ConfirmEmail extends StatefulWidget {
   final String email;
@@ -95,36 +92,23 @@ class _ConfirmEmailState extends State<ConfirmEmail> {
                                       onPressed: () async {
                                         // Проверка email на подтверждение, потом далее
                                         if (true) {
-                                          var _passbyte =
-                                              utf8.encode(widget.pass);
-                                          var _passhash =
-                                              sha256.convert(_passbyte);
-                                          var _user = {
-                                            "email": widget.email,
-                                            "password": _passhash.toString()
-                                          };
-                                          var _responce = await http.post(
-                                              Uri.parse(
-                                                  Utilities.url + "auth/"),
-                                              body: jsonEncode(_user),
-                                              headers: {
-                                                "Content-Type":
-                                                    "application/json"
-                                              });
-                                          print(_responce.statusCode);
-                                          if (_responce.statusCode == 200) {
-                                            Map userInfo =
-                                                jsonDecode(_responce.body);
-                                            Utilities.authToken =
-                                                userInfo["access_token"];
-                                            print(userInfo["access_token"]);
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        const MainScreen()));
-                                          } else {
-                                            print(_responce.body);
+                                          int statusCodeLogin =
+                                              await Server.logIn(widget.email,
+                                                  widget.pass, context);
+                                          switch (statusCodeLogin) {
+                                            case 200:
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          const MainScreen()));
+                                              break;
+                                            case 404:
+                                              // Ошибка подключения к серверу
+                                              break;
+                                            default:
+                                              // Ошибка
+                                              break;
                                           }
                                         }
                                       },

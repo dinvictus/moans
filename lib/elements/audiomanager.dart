@@ -148,10 +148,6 @@ class AudioManager extends BaseAudioHandler with SeekHandler {
       }
     });
 
-    Future<Duration?> getDur() async {
-      return _audioPlayer.durationFuture;
-    }
-
     _audioPlayer.positionStream.listen((position) async {
       final oldState = progressNotifier.value;
       progressNotifier.value = ProgressBarState(

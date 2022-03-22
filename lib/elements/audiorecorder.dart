@@ -31,17 +31,13 @@ class AudioRecorder {
 
   init() async {
     final status = await Permission.microphone.request();
-    if (status != PermissionStatus.granted ||
+    if (status == PermissionStatus.granted ||
         status == PermissionStatus.limited) {
-      // Нет разрешения для использования микрофона
-    } else {
       _audioRecorder = Record();
       _isInitialize = true;
+    } else {
+      // Нет разрешения
     }
-  }
-
-  String? getPath() {
-    return pathToFile;
   }
 
   loadFile(String ur) {
@@ -86,9 +82,9 @@ class AudioRecorder {
   }
 
   _record() async {
-    final status = await Permission.microphone.request();
-    if (status == PermissionStatus.granted ||
-        status == PermissionStatus.limited) {
+    if (!_isInitialize) {
+      init();
+    } else {
       if (_isInitialize && !await _audioRecorder.isRecording()) {
         Utilities.isPlaying.value = Utilities.isPlaying.value ? false : true;
         pageAudioRecordNotifier.value = AudioRecordState.record;
@@ -106,6 +102,7 @@ class AudioRecorder {
       _timer.cancel();
       return _audioRecorder.stop();
     }
+    return null;
   }
 
   Future<void> toggleRecording() async {

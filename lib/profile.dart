@@ -1,12 +1,11 @@
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:moans/changepass.dart';
 import 'package:moans/elements/dropbutton.dart';
 import 'package:moans/elements/shimmer.dart';
 import 'package:moans/elements/trackelement.dart';
+import 'package:moans/login.dart';
 import 'package:moans/res.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:convert';
 
 class Profile extends StatefulWidget {
   const Profile({Key? key}) : super(key: key);
@@ -29,8 +28,10 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
   @override
   void initState() {
     super.initState();
-    initVoice();
     loadingTracks();
+    // Utilities.logout.addListener(() {
+    //   dispose();
+    // });
   }
 
   String getLikeString(int countLikes) {
@@ -44,7 +45,6 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
   }
 
   initVoice() {
-    print(Utilities.curVoice.name);
     setState(() {
       if (Utilities.curVoice == Voices.sheHeThey) {
         she = true;
@@ -52,21 +52,15 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
         they = true;
         return;
       }
-      if (Utilities.curVoice == Voices.she ||
+      she = (Utilities.curVoice == Voices.she ||
           Utilities.curVoice == Voices.sheHe ||
-          Utilities.curVoice == Voices.sheThey) {
-        she = true;
-      }
-      if (Utilities.curVoice == Voices.he ||
+          Utilities.curVoice == Voices.sheThey);
+      he = (Utilities.curVoice == Voices.he ||
           Utilities.curVoice == Voices.sheHe ||
-          Utilities.curVoice == Voices.heThey) {
-        he = true;
-      }
-      if (Utilities.curVoice == Voices.they ||
+          Utilities.curVoice == Voices.heThey);
+      they = (Utilities.curVoice == Voices.they ||
           Utilities.curVoice == Voices.heThey ||
-          Utilities.curVoice == Voices.sheThey) {
-        they = true;
-      }
+          Utilities.curVoice == Voices.sheThey);
     });
   }
 
@@ -76,53 +70,36 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
         (they ? 1 : 0) * 3 +
         ((she ^ he ^ they) && !(she && he && they) ? 0 : 1) -
         1);
-    // if (she && he && they) {
-    //   Utilities.changeVoice(Voices.sheHeThey);
-    // }
-    // if (she && !he && !they) {
-    //   Utilities.changeVoice(Voices.she);
-    // }
-    // if (she && he && !they) {
-    //   Utilities.changeVoice(Voices.sheHe);
-    // }
-    // if (she && !he && they) {
-    //   Utilities.changeVoice(Voices.sheThey);
-    // }
-    // if (!she && he && they) {
-    //   Utilities.changeVoice(Voices.heThey);
-    // }
-    // if (!she && !he && they) {
-    //   Utilities.changeVoice(Voices.they);
-    // }
-    // if (!she && he && !they) {
-    //   Utilities.changeVoice(Voices.he);
-    // }
+  }
+
+  refresh() {
+    loadingTracks();
   }
 
   loadingTracks() async {
-    isLoading.value = true;
-    setState(() {});
-    Map<String, String> forMyTracks = {"limit": "100", "skip": "0"};
-    var responce = await http.get(
-        Utilities.getUri(Utilities.url + "tracks/user_tracks", forMyTracks),
-        headers: {
-          "Authorization": "Bearer " + Utilities.authToken,
-          "Content-Type": "application/json"
-        });
-    var myTracksInfo = jsonDecode(responce.body);
-    for (int i = 0; i < myTracksInfo.length; i++) {
-      trackNames.add(myTracksInfo[i]["name"]);
-      trackIds.add(myTracksInfo[i]["id"]);
-      trackStatuses.add(int.parse(myTracksInfo[i]["status"]));
-      trackLikes.add(getLikeString(myTracksInfo[i]["likes"]));
-    }
-    if (responce.statusCode == 200) {
+    setState(() {
+      isLoading.value = true;
+    });
+    trackNames.clear();
+    trackIds.clear();
+    trackStatuses.clear();
+    trackLikes.clear();
+    Map<String, String> forProfileTracks = {"limit": "20", "skip": "0"};
+    Map profileTracksInfo = await Server.getProfileTracks(forProfileTracks);
+    if (profileTracksInfo["status_code"] == 200) {
+      var myTracksInfo = profileTracksInfo["tracks_info"];
+      for (int i = 0; i < myTracksInfo.length; i++) {
+        trackNames.add(myTracksInfo[i]["name"]);
+        trackIds.add(myTracksInfo[i]["id"]);
+        trackStatuses.add(int.parse(myTracksInfo[i]["status"]));
+        trackLikes.add(getLikeString(myTracksInfo[i]["likes"]));
+      }
       setState(() {
         isLoading.value = false;
+        initVoice();
       });
     } else {
-      print(responce.body);
-      print(responce.statusCode);
+      // Ошибка подключения к серверу
     }
   }
 
@@ -193,14 +170,14 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                       displacement: 0,
                       backgroundColor: Colors.transparent,
                       color: MColors.mainColor,
-                      triggerMode: RefreshIndicatorTriggerMode.anywhere,
+                      triggerMode: RefreshIndicatorTriggerMode.onEdge,
                       onRefresh: () async {
                         await loadingTracks();
                       },
                       child: SingleChildScrollView(
                         physics: isLoading.value
                             ? const NeverScrollableScrollPhysics()
-                            : const BouncingScrollPhysics(),
+                            : const AlwaysScrollableScrollPhysics(),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -221,6 +198,23 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                                   }
                                 },
                                 child: Text(lang["ChangePas"],
+                                    style: GoogleFonts.inter(
+                                        color: MColors.mainColor,
+                                        fontSize: height / 45,
+                                        decoration: TextDecoration.underline))),
+                            SizedBox(height: height / 45),
+                            GestureDetector(
+                                onTap: () {
+                                  if (!isLoading.value) {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const LogIn()));
+                                    Utilities.logOut();
+                                  }
+                                },
+                                child: Text(lang["Logout"],
                                     style: GoogleFonts.inter(
                                         color: MColors.mainColor,
                                         fontSize: height / 45,
@@ -341,7 +335,8 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                                           trackNames: trackNames,
                                           trackLikes: trackLikes,
                                           trackIds: trackIds,
-                                          trackStatuses: trackStatuses);
+                                          trackStatuses: trackStatuses,
+                                          toUpdate: loadingTracks);
                                 })
                           ],
                         ),

@@ -1,12 +1,9 @@
-import 'dart:convert';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:moans/login.dart';
 import 'res.dart';
 import 'elements/dropbutton.dart';
-import 'package:http/http.dart' as http;
-import 'package:crypto/crypto.dart';
 import 'confirmemail.dart';
 
 class SignUp extends StatefulWidget {
@@ -27,28 +24,22 @@ class _SignUpState extends State<SignUp> {
       submitter = true;
     });
     if (errorTextEmail == null && errorTextPass == null) {
-      var passbyte = utf8.encode(controllerPass.value.text);
-      var passhash = sha256.convert(passbyte);
-      var user = {
-        "email": controllerEmail.value.text.toString(),
-        "password": passhash.toString(),
-        "password2": passhash.toString()
-      };
-
-      var responce = await http.post(Uri.parse(Utilities.url + "users/"),
-          body: jsonEncode(user),
-          headers: {"Content-Type": "application/json"});
-      print(responce.statusCode);
-
-      if (responce.statusCode == 200) {
-        Utilities.email = controllerEmail.value.text.toString();
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    ConfirmEmail(controllerEmail.text, controllerPass.text)));
-      } else {
-        // Пользователь с таким email уже зарегестрирован.
+      int statusCodeSignup = await Server.signUp(
+          controllerEmail.value.text, controllerPass.value.text, context);
+      switch (statusCodeSignup) {
+        case 200:
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      ConfirmEmail(controllerEmail.text, controllerPass.text)));
+          break;
+        case 404:
+          // Ошибка подключения к серверу
+          break;
+        default:
+          // Ошибка
+          break;
       }
     }
   }
