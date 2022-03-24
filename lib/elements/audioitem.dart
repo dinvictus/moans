@@ -9,23 +9,27 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AudioItem extends StatefulWidget {
   AudioItem(this._indexPage, {Key? key}) : super(key: key);
+  bool _liked = false;
   late final String _titleTrack;
   late final String _descriptionTrack;
   late final List<String> _listTags;
-  late final int _countLikes;
+  late int _countLikes;
   late final AudioManager audioManager;
+  late final int _trackId;
   final ValueNotifier<bool> _isloading = ValueNotifier<bool>(true);
   addInfo(String title, String description, List<String> tags, int likes,
-      int idTrack) {
+      int idTrack, bool liked) {
     _titleTrack = title;
     _descriptionTrack = description;
     _listTags = tags;
     _countLikes = likes;
+    _trackId = idTrack;
     audioManager = AudioManager(
         Utilities.url + "tracks/get_audio?track_id=" + idTrack.toString(),
         _titleTrack,
         _indexPage + 1);
     _isloading.value = false;
+    _liked = liked;
   }
 
   final int _indexPage;
@@ -38,7 +42,6 @@ class AudioItem extends StatefulWidget {
 
 class _AudioItemState extends State<AudioItem>
     with AutomaticKeepAliveClientMixin {
-  bool likedBool = false;
   final TextStyle _textStyleTime =
       GoogleFonts.inter(color: const Color(0xff878789));
   final TextStyle _textStyleLS =
@@ -65,16 +68,30 @@ class _AudioItemState extends State<AudioItem>
   liked() async {
     if (!widget._isloading.value) {
       // Запрос к серверу на поставку лайка.
-      likedBool = true;
+      widget._liked = true;
       animateLikeButton();
+      Map<String, String> forLike = {
+        "track_id": widget._trackId.toString(),
+        "liked": "true"
+      };
+      Server.likeRequest(forLike);
+      widget._countLikes++;
+      setState(() {});
     }
   }
 
   unLiked() async {
     if (!widget._isloading.value) {
       // Запрос к серверу на удаление лайка.
-      likedBool = false;
+      widget._liked = false;
       animateLikeButton();
+      Map<String, String> forLike = {
+        "track_id": widget._trackId.toString(),
+        "liked": "false"
+      };
+      Server.likeRequest(forLike);
+      widget._countLikes--;
+      setState(() {});
     }
   }
 
@@ -86,6 +103,20 @@ class _AudioItemState extends State<AudioItem>
     notifierforLikeSize = ValueNotifier<double>(32);
   }
 
+  // @override
+  // void dispose() {
+  //   if (widget._isloading.value) {
+  //     widget.audioManager.stop();
+  //   }
+  //   super.dispose();
+  // }
+
+  Widget getRootElement(Widget? child, bool isloading) {
+    return isloading
+        ? Shimmer(linearGradient: shimmerGradient, child: child)
+        : Container(child: child);
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -94,272 +125,294 @@ class _AudioItemState extends State<AudioItem>
     return SizedBox(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        child: Shimmer(
-            linearGradient: shimmerGradient,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                ValueListenableBuilder<bool>(
-                  valueListenable: widget._isloading,
-                  builder: (_, isloading, __) {
-                    return ListView(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      reverse: true,
-                      padding: EdgeInsets.zero,
-                      children: [
-                        isloading
-                            ? ShimmerLoading(
-                                isLoading: isloading,
-                                child: Column(children: [
-                                  Container(
-                                    width: 250,
-                                    height: 30,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(15),
-                                      color: Colors.grey.withAlpha(50),
+        child: ValueListenableBuilder<bool>(
+            valueListenable: widget._isloading,
+            builder: (_, isloading, __) {
+              return getRootElement(
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ValueListenableBuilder<bool>(
+                        valueListenable: widget._isloading,
+                        builder: (_, isloading, __) {
+                          return ListView(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            reverse: true,
+                            padding: EdgeInsets.zero,
+                            children: [
+                              isloading
+                                  ? ShimmerLoading(
+                                      isLoading: isloading,
+                                      child: Column(children: [
+                                        Container(
+                                          width: 250,
+                                          height: 30,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                            color: Colors.grey.withAlpha(50),
+                                          ),
+                                        ),
+                                        SizedBox(height: height / 15),
+                                        Container(
+                                          height: 20,
+                                          width: 350,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                            color: Colors.grey.withAlpha(50),
+                                          ),
+                                        ),
+                                        SizedBox(height: height / 60),
+                                        Container(
+                                            height: 20,
+                                            width: 300,
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                                color:
+                                                    Colors.grey.withAlpha(50))),
+                                        SizedBox(height: height / 20),
+                                        Container(
+                                            height: 35,
+                                            width: width - 30,
+                                            decoration: BoxDecoration(
+                                                color:
+                                                    Colors.grey.withAlpha(50),
+                                                borderRadius:
+                                                    BorderRadius.circular(25))),
+                                        SizedBox(height: height / 20),
+                                      ]))
+                                  : Column(
+                                      children: [
+                                        SizedBox(
+                                            width: width - 50,
+                                            child: Text(widget._titleTrack,
+                                                textAlign: TextAlign.center,
+                                                style: GoogleFonts.inter(
+                                                    color: Colors.white,
+                                                    fontSize: height / 27,
+                                                    fontWeight:
+                                                        FontWeight.bold))),
+                                        SizedBox(height: height / 25),
+                                        SizedBox(
+                                            width: width - 40,
+                                            child: Text(
+                                                widget._descriptionTrack,
+                                                textAlign: TextAlign.center,
+                                                style: GoogleFonts.inter(
+                                                    color:
+                                                        const Color(0xffcfcfd0),
+                                                    fontSize: height / 40))),
+                                        TagItem(widget._listTags,
+                                            widget._indexPage),
+                                      ],
                                     ),
-                                  ),
-                                  SizedBox(height: height / 15),
-                                  Container(
-                                    height: 20,
-                                    width: 350,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(15),
-                                      color: Colors.grey.withAlpha(50),
-                                    ),
-                                  ),
-                                  SizedBox(height: height / 60),
-                                  Container(
-                                      height: 20,
-                                      width: 300,
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                          color: Colors.grey.withAlpha(50))),
-                                  SizedBox(height: height / 20),
-                                  Container(
-                                      height: 35,
-                                      width: width - 30,
-                                      decoration: BoxDecoration(
-                                          color: Colors.grey.withAlpha(50),
-                                          borderRadius:
-                                              BorderRadius.circular(25))),
-                                  SizedBox(height: height / 20),
-                                ]))
-                            : Column(
-                                children: [
-                                  SizedBox(
-                                      width: width - 50,
-                                      child: Text(widget._titleTrack,
-                                          textAlign: TextAlign.center,
-                                          style: GoogleFonts.inter(
-                                              color: Colors.white,
-                                              fontSize: height / 27,
-                                              fontWeight: FontWeight.bold))),
-                                  SizedBox(height: height / 25),
-                                  SizedBox(
-                                      width: width - 40,
-                                      child: Text(widget._descriptionTrack,
-                                          textAlign: TextAlign.center,
-                                          style: GoogleFonts.inter(
-                                              color: const Color(0xffcfcfd0),
-                                              fontSize: height / 40))),
-                                  TagItem(widget._listTags, widget._indexPage),
-                                ],
-                              ),
-                      ],
-                    );
-                  },
-                ),
-                Container(
-                  margin: const EdgeInsets.fromLTRB(30, 0, 30, 30),
-                  height: height / 60,
-                  child: ValueListenableBuilder<bool>(
-                      valueListenable: widget._isloading,
-                      builder: (_, isloading, __) {
-                        return isloading
-                            ? ProgressBar(
-                                thumbColor: Colors.white,
-                                thumbGlowRadius: 20,
-                                thumbRadius: 7,
-                                timeLabelPadding: 10,
-                                timeLabelTextStyle: _textStyleTime,
-                                bufferedBarColor: const Color(0xff898994),
-                                progressBarColor: Colors.white,
-                                baseBarColor: const Color(0xff4b4b4f),
-                                onSeek: null,
-                                progress: Duration.zero,
-                                total: Duration.zero,
-                              )
-                            : ValueListenableBuilder<ProgressBarState>(
-                                valueListenable:
-                                    widget.audioManager.progressNotifier,
-                                builder: (_, value, __) {
-                                  return ProgressBar(
-                                    thumbColor: Colors.white,
-                                    thumbGlowRadius: 20,
-                                    thumbRadius: 7,
-                                    timeLabelPadding: 10,
-                                    timeLabelTextStyle: _textStyleTime,
-                                    bufferedBarColor: const Color(0xff898994),
-                                    progressBarColor: Colors.white,
-                                    baseBarColor: const Color(0xff4b4b4f),
-                                    progress: value.current,
-                                    buffered: value.buffered,
-                                    total: value.total,
-                                    onSeek: widget.audioManager.seek,
-                                  );
-                                },
-                              );
-                      }),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Container(
-                        margin: EdgeInsets.fromLTRB(
-                            0, 0, width / 2 - 10 - 34 - 71, height / 5),
-                        height: 68,
-                        width: 68,
+                            ],
+                          );
+                        },
+                      ),
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(30, 0, 30, 30),
+                        height: height / 60,
                         child: ValueListenableBuilder<bool>(
                             valueListenable: widget._isloading,
                             builder: (_, isloading, __) {
                               return isloading
-                                  ? loadingWidget
-                                  : ValueListenableBuilder<ButtonState>(
+                                  ? ProgressBar(
+                                      thumbColor: Colors.white,
+                                      thumbGlowRadius: 20,
+                                      thumbRadius: 7,
+                                      timeLabelPadding: 10,
+                                      timeLabelTextStyle: _textStyleTime,
+                                      bufferedBarColor: const Color(0xff898994),
+                                      progressBarColor: Colors.white,
+                                      baseBarColor: const Color(0xff4b4b4f),
+                                      onSeek: null,
+                                      progress: Duration.zero,
+                                      total: Duration.zero,
+                                    )
+                                  : ValueListenableBuilder<ProgressBarState>(
                                       valueListenable:
-                                          widget.audioManager.buttonNotifier,
+                                          widget.audioManager.progressNotifier,
                                       builder: (_, value, __) {
-                                        switch (value) {
-                                          case ButtonState.loading:
-                                            return loadingWidget;
-                                          case ButtonState.paused:
-                                            return ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                  elevation: 0,
-                                                  padding:
-                                                      const EdgeInsets.fromLTRB(
-                                                          20, 17, 17, 17),
-                                                  primary: Colors.white,
-                                                  shape: RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              50.0))),
-                                              child: Image.asset(
-                                                  "assets/items/play.png"),
-                                              onPressed: () {
-                                                try {
-                                                  Utilities.audioHandler
-                                                      .switchToHandler(
-                                                          widget._indexPage +
-                                                              1);
-                                                  Utilities.audioHandler.play();
-                                                } catch (e) {
-                                                  print("error");
-                                                }
-                                              },
-                                            );
-                                          case ButtonState.playing:
-                                            return ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                  elevation: 0,
-                                                  padding:
-                                                      const EdgeInsets.all(17),
-                                                  primary: Colors.white,
-                                                  shape: RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              50.0))),
-                                              child: Image.asset(
-                                                  "assets/items/pause.png"),
-                                              onPressed:
-                                                  widget.audioManager.pause,
-                                            );
-                                        }
+                                        return ProgressBar(
+                                          thumbColor: Colors.white,
+                                          thumbGlowRadius: 20,
+                                          thumbRadius: 7,
+                                          timeLabelPadding: 10,
+                                          timeLabelTextStyle: _textStyleTime,
+                                          bufferedBarColor:
+                                              const Color(0xff898994),
+                                          progressBarColor: Colors.white,
+                                          baseBarColor: const Color(0xff4b4b4f),
+                                          progress: value.current,
+                                          buffered: value.buffered,
+                                          total: value.total,
+                                          onSeek: widget.audioManager.seek,
+                                        );
                                       },
                                     );
-                            })),
-                    Column(children: [
-                      ValueListenableBuilder<double>(
-                        valueListenable: notifierforLikeSize,
-                        builder: (_, value, __) {
-                          return AnimatedContainer(
-                              width: value,
-                              height: 32,
-                              duration: const Duration(milliseconds: 100),
-                              child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                      padding: const EdgeInsets.all(0),
-                                      primary: Colors.transparent,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(50.0))),
-                                  onPressed: () {
-                                    !likedBool ? liked() : unLiked();
-                                  },
-                                  child: likedBool
-                                      ? Image.asset('assets/items/likeon.png')
-                                      : Image.asset(
-                                          'assets/items/likeoff.png')));
-                        },
+                            }),
                       ),
-                      const SizedBox(height: 5),
-                      ValueListenableBuilder<bool>(
-                          valueListenable: widget._isloading,
-                          builder: (_, isloading, __) {
-                            return isloading
-                                ? SizedBox(
-                                    height: 15,
-                                    width: 23,
-                                    child: ListView(
-                                        padding: EdgeInsets.zero,
-                                        children: [
-                                          ShimmerLoading(
-                                              isLoading: isloading,
-                                              child: Container(
-                                                  height: 15,
-                                                  width: 23,
-                                                  decoration: BoxDecoration(
-                                                      color: Colors.grey
-                                                          .withAlpha(50),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              15))))
-                                        ]))
-                                : Text(widget._countLikes.toString(),
-                                    style: _textStyleLS);
-                          }),
-                      SizedBox(height: height / 25),
-                      SizedBox(
-                          height: 32,
-                          width: 32,
-                          child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.all(0),
-                                  primary: Colors.transparent,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(50.0))),
-                              onPressed: share,
-                              child: Image.asset('assets/items/share.png'))),
-                      const SizedBox(height: 3),
-                      SizedBox(
-                          width: 71,
-                          child: ValueListenableBuilder<Map>(
-                              valueListenable: Utilities.curLang,
-                              builder: (_, lang, __) {
-                                return Text(lang["Share"],
-                                    textAlign: TextAlign.center,
-                                    style: _textStyleLS);
-                              })),
-                      SizedBox(height: height / 70)
-                    ]),
-                    const SizedBox(width: 15),
-                  ],
-                )
-              ],
-            )));
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Container(
+                              margin: EdgeInsets.fromLTRB(
+                                  0, 0, width / 2 - 10 - 34 - 71, height / 5),
+                              height: 68,
+                              width: 68,
+                              child: ValueListenableBuilder<bool>(
+                                  valueListenable: widget._isloading,
+                                  builder: (_, isloading, __) {
+                                    return isloading
+                                        ? loadingWidget
+                                        : ValueListenableBuilder<ButtonState>(
+                                            valueListenable: widget
+                                                .audioManager.buttonNotifier,
+                                            builder: (_, value, __) {
+                                              switch (value) {
+                                                case ButtonState.loading:
+                                                  return loadingWidget;
+                                                case ButtonState.paused:
+                                                  return ElevatedButton(
+                                                    style: ElevatedButton.styleFrom(
+                                                        elevation: 0,
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .fromLTRB(
+                                                                20, 17, 17, 17),
+                                                        primary: Colors.white,
+                                                        shape: RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        50.0))),
+                                                    child: Image.asset(
+                                                        "assets/items/play.png"),
+                                                    onPressed: () {
+                                                      try {
+                                                        Utilities.audioHandler
+                                                            .switchToHandler(
+                                                                widget._indexPage +
+                                                                    1);
+                                                        Utilities.audioHandler
+                                                            .play();
+                                                      } catch (e) {
+                                                        print("error");
+                                                      }
+                                                    },
+                                                  );
+                                                case ButtonState.playing:
+                                                  return ElevatedButton(
+                                                    style: ElevatedButton.styleFrom(
+                                                        elevation: 0,
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(17),
+                                                        primary: Colors.white,
+                                                        shape: RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        50.0))),
+                                                    child: Image.asset(
+                                                        "assets/items/pause.png"),
+                                                    onPressed: widget
+                                                        .audioManager.pause,
+                                                  );
+                                              }
+                                            },
+                                          );
+                                  })),
+                          Column(children: [
+                            ValueListenableBuilder<double>(
+                              valueListenable: notifierforLikeSize,
+                              builder: (_, value, __) {
+                                return AnimatedContainer(
+                                    width: value,
+                                    height: 32,
+                                    duration: const Duration(milliseconds: 100),
+                                    child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                            padding: const EdgeInsets.all(0),
+                                            primary: Colors.transparent,
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        50.0))),
+                                        onPressed: () {
+                                          !widget._liked ? liked() : unLiked();
+                                        },
+                                        child: widget._liked
+                                            ? Image.asset(
+                                                'assets/items/likeon.png')
+                                            : Image.asset(
+                                                'assets/items/likeoff.png')));
+                              },
+                            ),
+                            const SizedBox(height: 5),
+                            ValueListenableBuilder<bool>(
+                                valueListenable: widget._isloading,
+                                builder: (_, isloading, __) {
+                                  return isloading
+                                      ? SizedBox(
+                                          height: 15,
+                                          width: 23,
+                                          child: ListView(
+                                              padding: EdgeInsets.zero,
+                                              children: [
+                                                ShimmerLoading(
+                                                    isLoading: isloading,
+                                                    child: Container(
+                                                        height: 15,
+                                                        width: 23,
+                                                        decoration: BoxDecoration(
+                                                            color: Colors.grey
+                                                                .withAlpha(50),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        15))))
+                                              ]))
+                                      : Text(widget._countLikes.toString(),
+                                          style: _textStyleLS);
+                                }),
+                            SizedBox(height: height / 25),
+                            SizedBox(
+                                height: 32,
+                                width: 32,
+                                child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                        padding: const EdgeInsets.all(0),
+                                        primary: Colors.transparent,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(50.0))),
+                                    onPressed: share,
+                                    child:
+                                        Image.asset('assets/items/share.png'))),
+                            const SizedBox(height: 3),
+                            SizedBox(
+                                width: 71,
+                                child: ValueListenableBuilder<Map>(
+                                    valueListenable: Utilities.curLang,
+                                    builder: (_, lang, __) {
+                                      return Text(lang["Share"],
+                                          textAlign: TextAlign.center,
+                                          style: _textStyleLS);
+                                    })),
+                            SizedBox(height: height / 70)
+                          ]),
+                          const SizedBox(width: 15),
+                        ],
+                      )
+                    ],
+                  ),
+                  isloading);
+            }));
   }
 
   @override

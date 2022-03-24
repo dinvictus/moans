@@ -17,72 +17,19 @@ class Feed extends StatefulWidget {
 int curpage = 0;
 
 class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
-  int counterForViewedTracks = 0;
+  // int counterForViewedTracks = 0;
   late PageController controller;
   final List<dynamic> pages = [];
-  final List<AudioManager> handlers = [];
+  // final List<AudioManager> handlers = [];
   bool toastViewed = Utilities.showHelpNotification;
   bool tracksEnd = false;
 
-  refreshFeed() {
+  refreshFeed() async {
+    await Server.refreshFeed();
     pages.clear();
-    handlers.removeRange(1, handlers.length);
+    Utilities.handlers.removeRange(1, Utilities.handlers.length);
     setState(() {});
     loadTracks();
-  }
-
-  loadViewedTracs(int count) async {
-    int countAddedTracks = 0;
-    int counterPageFinal = pages.length - count;
-    int counterPage = counterPageFinal;
-    counterForViewedTracks += count;
-    while (countAddedTracks != count) {
-      Map<String, String> forTracksViewedInfo = {
-        "language_id":
-            Languages.values.indexOf(Utilities.currentLanguage).toString(),
-        "voice": (Voices.values.indexOf(Utilities.curVoice)).toString(),
-        "limit": count.toString(),
-        "skip": counterForViewedTracks.toString()
-      };
-      Map responceInfo = await Server.getViewedTracks(forTracksViewedInfo);
-      switch (responceInfo["status_code"]) {
-        case 200:
-          var trackInfoViewed = responceInfo["tracks_info"];
-          int j = 0;
-          for (int i = counterPage;
-              i < counterPage + trackInfoViewed.length;
-              i++) {
-            List<String> tags =
-                trackInfoViewed[j]["tags"].toString().split(" ");
-            pages[i].addInfo(
-                trackInfoViewed[j]["name"],
-                trackInfoViewed[j]["description"],
-                tags,
-                trackInfoViewed[j]["likes"],
-                trackInfoViewed[j]["id"]);
-            handlers.add(pages[i].audioManager);
-            j++;
-            countAddedTracks++;
-          }
-          if (countAddedTracks < count) {
-            tracksEnd = true;
-            int voidPages = pages.length - 1 - (count - countAddedTracks);
-            for (int i = pages.length - 1; i > voidPages; i--) {
-              pages.removeAt(i);
-            }
-            pages.add(EndFeedItem(refreshFeed));
-            setState(() {});
-            return;
-          }
-          break;
-        case 404:
-          // Ошибка подключения
-          return;
-        default:
-          // Ошибка
-          return;
-      }
-    }
   }
 
   loadTracks() async {
@@ -90,35 +37,45 @@ class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
     for (int i = counter; i < counter + 10; i++) {
       pages.add(AudioItem(i));
     }
+    if (controller.hasClients) {
+      controller.jumpToPage(0);
+    }
 
-    Map<String, String> forTracksNotViewedInfo = {
+    Map<String, String> forTracksInfo = {
       "language_id":
           Languages.values.indexOf(Utilities.currentLanguage).toString(),
       "voice": (Voices.values.indexOf(Utilities.curVoice)).toString(),
-      "limit": "10",
-      "skip": "0"
     };
-    Map responceInfo = await Server.getUnViewedTracks(forTracksNotViewedInfo);
+    Map responceInfo = await Server.getTracks(forTracksInfo);
     switch (responceInfo["status_code"]) {
       case 200:
-        var trackInfoNotViewed = responceInfo["tracks_info"];
-        if (trackInfoNotViewed.length != 0) {
+        var tracksInfo = responceInfo["tracks_info"];
+        if (tracksInfo.length != 0) {
           int j = 0;
-          for (int i = counter; i < counter + trackInfoNotViewed.length; i++) {
-            List<String> tags =
-                trackInfoNotViewed[j]["tags"].toString().split(" ");
+          for (int i = counter; i < counter + tracksInfo.length; i++) {
+            List<String> tags = tracksInfo[j]["tags"].toString().split(" ");
+            bool liked = tracksInfo[j]["liked"] != null ? true : false;
             pages[i].addInfo(
-                trackInfoNotViewed[j]["name"],
-                trackInfoNotViewed[j]["description"],
+                tracksInfo[j]["name"],
+                tracksInfo[j]["description"],
                 tags,
-                trackInfoNotViewed[j]["likes"],
-                trackInfoNotViewed[j]["id"]);
-            handlers.add(pages[i].audioManager);
+                tracksInfo[j]["likes"],
+                tracksInfo[j]["id"],
+                liked);
+            print(tracksInfo[j]["likes"]);
+            Utilities.handlers.add(pages[i].audioManager);
             j++;
           }
         }
-        if (trackInfoNotViewed.length < 10) {
-          await loadViewedTracs(10 - trackInfoNotViewed.length as int);
+        if (tracksInfo.length < 10) {
+          tracksEnd = true;
+          int voidPages = pages.length - 1 - (10 - tracksInfo.length) as int;
+          for (int i = pages.length - 1; i > voidPages; i--) {
+            pages.removeAt(i);
+          }
+          pages.add(EndFeedItem(refreshFeed));
+          setState(() {});
+          return;
         }
         break;
       case 404:
@@ -130,24 +87,17 @@ class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
     }
   }
 
-  initFirst() async {
-    Utilities.managerForRecord = AudioManager("", "Record", 0);
-    handlers.add(Utilities.managerForRecord);
-    Utilities.audioHandler = await AudioService.init(
-        builder: () => AudioSwitchHandler(handlers),
-        config: const AudioServiceConfig(
-            androidNotificationIcon: "drawable/noti",
-            androidNotificationChannelId: 'com.ryanheise.myapp.channel.audio',
-            androidNotificationChannelName: 'Audio playback',
-            androidNotificationOngoing: true));
-  }
-
   @override
   void initState() {
     super.initState();
     controller = PageController(initialPage: curpage, keepPage: true);
-    initFirst();
     loadTracks();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override

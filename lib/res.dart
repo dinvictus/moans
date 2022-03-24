@@ -76,7 +76,7 @@ class Server {
     }
   }
 
-  static Future<Map> getUnViewedTracks(Map<String, String> parameters) async {
+  static Future<Map> getTracks(Map<String, String> parameters) async {
     Map errorMap = {"status_code": 404, "tracks_info": ""};
     try {
       var responce = await http.get(
@@ -99,26 +99,16 @@ class Server {
     }
   }
 
-  static Future<Map> getViewedTracks(Map<String, String> parameters) async {
-    Map errorMap = {"status_code": 404, "tracks_info": ""};
+  static Future<int> refreshFeed() async {
     try {
-      var responce = await http.get(
-          Utilities.getUri(Utilities.url + "tracks/seen", parameters),
-          headers: {
-            "Authorization": "Bearer " + Utilities.authToken,
-            "Content-Type": "application/json"
-          });
-      if (responce.statusCode == 200) {
-        Map trackInfo = {
-          "status_code": 200,
-          "tracks_info": jsonDecode(responce.body)
-        };
-        return trackInfo;
-      } else {
-        return errorMap;
-      }
+      var responce =
+          await http.get(Uri.parse(Utilities.url + "tracks/refresh"), headers: {
+        "Authorization": "Bearer " + Utilities.authToken,
+        "Content-Type": "application/json"
+      });
+      return responce.statusCode;
     } catch (e) {
-      return errorMap;
+      return 404;
     }
   }
 
@@ -212,6 +202,45 @@ class Server {
       return 404;
     }
   }
+
+  static Future<int> likeRequest(Map<String, String> parameters) async {
+    try {
+      var responce = await http.patch(
+          Utilities.getUri(Utilities.url + "tracks/like", parameters),
+          headers: {
+            "Authorization": "Bearer " + Utilities.authToken,
+            "Content-Type": "application/json"
+          });
+      return responce.statusCode;
+    } catch (e) {
+      return 404;
+    }
+  }
+
+  static Future<int> changePassword(Map<String, String> parameters) async {
+    String newPass = parameters["new_password"]!;
+    var passbyteOld = utf8.encode(parameters["password"]!);
+    var passhashOld = sha256.convert(passbyteOld);
+    var passbyteNew = utf8.encode(parameters["new_password"]!);
+    var passhashNew = sha256.convert(passbyteNew);
+    parameters["password"] = passhashOld.toString();
+    parameters["new_password"] = passhashNew.toString();
+    try {
+      var responce = await http.patch(Uri.parse(Utilities.url + "users/"),
+          body: jsonEncode(parameters),
+          headers: {
+            "Authorization": "Bearer " + Utilities.authToken,
+            "Content-Type": "application/json"
+          });
+      if (responce.statusCode == 200) {
+        Utilities.password = newPass;
+      }
+      return responce.statusCode;
+    } catch (e) {
+      print(e);
+      return 404;
+    }
+  }
 }
 
 class Utilities {
@@ -289,7 +318,7 @@ class Utilities {
     preferences.setString(_keyPassUser, password);
   }
 
-  static logOut() {
+  static logOut() async {
     preferences.setString(_keyEmailUser, "");
     preferences.setString(_keyPassUser, "");
     preferences.setInt(_keyVoices, 6);
@@ -301,6 +330,8 @@ class Utilities {
     logout.logOut();
   }
 
+  static const bool isConnectedToServer = true;
+  static List<AudioManager> handlers = [];
   static NotifyLogout logout = NotifyLogout();
   static bool authorized = false;
   static bool ageConfirm = false;

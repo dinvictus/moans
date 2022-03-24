@@ -28,6 +28,7 @@ class MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
+    double devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
     precacheImage(const AssetImage("assets/items/recordon.png"), context);
     precacheImage(const AssetImage("assets/items/profileon.png"), context);
     precacheImage(const AssetImage("assets/items/feedoff.png"), context);
@@ -81,41 +82,43 @@ class MainScreenState extends State<MainScreen> {
                     items: [
                       BottomNavigationBarItem(
                         icon: _selectionIndex == 0
-                            ? const Image(
-                                image: AssetImage("assets/items/feedon.png"),
-                                height: 30,
-                                width: 30)
-                            : const Image(
-                                image: AssetImage("assets/items/feedoff.png"),
-                                height: 30,
-                                width: 30),
+                            ? Image(
+                                image:
+                                    const AssetImage("assets/items/feedon.png"),
+                                height: devicePixelRatio * 12,
+                                width: devicePixelRatio * 12)
+                            : Image(
+                                image: const AssetImage(
+                                    "assets/items/feedoff.png"),
+                                height: devicePixelRatio * 12,
+                                width: devicePixelRatio * 12),
                         label: lang["Feed"],
                       ),
                       BottomNavigationBarItem(
                           icon: _selectionIndex == 1
-                              ? const Image(
-                                  image:
-                                      AssetImage("assets/items/recordon.png"),
-                                  height: 30,
-                                  width: 30)
-                              : const Image(
-                                  image:
-                                      AssetImage("assets/items/recordoff.png"),
-                                  height: 30,
-                                  width: 30),
+                              ? Image(
+                                  image: const AssetImage(
+                                      "assets/items/recordon.png"),
+                                  height: devicePixelRatio * 12,
+                                  width: devicePixelRatio * 12)
+                              : Image(
+                                  image: const AssetImage(
+                                      "assets/items/recordoff.png"),
+                                  height: devicePixelRatio * 12,
+                                  width: devicePixelRatio * 12),
                           label: lang["Record"]),
                       BottomNavigationBarItem(
                           icon: _selectionIndex == 2
-                              ? const Image(
-                                  image:
-                                      AssetImage("assets/items/profileon.png"),
-                                  height: 30,
-                                  width: 30)
-                              : const Image(
-                                  image:
-                                      AssetImage("assets/items/profileoff.png"),
-                                  height: 30,
-                                  width: 30),
+                              ? Image(
+                                  image: const AssetImage(
+                                      "assets/items/profileon.png"),
+                                  height: devicePixelRatio * 12,
+                                  width: devicePixelRatio * 12)
+                              : Image(
+                                  image: const AssetImage(
+                                      "assets/items/profileoff.png"),
+                                  height: devicePixelRatio * 12,
+                                  width: devicePixelRatio * 12),
                           label: lang["Profile"]),
                     ],
                     currentIndex: _selectionIndex,

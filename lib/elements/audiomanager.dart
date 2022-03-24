@@ -15,6 +15,10 @@ extension DemoAudioHandler on AudioHandler {
   }
 }
 
+extension AudioHandlerExtension on AudioHandler {
+  Future<void> dispose() => customAction('dispose');
+}
+
 class CustomEvent {
   final int handlerIndex;
 
@@ -40,7 +44,6 @@ class AudioSwitchHandler extends SwitchAudioHandler {
       [Map<String, dynamic>? extras]) async {
     switch (name) {
       case 'switchToHandler':
-        // stop();
         final index = extras!['index'] as int;
         inner = handlers[index];
         customState.add(CustomEvent(index));

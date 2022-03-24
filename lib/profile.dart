@@ -28,6 +28,7 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
   @override
   void initState() {
     super.initState();
+    FocusManager.instance.primaryFocus?.unfocus();
     loadingTracks();
     // Utilities.logout.addListener(() {
     //   dispose();
@@ -70,10 +71,6 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
         (they ? 1 : 0) * 3 +
         ((she ^ he ^ they) && !(she && he && they) ? 0 : 1) -
         1);
-  }
-
-  refresh() {
-    loadingTracks();
   }
 
   loadingTracks() async {

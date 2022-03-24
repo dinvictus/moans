@@ -8,81 +8,74 @@ import 'package:google_fonts/google_fonts.dart';
 class ChangePassword extends StatefulWidget {
   const ChangePassword({Key? key}) : super(key: key);
   @override
-  State<ChangePassword> createState() => ChangePasswordState();
+  State<ChangePassword> createState() => _ChangePasswordState();
 }
 
-class ChangePasswordState extends State<ChangePassword> {
-  final TextEditingController _controllerOldPassword = TextEditingController();
-  final TextEditingController _controllerNewPassword = TextEditingController();
-  final ValueNotifier<String?> _erTextOldPass = ValueNotifier<String?>(null);
+class _ChangePasswordState extends State<ChangePassword> {
+  final TextEditingController controllerOldPassword = TextEditingController();
+  final TextEditingController controllerNewPassword = TextEditingController();
+  final ValueNotifier<String?> erTextOldPass = ValueNotifier<String?>(null);
   bool _submitter = false;
-
-  Future<void> changepass() async {
-    Utilities.showLoadingScreen(context);
-    // Запрос к серверу на смену пароля, добавить окошко загрузки на время запроса и окно с подтверждением или ошибкой
-    Future.delayed(Duration(seconds: 5), () {
-      Navigator.of(context).pop();
-      print("Change Pass");
-      Fluttertoast.showToast(msg: "Пароль успешно изменён!");
-      Navigator.of(context).pop();
-    });
-  }
 
   Future<void> _submit() async {
     _errorTextOldPassword();
     setState(() {
       _submitter = true;
     });
-    if (_errorTextNewPassword == null && _erTextOldPass.value == null) {
-      _checkOldPassword().then((confirmOldPass) {
-        Navigator.of(context).pop();
-        if (confirmOldPass) {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      ActionConfirm(confirmtrue: changepass)));
-        }
-      });
+    if (_errorTextNewPassword == null && erTextOldPass.value == null) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ActionConfirm(confirmtrue: changePass)));
     }
   }
 
-  Future<bool> _checkOldPassword() async {
+  changePass() async {
+    Map<String, String> userPasss = {
+      "email": Utilities.email,
+      "password": controllerOldPassword.text,
+      "new_password": controllerNewPassword.text
+    };
     Utilities.showLoadingScreen(context);
-    // Запрос на проверку старого пароля
-    return Future.delayed(const Duration(seconds: 3), () {
-      // _erTextOldPass.value = Utilities.curLang["OldPassMatch"];
-      setState(() {});
-      return true;
-    });
+    int statusCodePass = await Server.changePassword(userPasss);
+    Navigator.of(context).pop();
+    switch (statusCodePass) {
+      case 200:
+        Fluttertoast.showToast(msg: "Пароль успешно изменён!");
+        FocusManager.instance.primaryFocus?.unfocus();
+        Navigator.of(context).pop();
+        break;
+      case 403:
+        setState(() {
+          erTextOldPass.value = Utilities.curLang.value["OldPassMatch"];
+        });
+        break;
+      case 404:
+        // Ошибка подключения к серверу
+        break;
+      default:
+        // Ошибка
+        break;
+    }
   }
 
   @override
   void dispose() {
-    _controllerOldPassword.dispose();
-    _controllerNewPassword.dispose();
+    controllerOldPassword.dispose();
+    controllerNewPassword.dispose();
     super.dispose();
   }
 
   _errorTextOldPassword() {
-    final text = _controllerOldPassword.value.text.toString();
-    if (text != _controllerNewPassword.value.text.toString()) {
-      _erTextOldPass.value = Utilities.curLang.value["PassMatch"];
-    } else {
-      _erTextOldPass.value = null;
-    }
+    erTextOldPass.value = null;
   }
 
   String? get _errorTextNewPassword {
-    final text = _controllerNewPassword.value.text.toString();
-    if (text != _controllerOldPassword.value.text.toString()) {
-      return Utilities.curLang.value["PassMatch"];
-    }
     return null;
   }
 
   Color _getColorErrorOldPassword() {
-    return _submitter && _erTextOldPass.value != null
+    return _submitter && erTextOldPass.value != null
         ? const Color(0xffa72627)
         : Colors.white;
   }
@@ -120,6 +113,7 @@ class ChangePasswordState extends State<ChangePassword> {
                               padding: const EdgeInsets.all(0),
                               primary: Colors.transparent),
                           onPressed: () {
+                            FocusManager.instance.primaryFocus?.unfocus();
                             Navigator.pop(context);
                           },
                           child: Row(
@@ -163,7 +157,7 @@ class ChangePasswordState extends State<ChangePassword> {
                                         fontSize: 12),
                                   ),
                                   ValueListenableBuilder<String?>(
-                                    valueListenable: _erTextOldPass,
+                                    valueListenable: erTextOldPass,
                                     builder: (_, value, __) {
                                       return Text(
                                         _submitter && value != null
@@ -177,10 +171,10 @@ class ChangePasswordState extends State<ChangePassword> {
                                   )
                                 ])),
                         ValueListenableBuilder<String?>(
-                            valueListenable: _erTextOldPass,
+                            valueListenable: erTextOldPass,
                             builder: (_, value, __) {
                               return TextField(
-                                controller: _controllerOldPassword,
+                                controller: controllerOldPassword,
                                 style: TextStyle(
                                     color: _getColorErrorOldPassword()),
                                 autofocus: true,
@@ -223,7 +217,7 @@ class ChangePasswordState extends State<ChangePassword> {
                                   ),
                                 ])),
                         TextField(
-                          controller: _controllerNewPassword,
+                          controller: controllerNewPassword,
                           obscureText: true,
                           style: TextStyle(color: _getColorErrorNewPassword()),
                           decoration: InputDecoration(
@@ -257,9 +251,9 @@ class ChangePasswordState extends State<ChangePassword> {
                               style: GoogleFonts.inter(
                                   color: Colors.white, fontSize: height / 50),
                             ),
-                            onPressed: _controllerOldPassword
+                            onPressed: controllerOldPassword
                                         .value.text.isNotEmpty &&
-                                    _controllerNewPassword.value.text.isNotEmpty
+                                    controllerNewPassword.value.text.isNotEmpty
                                 ? _submit
                                 : null,
                           ),

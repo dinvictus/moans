@@ -24,21 +24,26 @@ class _LogInState extends State<LogIn> {
     setState(() {
       _submitter = true;
     });
-    if (errorTextEmail == null && errorTextPass == null) {
-      int statusCodeLogin = await Server.logIn(
-          controllerEmail.value.text, controllerPass.value.text, context);
-      switch (statusCodeLogin) {
-        case 200:
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const MainScreen()));
-          break;
-        case 404:
-          // Ошибка подключения к серверу
-          break;
-        default:
-          // Ошибка
-          break;
+    if (Utilities.isConnectedToServer) {
+      if (errorTextEmail == null && errorTextPass == null) {
+        int statusCodeLogin = await Server.logIn(
+            controllerEmail.value.text, controllerPass.value.text, context);
+        switch (statusCodeLogin) {
+          case 200:
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const MainScreen()));
+            break;
+          case 404:
+            // Ошибка подключения к серверу
+            break;
+          default:
+            // Ошибка
+            break;
+        }
       }
+    } else {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => const MainScreen()));
     }
   }
 

@@ -62,18 +62,20 @@ class AudioRecorder {
   }
 
   back() async {
-    FocusManager.instance.primaryFocus?.unfocus();
-    Utilities.managerForRecord.stop();
-    Utilities.managerForRecord.resetDuration();
-    if (await _audioRecorder.isRecording()) {
-      _audioRecorder.stop();
+    if (_isInitialize) {
+      FocusManager.instance.primaryFocus?.unfocus();
+      Utilities.managerForRecord.stop();
+      Utilities.managerForRecord.resetDuration();
+      if (await _audioRecorder.isRecording()) {
+        _audioRecorder.stop();
+      }
+      if (timeNotifier.value.curtime != Duration.zero && !_isFile) {
+        _timer.cancel();
+      }
+      _isFile = false;
+      timeNotifier.value = TimeRecordState(Duration.zero);
+      pageAudioRecordNotifier.value = AudioRecordState.main;
     }
-    if (timeNotifier.value.curtime != Duration.zero && !_isFile) {
-      _timer.cancel();
-    }
-    _isFile = false;
-    timeNotifier.value = TimeRecordState(Duration.zero);
-    pageAudioRecordNotifier.value = AudioRecordState.main;
   }
 
   backSave() {

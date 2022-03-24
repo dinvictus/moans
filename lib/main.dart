@@ -1,14 +1,24 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:moans/login.dart';
 import 'package:moans/mainscreen.dart';
-import 'package:moans/signup.dart';
+import 'elements/audiomanager.dart';
 import 'res.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'elements/dropbutton.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Utilities.init();
+  await Utilities.init();
+  Utilities.managerForRecord = AudioManager("", "Record", 0);
+  Utilities.handlers.add(Utilities.managerForRecord);
+  Utilities.audioHandler = await AudioService.init(
+      builder: () => AudioSwitchHandler(Utilities.handlers),
+      config: const AudioServiceConfig(
+          androidNotificationIcon: "drawable/noti",
+          androidNotificationChannelId: 'com.ryanheise.myapp.channel.audio',
+          androidNotificationChannelName: 'Audio playback',
+          androidNotificationOngoing: true));
   runApp(const Moans());
 }
 

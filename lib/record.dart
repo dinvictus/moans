@@ -18,7 +18,7 @@ class Record extends StatefulWidget {
 
 late double _height;
 late double _width;
-late final AudioRecorder _audioRecorder;
+late final AudioRecorder _audioRecorder = AudioRecorder();
 final TextStyle _textStyleTime =
     GoogleFonts.inter(color: const Color(0xff878789));
 
@@ -383,21 +383,21 @@ class _PlayRecordItemState extends State<PlayRecordItem> {
 class RecordState extends State<Record> with AutomaticKeepAliveClientMixin {
   final PageController _scrollController = PageController(initialPage: 0);
 
-  refresh() {
-    setState(() {});
-  }
+  // refresh() {
+  //   setState(() {});
+  // }
 
   @override
   void initState() {
     super.initState();
-    _audioRecorder = AudioRecorder();
+    _audioRecorder.back();
   }
 
-  @override
-  void dispose() {
-    _audioRecorder.dispose();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   _audioRecorder.dispose();
+  //   super.dispose();
+  // }
 
   _animate(index) {
     if (_scrollController.hasClients) {

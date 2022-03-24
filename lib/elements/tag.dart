@@ -30,15 +30,19 @@ class _TagItemState extends State<TagItem> {
   final List<Container> elementsList = [];
 
   animateForward() {
-    _scrollController.animateTo(_scrollController.position.maxScrollExtent,
-        duration: Duration(seconds: averageSymbols),
-        curve: const Interval(0.05, 1));
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(_scrollController.position.maxScrollExtent,
+          duration: Duration(seconds: averageSymbols),
+          curve: const Interval(0.05, 1));
+    }
   }
 
   animateRewerse() {
-    _scrollController.animateTo(0,
-        duration: Duration(seconds: averageSymbols),
-        curve: const Interval(0.05, 1));
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(0,
+          duration: Duration(seconds: averageSymbols),
+          curve: const Interval(0.05, 1));
+    }
   }
 
   Container getTagItem(String text) {
@@ -76,7 +80,9 @@ class _TagItemState extends State<TagItem> {
     });
     Utilities.curPage.addListener(() {
       if (widget._index != Utilities.curPage.value) {
-        _scrollController.jumpTo(0.01);
+        if (_scrollController.hasClients) {
+          _scrollController.jumpTo(0.01);
+        }
       }
       if (widget._index == Utilities.curPage.value) {
         animateForward();
