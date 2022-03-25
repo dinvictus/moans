@@ -22,7 +22,7 @@ class MyDropButtonState extends State<MyDropButton>
   Widget build(BuildContext context) {
     super.build(context);
     return Container(
-        margin: const EdgeInsets.fromLTRB(0, 10, 10, 10),
+        margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             primary: Colors.transparent,

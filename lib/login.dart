@@ -105,6 +105,7 @@ class _LogInState extends State<LogIn> {
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
+    double textScaleFactor = MediaQuery.of(context).textScaleFactor;
     return Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -141,7 +142,7 @@ class _LogInState extends State<LogIn> {
                                   lang["login"],
                                   style: GoogleFonts.inter(
                                       color: Colors.white,
-                                      fontSize: height / 20,
+                                      fontSize: textScaleFactor * 35,
                                       fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -155,14 +156,15 @@ class _LogInState extends State<LogIn> {
                                         Text(lang["Email"],
                                             style: GoogleFonts.inter(
                                                 color: getColorErrorEmail(),
-                                                fontSize: 12)),
+                                                fontSize:
+                                                    textScaleFactor * 12)),
                                         Text(
                                           _submitter && errorTextEmail != null
                                               ? errorTextEmail!
                                               : "",
                                           style: GoogleFonts.inter(
                                               color: const Color(0xffa72627),
-                                              fontSize: 12),
+                                              fontSize: textScaleFactor * 12),
                                         ),
                                       ])),
                               TextField(
@@ -198,14 +200,15 @@ class _LogInState extends State<LogIn> {
                                         Text(lang["Password"],
                                             style: GoogleFonts.inter(
                                                 color: getColorPassword(),
-                                                fontSize: 12)),
+                                                fontSize:
+                                                    textScaleFactor * 12)),
                                         Text(
                                           _submitter && errorTextPass != null
                                               ? errorTextPass!
                                               : "",
                                           style: GoogleFonts.inter(
                                               color: const Color(0xffa72627),
-                                              fontSize: 12),
+                                              fontSize: textScaleFactor * 12),
                                         ),
                                       ])),
                               TextField(
@@ -231,7 +234,7 @@ class _LogInState extends State<LogIn> {
                               Container(height: height / 20),
                               SizedBox(
                                 width: double.infinity,
-                                height: height / 15,
+                                height: height / 16,
                                 child: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     onSurface: Colors.white,
@@ -244,7 +247,7 @@ class _LogInState extends State<LogIn> {
                                     lang["login"],
                                     style: GoogleFonts.inter(
                                         color: Colors.white,
-                                        fontSize: height / 50),
+                                        fontSize: textScaleFactor * 16),
                                   ),
                                   onPressed: controllerEmail
                                               .value.text.isNotEmpty &&
@@ -264,7 +267,7 @@ class _LogInState extends State<LogIn> {
                                           lang["LogQues"],
                                           style: GoogleFonts.inter(
                                               color: const Color(0xffcfcfd0),
-                                              fontSize: height / 50),
+                                              fontSize: textScaleFactor * 13.5),
                                         ),
                                         Container(width: 10),
                                         GestureDetector(
@@ -279,18 +282,18 @@ class _LogInState extends State<LogIn> {
                                               lang["Signup"],
                                               style: GoogleFonts.inter(
                                                   color: MColors.mainColor,
-                                                  fontSize: height / 50,
+                                                  fontSize:
+                                                      textScaleFactor * 13.5,
                                                   decoration:
                                                       TextDecoration.underline),
                                             ))
                                       ])),
                               SizedBox(
-                                  height: 30,
-                                  child: Text(
-                                    lang["Continue"],
-                                    style: GoogleFonts.inter(
-                                        color: const Color(0xffcfcfd0)),
-                                  )),
+                                  child: Text(lang["Continue"],
+                                      style: GoogleFonts.inter(
+                                          color: const Color(0xffcfcfd0),
+                                          fontSize: textScaleFactor * 13.5))),
+                              SizedBox(height: height / 50),
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
@@ -328,14 +331,14 @@ class _LogInState extends State<LogIn> {
                                       lang["Forgotpass"],
                                       style: GoogleFonts.inter(
                                         color: const Color(0xff878789),
-                                        fontSize: height / 50,
+                                        fontSize: textScaleFactor * 16,
                                       ),
                                     ),
                                     Container(height: 5),
                                     Text(lang["Click"],
                                         style: GoogleFonts.inter(
                                             color: MColors.mainColor,
-                                            fontSize: height / 50,
+                                            fontSize: textScaleFactor * 16,
                                             decoration:
                                                 TextDecoration.underline))
                                   ],

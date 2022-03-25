@@ -104,6 +104,8 @@ class _PostItemState extends State<PostItem> {
     int statusCodeUpload =
         await Server.uploadTrack(uploadTrackInfo, widget.pathToFile, context);
     if (statusCodeUpload == 201) {
+      pageAudioRecordNotifier.value = AudioRecordState.main;
+      widget.back();
       // Успешно загружено
     } else {
       // Ошибка подключения к серверу

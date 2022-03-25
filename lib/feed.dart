@@ -1,6 +1,4 @@
-import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:moans/elements/audiomanager.dart';
 import 'package:moans/elements/endfeeditem.dart';
 import 'package:moans/res.dart';
 import 'elements/audioitem.dart';
@@ -17,10 +15,8 @@ class Feed extends StatefulWidget {
 int curpage = 0;
 
 class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
-  // int counterForViewedTracks = 0;
   late PageController controller;
   final List<dynamic> pages = [];
-  // final List<AudioManager> handlers = [];
   bool toastViewed = Utilities.showHelpNotification;
   bool tracksEnd = false;
 
@@ -62,7 +58,6 @@ class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
                 tracksInfo[j]["likes"],
                 tracksInfo[j]["id"],
                 liked);
-            print(tracksInfo[j]["likes"]);
             Utilities.handlers.add(pages[i].audioManager);
             j++;
           }

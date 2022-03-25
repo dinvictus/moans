@@ -98,6 +98,10 @@ class _TagItemState extends State<TagItem> {
 
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
+    double textScaleFactor = MediaQuery.of(context).textScaleFactor;
+    double devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
         animateForward();
@@ -106,7 +110,7 @@ class _TagItemState extends State<TagItem> {
     return Center(
         child: Container(
             alignment: Alignment.center,
-            margin: const EdgeInsets.fromLTRB(10, 30, 10, 25),
+            margin: EdgeInsets.fromLTRB(0, height / 19, 0, height / 16),
             child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 scrollDirection: Axis.horizontal,

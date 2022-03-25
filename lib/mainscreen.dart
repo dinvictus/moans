@@ -28,7 +28,7 @@ class MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
-    double devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
+    double iconBottomBarSize = MediaQuery.of(context).devicePixelRatio * 10;
     precacheImage(const AssetImage("assets/items/recordon.png"), context);
     precacheImage(const AssetImage("assets/items/profileon.png"), context);
     precacheImage(const AssetImage("assets/items/feedoff.png"), context);
@@ -67,7 +67,7 @@ class MainScreenState extends State<MainScreen> {
                   BoxShadow(
                       color: Colors.black38, spreadRadius: 0, blurRadius: 10)
                 ]),
-            height: height / 10,
+            height: height / 11,
             child: ValueListenableBuilder<Map>(
                 valueListenable: Utilities.curLang,
                 builder: (_, lang, __) {
@@ -85,13 +85,13 @@ class MainScreenState extends State<MainScreen> {
                             ? Image(
                                 image:
                                     const AssetImage("assets/items/feedon.png"),
-                                height: devicePixelRatio * 12,
-                                width: devicePixelRatio * 12)
+                                height: iconBottomBarSize,
+                                width: iconBottomBarSize)
                             : Image(
                                 image: const AssetImage(
                                     "assets/items/feedoff.png"),
-                                height: devicePixelRatio * 12,
-                                width: devicePixelRatio * 12),
+                                height: iconBottomBarSize,
+                                width: iconBottomBarSize),
                         label: lang["Feed"],
                       ),
                       BottomNavigationBarItem(
@@ -99,26 +99,26 @@ class MainScreenState extends State<MainScreen> {
                               ? Image(
                                   image: const AssetImage(
                                       "assets/items/recordon.png"),
-                                  height: devicePixelRatio * 12,
-                                  width: devicePixelRatio * 12)
+                                  height: iconBottomBarSize,
+                                  width: iconBottomBarSize)
                               : Image(
                                   image: const AssetImage(
                                       "assets/items/recordoff.png"),
-                                  height: devicePixelRatio * 12,
-                                  width: devicePixelRatio * 12),
+                                  height: iconBottomBarSize,
+                                  width: iconBottomBarSize),
                           label: lang["Record"]),
                       BottomNavigationBarItem(
                           icon: _selectionIndex == 2
                               ? Image(
                                   image: const AssetImage(
                                       "assets/items/profileon.png"),
-                                  height: devicePixelRatio * 12,
-                                  width: devicePixelRatio * 12)
+                                  height: iconBottomBarSize,
+                                  width: iconBottomBarSize)
                               : Image(
                                   image: const AssetImage(
                                       "assets/items/profileoff.png"),
-                                  height: devicePixelRatio * 12,
-                                  width: devicePixelRatio * 12),
+                                  height: iconBottomBarSize,
+                                  width: iconBottomBarSize),
                           label: lang["Profile"]),
                     ],
                     currentIndex: _selectionIndex,

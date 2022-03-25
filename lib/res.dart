@@ -256,6 +256,7 @@ class Utilities {
     }
     if (preferences.getBool(_keyAgeConfirm) != null) {
       ageConfirm = preferences.getBool(_keyAgeConfirm)!;
+      print(ageConfirm);
     }
     if (preferences.getInt(_keyVoices) != null) {
       curVoice = Voices.values.elementAt(preferences.getInt(_keyVoices)!);
@@ -349,7 +350,7 @@ class Utilities {
   static late SharedPreferences preferences;
   static late AudioHandler audioHandler;
   static late AudioManager managerForRecord;
-  static String url = "https://moans.pagekite.me/";
+  static String url = "https://moans2.pagekite.me/";
   static ValueNotifier<int> curPage = ValueNotifier(0);
   static ValueNotifier<Map> curLang = ValueNotifier<Map>(_englishStrings);
   static String email = "test@test";
@@ -429,7 +430,7 @@ class Utilities {
         "Тебе больше восемнадцати лет и ты подтверждаешь, что не будешь оскорблен аудио-записями любого содержания? Замечательно! Заходи!",
     "18eQuesText": "Сколько вам лет?",
     "18eButText": "Мне 18 лет или больше",
-    "18eTerAndCondText": "Условия и положения",
+    "18eTerAndCondText": "Terms and conditions",
     "login": "Вход",
     "Email": "Email",
     "Password": "Пароль",

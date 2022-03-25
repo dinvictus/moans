@@ -82,6 +82,7 @@ class _SignUpState extends State<SignUp> {
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
+    double textScaleFactor = MediaQuery.of(context).textScaleFactor;
     return Container(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         decoration: const BoxDecoration(
@@ -119,7 +120,7 @@ class _SignUpState extends State<SignUp> {
                                       lang["SignUp"],
                                       style: GoogleFonts.inter(
                                           color: Colors.white,
-                                          fontSize: height / 20,
+                                          fontSize: textScaleFactor * 35,
                                           fontWeight: FontWeight.bold),
                                     ),
                                   ),
@@ -134,7 +135,8 @@ class _SignUpState extends State<SignUp> {
                                               lang["Email"],
                                               style: GoogleFonts.inter(
                                                   color: getColorErrorEmail(),
-                                                  fontSize: 12),
+                                                  fontSize:
+                                                      textScaleFactor * 12),
                                             ),
                                             Text(
                                               submitter &&
@@ -144,7 +146,8 @@ class _SignUpState extends State<SignUp> {
                                               style: GoogleFonts.inter(
                                                   color:
                                                       const Color(0xffa72627),
-                                                  fontSize: 12),
+                                                  fontSize:
+                                                      textScaleFactor * 12),
                                             ),
                                           ])),
                                   TextField(
@@ -183,7 +186,8 @@ class _SignUpState extends State<SignUp> {
                                             Text(lang["CreatePass"],
                                                 style: GoogleFonts.inter(
                                                     color: getColorPassword(),
-                                                    fontSize: 12)),
+                                                    fontSize:
+                                                        textScaleFactor * 12)),
                                             Text(
                                               submitter && errorTextPass != null
                                                   ? errorTextPass!
@@ -191,7 +195,8 @@ class _SignUpState extends State<SignUp> {
                                               style: GoogleFonts.inter(
                                                   color:
                                                       const Color(0xffa72627),
-                                                  fontSize: 12),
+                                                  fontSize:
+                                                      textScaleFactor * 12),
                                             ),
                                           ])),
                                   TextField(
@@ -222,9 +227,12 @@ class _SignUpState extends State<SignUp> {
                                       child: RichText(
                                           text: TextSpan(
                                               style: TextStyle(
-                                                color: const Color(0xff878789),
-                                                fontSize: height / 50,
-                                              ),
+                                                  color:
+                                                      const Color(0xff878789),
+                                                  fontSize:
+                                                      textScaleFactor * 14,
+                                                  height:
+                                                      textScaleFactor * 1.35),
                                               text: lang["SignText1"],
                                               children: [
                                             TextSpan(
@@ -264,7 +272,7 @@ class _SignUpState extends State<SignUp> {
                                         lang["SignUp"],
                                         style: GoogleFonts.inter(
                                             color: Colors.white,
-                                            fontSize: height / 50),
+                                            fontSize: textScaleFactor * 16),
                                       ),
                                       onPressed: controllerEmail
                                                   .value.text.isNotEmpty &&
@@ -286,7 +294,8 @@ class _SignUpState extends State<SignUp> {
                                               style: GoogleFonts.inter(
                                                   color:
                                                       const Color(0xffcfcfd0),
-                                                  fontSize: height / 50),
+                                                  fontSize:
+                                                      textScaleFactor * 15),
                                             ),
                                             Container(width: 10),
                                             GestureDetector(
@@ -301,7 +310,8 @@ class _SignUpState extends State<SignUp> {
                                                   lang["login"],
                                                   style: GoogleFonts.inter(
                                                       color: MColors.mainColor,
-                                                      fontSize: height / 50,
+                                                      fontSize:
+                                                          textScaleFactor * 15,
                                                       decoration: TextDecoration
                                                           .underline),
                                                 ))

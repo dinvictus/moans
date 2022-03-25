@@ -25,7 +25,7 @@ class AudioRecorder {
   bool _isInitialize = false;
   String? url = "";
   late Timer _timer;
-  bool _isRecording = false;
+  bool isRecording = false;
   bool _isFile = false;
   String? pathToFile = "";
 
@@ -62,19 +62,23 @@ class AudioRecorder {
   }
 
   back() async {
-    if (_isInitialize) {
-      FocusManager.instance.primaryFocus?.unfocus();
-      Utilities.managerForRecord.stop();
-      Utilities.managerForRecord.resetDuration();
-      if (await _audioRecorder.isRecording()) {
-        _audioRecorder.stop();
+    try {
+      if (_isInitialize) {
+        FocusManager.instance.primaryFocus?.unfocus();
+        Utilities.managerForRecord.stop();
+        Utilities.managerForRecord.resetDuration();
+        if (await _audioRecorder.isRecording()) {
+          _audioRecorder.stop();
+        }
+        if (timeNotifier.value.curtime != Duration.zero && !_isFile) {
+          _timer.cancel();
+        }
+        _isFile = false;
+        timeNotifier.value = TimeRecordState(Duration.zero);
+        pageAudioRecordNotifier.value = AudioRecordState.main;
       }
-      if (timeNotifier.value.curtime != Duration.zero && !_isFile) {
-        _timer.cancel();
-      }
-      _isFile = false;
-      timeNotifier.value = TimeRecordState(Duration.zero);
-      pageAudioRecordNotifier.value = AudioRecordState.main;
+    } catch (e) {
+      print(e);
     }
   }
 
@@ -108,15 +112,19 @@ class AudioRecorder {
   }
 
   Future<void> toggleRecording() async {
-    if (!_isRecording) {
-      _record();
-      _isRecording = true;
-    } else {
-      if (await _audioRecorder.isRecording()) {
-        _isRecording = false;
-        pathToFile = await _stop();
-        Utilities.managerForRecord.setUR(pathToFile);
+    try {
+      if (!isRecording) {
+        _record();
+        isRecording = true;
+      } else {
+        if (await _audioRecorder.isRecording()) {
+          isRecording = false;
+          pathToFile = await _stop();
+          Utilities.managerForRecord.setUR(pathToFile);
+        }
       }
+    } catch (e) {
+      back();
     }
   }
 }

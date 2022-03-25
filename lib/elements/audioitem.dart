@@ -42,15 +42,15 @@ class AudioItem extends StatefulWidget {
 
 class _AudioItemState extends State<AudioItem>
     with AutomaticKeepAliveClientMixin {
-  final TextStyle _textStyleTime =
-      GoogleFonts.inter(color: const Color(0xff878789));
-  final TextStyle _textStyleLS =
-      GoogleFonts.inter(color: Colors.white, fontSize: 12);
   late ValueNotifier<double> notifierforLikeSize;
+  TextStyle textStyleLS(double textSFactor) =>
+      GoogleFonts.inter(color: Colors.white, fontSize: textSFactor * 12);
+  TextStyle textStyleTime(double textSFactor) => GoogleFonts.inter(
+      color: const Color(0xff878789), fontSize: textSFactor * 12);
 
-  final Widget loadingWidget = Container(
-      width: 68,
-      height: 68,
+  Widget loadingWidget(double devicePixelR) => Container(
+      width: devicePixelR * 21,
+      height: devicePixelR * 21,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
           color: Colors.white, borderRadius: BorderRadius.circular(50.0)),
@@ -103,14 +103,6 @@ class _AudioItemState extends State<AudioItem>
     notifierforLikeSize = ValueNotifier<double>(32);
   }
 
-  // @override
-  // void dispose() {
-  //   if (widget._isloading.value) {
-  //     widget.audioManager.stop();
-  //   }
-  //   super.dispose();
-  // }
-
   Widget getRootElement(Widget? child, bool isloading) {
     return isloading
         ? Shimmer(linearGradient: shimmerGradient, child: child)
@@ -122,6 +114,8 @@ class _AudioItemState extends State<AudioItem>
     super.build(context);
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
+    double textScaleFactor = MediaQuery.of(context).textScaleFactor;
+    double devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
     return SizedBox(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
@@ -146,8 +140,8 @@ class _AudioItemState extends State<AudioItem>
                                       isLoading: isloading,
                                       child: Column(children: [
                                         Container(
-                                          width: 250,
-                                          height: 30,
+                                          width: width / 1.3,
+                                          height: devicePixelRatio * 10,
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(15),
@@ -156,55 +150,57 @@ class _AudioItemState extends State<AudioItem>
                                         ),
                                         SizedBox(height: height / 15),
                                         Container(
-                                          height: 20,
-                                          width: 350,
+                                          height: devicePixelRatio * 7,
+                                          width: width / 1.2,
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(15),
                                             color: Colors.grey.withAlpha(50),
                                           ),
                                         ),
-                                        SizedBox(height: height / 60),
+                                        SizedBox(height: height / 75),
                                         Container(
-                                            height: 20,
-                                            width: 300,
+                                            height: devicePixelRatio * 7,
+                                            width: width / 1.5,
                                             decoration: BoxDecoration(
                                                 borderRadius:
                                                     BorderRadius.circular(15),
                                                 color:
                                                     Colors.grey.withAlpha(50))),
-                                        SizedBox(height: height / 20),
+                                        SizedBox(height: height / 19),
                                         Container(
                                             height: 35,
-                                            width: width - 30,
+                                            width: width / 1.1,
                                             decoration: BoxDecoration(
                                                 color:
                                                     Colors.grey.withAlpha(50),
                                                 borderRadius:
                                                     BorderRadius.circular(25))),
-                                        SizedBox(height: height / 20),
+                                        SizedBox(height: height / 14),
                                       ]))
                                   : Column(
                                       children: [
                                         SizedBox(
-                                            width: width - 50,
+                                            width: width / 1.1,
                                             child: Text(widget._titleTrack,
                                                 textAlign: TextAlign.center,
                                                 style: GoogleFonts.inter(
                                                     color: Colors.white,
-                                                    fontSize: height / 27,
+                                                    fontSize:
+                                                        textScaleFactor * 30,
                                                     fontWeight:
                                                         FontWeight.bold))),
                                         SizedBox(height: height / 25),
                                         SizedBox(
-                                            width: width - 40,
+                                            width: width / 1.1,
                                             child: Text(
                                                 widget._descriptionTrack,
                                                 textAlign: TextAlign.center,
                                                 style: GoogleFonts.inter(
                                                     color:
                                                         const Color(0xffcfcfd0),
-                                                    fontSize: height / 40))),
+                                                    fontSize:
+                                                        textScaleFactor * 20))),
                                         TagItem(widget._listTags,
                                             widget._indexPage),
                                       ],
@@ -222,10 +218,11 @@ class _AudioItemState extends State<AudioItem>
                               return isloading
                                   ? ProgressBar(
                                       thumbColor: Colors.white,
-                                      thumbGlowRadius: 20,
-                                      thumbRadius: 7,
-                                      timeLabelPadding: 10,
-                                      timeLabelTextStyle: _textStyleTime,
+                                      thumbGlowRadius: devicePixelRatio * 5,
+                                      thumbRadius: devicePixelRatio * 2,
+                                      timeLabelPadding: devicePixelRatio * 4,
+                                      timeLabelTextStyle:
+                                          textStyleTime(textScaleFactor),
                                       bufferedBarColor: const Color(0xff898994),
                                       progressBarColor: Colors.white,
                                       baseBarColor: const Color(0xff4b4b4f),
@@ -239,10 +236,12 @@ class _AudioItemState extends State<AudioItem>
                                       builder: (_, value, __) {
                                         return ProgressBar(
                                           thumbColor: Colors.white,
-                                          thumbGlowRadius: 20,
-                                          thumbRadius: 7,
-                                          timeLabelPadding: 10,
-                                          timeLabelTextStyle: _textStyleTime,
+                                          thumbGlowRadius: devicePixelRatio * 5,
+                                          thumbRadius: devicePixelRatio * 2,
+                                          timeLabelPadding:
+                                              devicePixelRatio * 4,
+                                          timeLabelTextStyle:
+                                              textStyleTime(textScaleFactor),
                                           bufferedBarColor:
                                               const Color(0xff898994),
                                           progressBarColor: Colors.white,
@@ -256,85 +255,153 @@ class _AudioItemState extends State<AudioItem>
                                     );
                             }),
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Container(
-                              margin: EdgeInsets.fromLTRB(
-                                  0, 0, width / 2 - 10 - 34 - 71, height / 5),
-                              height: 68,
-                              width: 68,
-                              child: ValueListenableBuilder<bool>(
-                                  valueListenable: widget._isloading,
-                                  builder: (_, isloading, __) {
-                                    return isloading
-                                        ? loadingWidget
-                                        : ValueListenableBuilder<ButtonState>(
-                                            valueListenable: widget
-                                                .audioManager.buttonNotifier,
-                                            builder: (_, value, __) {
-                                              switch (value) {
-                                                case ButtonState.loading:
-                                                  return loadingWidget;
-                                                case ButtonState.paused:
-                                                  return ElevatedButton(
-                                                    style: ElevatedButton.styleFrom(
-                                                        elevation: 0,
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .fromLTRB(
-                                                                20, 17, 17, 17),
-                                                        primary: Colors.white,
-                                                        shape: RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        50.0))),
-                                                    child: Image.asset(
-                                                        "assets/items/play.png"),
-                                                    onPressed: () {
-                                                      try {
-                                                        Utilities.audioHandler
-                                                            .switchToHandler(
-                                                                widget._indexPage +
-                                                                    1);
-                                                        Utilities.audioHandler
-                                                            .play();
-                                                      } catch (e) {
-                                                        print("error");
-                                                      }
-                                                    },
-                                                  );
-                                                case ButtonState.playing:
-                                                  return ElevatedButton(
-                                                    style: ElevatedButton.styleFrom(
-                                                        elevation: 0,
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(17),
-                                                        primary: Colors.white,
-                                                        shape: RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        50.0))),
-                                                    child: Image.asset(
-                                                        "assets/items/pause.png"),
-                                                    onPressed: widget
-                                                        .audioManager.pause,
-                                                  );
-                                              }
+                      Stack(alignment: Alignment.center, children: [
+                        Container(
+                            height: devicePixelRatio * 21,
+                            width: devicePixelRatio * 21,
+                            margin: EdgeInsets.fromLTRB(0, 0, 0, height / 5),
+                            child: ValueListenableBuilder<bool>(
+                                valueListenable: widget._isloading,
+                                builder: (_, isloading, __) {
+                                  return isloading
+                                      ? loadingWidget(devicePixelRatio)
+                                      : ValueListenableBuilder<ButtonState>(
+                                          valueListenable: widget
+                                              .audioManager.buttonNotifier,
+                                          builder: (_, value, __) {
+                                            switch (value) {
+                                              case ButtonState.loading:
+                                                return loadingWidget(
+                                                    devicePixelRatio);
+                                              case ButtonState.paused:
+                                                return ElevatedButton(
+                                                  style: ElevatedButton.styleFrom(
+                                                      elevation: 0,
+                                                      padding:
+                                                          EdgeInsets.fromLTRB(
+                                                              devicePixelRatio *
+                                                                  6,
+                                                              devicePixelRatio *
+                                                                  5,
+                                                              devicePixelRatio *
+                                                                  5,
+                                                              devicePixelRatio *
+                                                                  5),
+                                                      primary: Colors.white,
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          50.0))),
+                                                  child: Image.asset(
+                                                      "assets/items/play.png"),
+                                                  onPressed: () {
+                                                    try {
+                                                      Utilities.audioHandler
+                                                          .switchToHandler(
+                                                              widget._indexPage +
+                                                                  1);
+                                                      Utilities.audioHandler
+                                                          .play();
+                                                    } catch (e) {
+                                                      print("error");
+                                                    }
+                                                  },
+                                                );
+                                              case ButtonState.playing:
+                                                return ElevatedButton(
+                                                  style: ElevatedButton.styleFrom(
+                                                      elevation: 0,
+                                                      padding: EdgeInsets.all(
+                                                          devicePixelRatio * 5),
+                                                      primary: Colors.white,
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          50.0))),
+                                                  child: Image.asset(
+                                                      "assets/items/pause.png"),
+                                                  onPressed:
+                                                      widget.audioManager.pause,
+                                                );
+                                            }
+                                          },
+                                        );
+                                })),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Column(children: [
+                                ValueListenableBuilder<double>(
+                                  valueListenable: notifierforLikeSize,
+                                  builder: (_, value, __) {
+                                    return AnimatedContainer(
+                                        width: value,
+                                        height: devicePixelRatio * 11,
+                                        duration:
+                                            const Duration(milliseconds: 100),
+                                        child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                                padding:
+                                                    const EdgeInsets.all(0),
+                                                primary: Colors.transparent,
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            50.0))),
+                                            onPressed: () {
+                                              !widget._liked
+                                                  ? liked()
+                                                  : unLiked();
                                             },
-                                          );
-                                  })),
-                          Column(children: [
-                            ValueListenableBuilder<double>(
-                              valueListenable: notifierforLikeSize,
-                              builder: (_, value, __) {
-                                return AnimatedContainer(
-                                    width: value,
-                                    height: 32,
-                                    duration: const Duration(milliseconds: 100),
+                                            child: widget._liked
+                                                ? Image.asset(
+                                                    'assets/items/likeon.png')
+                                                : Image.asset(
+                                                    'assets/items/likeoff.png')));
+                                  },
+                                ),
+                                SizedBox(height: devicePixelRatio * 2),
+                                ValueListenableBuilder<bool>(
+                                    valueListenable: widget._isloading,
+                                    builder: (_, isloading, __) {
+                                      return isloading
+                                          ? SizedBox(
+                                              height: devicePixelRatio * 5,
+                                              width: devicePixelRatio * 7.5,
+                                              child: ListView(
+                                                  padding: EdgeInsets.zero,
+                                                  children: [
+                                                    ShimmerLoading(
+                                                        isLoading: isloading,
+                                                        child: Container(
+                                                            height:
+                                                                devicePixelRatio *
+                                                                    5,
+                                                            width:
+                                                                devicePixelRatio *
+                                                                    7.5,
+                                                            decoration: BoxDecoration(
+                                                                color: Colors
+                                                                    .grey
+                                                                    .withAlpha(
+                                                                        50),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            15))))
+                                                  ]))
+                                          : Text(widget._countLikes.toString(),
+                                              style:
+                                                  textStyleLS(textScaleFactor));
+                                    }),
+                                SizedBox(height: height / 25),
+                                SizedBox(
+                                    height: devicePixelRatio * 11,
+                                    width: devicePixelRatio * 11,
                                     child: ElevatedButton(
                                         style: ElevatedButton.styleFrom(
                                             padding: const EdgeInsets.all(0),
@@ -343,72 +410,25 @@ class _AudioItemState extends State<AudioItem>
                                                 borderRadius:
                                                     BorderRadius.circular(
                                                         50.0))),
-                                        onPressed: () {
-                                          !widget._liked ? liked() : unLiked();
-                                        },
-                                        child: widget._liked
-                                            ? Image.asset(
-                                                'assets/items/likeon.png')
-                                            : Image.asset(
-                                                'assets/items/likeoff.png')));
-                              },
-                            ),
-                            const SizedBox(height: 5),
-                            ValueListenableBuilder<bool>(
-                                valueListenable: widget._isloading,
-                                builder: (_, isloading, __) {
-                                  return isloading
-                                      ? SizedBox(
-                                          height: 15,
-                                          width: 23,
-                                          child: ListView(
-                                              padding: EdgeInsets.zero,
-                                              children: [
-                                                ShimmerLoading(
-                                                    isLoading: isloading,
-                                                    child: Container(
-                                                        height: 15,
-                                                        width: 23,
-                                                        decoration: BoxDecoration(
-                                                            color: Colors.grey
-                                                                .withAlpha(50),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        15))))
-                                              ]))
-                                      : Text(widget._countLikes.toString(),
-                                          style: _textStyleLS);
-                                }),
-                            SizedBox(height: height / 25),
-                            SizedBox(
-                                height: 32,
-                                width: 32,
-                                child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                        padding: const EdgeInsets.all(0),
-                                        primary: Colors.transparent,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(50.0))),
-                                    onPressed: share,
-                                    child:
-                                        Image.asset('assets/items/share.png'))),
-                            const SizedBox(height: 3),
-                            SizedBox(
-                                width: 71,
-                                child: ValueListenableBuilder<Map>(
-                                    valueListenable: Utilities.curLang,
-                                    builder: (_, lang, __) {
-                                      return Text(lang["Share"],
-                                          textAlign: TextAlign.center,
-                                          style: _textStyleLS);
-                                    })),
-                            SizedBox(height: height / 70)
-                          ]),
-                          const SizedBox(width: 15),
-                        ],
-                      )
+                                        onPressed: share,
+                                        child: Image.asset(
+                                            'assets/items/share.png'))),
+                                SizedBox(height: devicePixelRatio),
+                                SizedBox(
+                                    width: 71,
+                                    child: ValueListenableBuilder<Map>(
+                                        valueListenable: Utilities.curLang,
+                                        builder: (_, lang, __) {
+                                          return Text(lang["Share"],
+                                              textAlign: TextAlign.center,
+                                              style:
+                                                  textStyleLS(textScaleFactor));
+                                        })),
+                                SizedBox(height: devicePixelRatio * 4)
+                              ]),
+                              SizedBox(width: devicePixelRatio * 3.4)
+                            ]),
+                      ]),
                     ],
                   ),
                   isloading);

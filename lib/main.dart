@@ -6,9 +6,11 @@ import 'elements/audiomanager.dart';
 import 'res.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'elements/dropbutton.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Utilities.init();
   Utilities.managerForRecord = AudioManager("", "Record", 0);
   Utilities.handlers.add(Utilities.managerForRecord);
@@ -19,6 +21,7 @@ Future<void> main() async {
           androidNotificationChannelId: 'com.ryanheise.myapp.channel.audio',
           androidNotificationChannelName: 'Audio playback',
           androidNotificationOngoing: true));
+  FlutterNativeSplash.remove();
   runApp(const Moans());
 }
 
@@ -53,6 +56,7 @@ class _ConfirmAgeState extends State<ConfirmAge> {
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
+    double textScaleFactor = MediaQuery.of(context).textScaleFactor;
     return ValueListenableBuilder<Map>(
         valueListenable: Utilities.curLang,
         builder: (_, lang, __) {
@@ -88,7 +92,7 @@ class _ConfirmAgeState extends State<ConfirmAge> {
                               lang["18eQuesText"],
                               style: GoogleFonts.inter(
                                   color: Colors.white,
-                                  fontSize: height / 20,
+                                  fontSize: textScaleFactor * 30,
                                   fontWeight: FontWeight.bold),
                             )),
                           ),
@@ -96,7 +100,8 @@ class _ConfirmAgeState extends State<ConfirmAge> {
                           Text(
                             lang["18eText"],
                             style: GoogleFonts.inter(
-                                color: Colors.white, fontSize: height / 40),
+                                color: Colors.white,
+                                fontSize: textScaleFactor * 18),
                           ),
                           Container(height: height / 15),
                           SizedBox(
@@ -111,9 +116,11 @@ class _ConfirmAgeState extends State<ConfirmAge> {
                               child: Text(
                                 lang["18eButText"],
                                 style: GoogleFonts.inter(
-                                    color: Colors.white, fontSize: height / 55),
+                                    color: Colors.white,
+                                    fontSize: textScaleFactor * 15),
                               ),
                               onPressed: () {
+                                Utilities.ageConfirmed();
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(

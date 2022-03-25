@@ -76,7 +76,9 @@ class MainRecordItemState extends State<MainRecordItem> {
                                     borderRadius:
                                         BorderRadius.circular(100.0))),
                             onPressed: () {
-                              _audioRecorder.toggleRecording();
+                              if (!_audioRecorder.isRecording) {
+                                _audioRecorder.toggleRecording();
+                              }
                             },
                             child: Image.asset('assets/items/recordbut.png'))),
                     Container(
@@ -383,21 +385,11 @@ class _PlayRecordItemState extends State<PlayRecordItem> {
 class RecordState extends State<Record> with AutomaticKeepAliveClientMixin {
   final PageController _scrollController = PageController(initialPage: 0);
 
-  // refresh() {
-  //   setState(() {});
-  // }
-
   @override
   void initState() {
     super.initState();
     _audioRecorder.back();
   }
-
-  // @override
-  // void dispose() {
-  //   _audioRecorder.dispose();
-  //   super.dispose();
-  // }
 
   _animate(index) {
     if (_scrollController.hasClients) {
