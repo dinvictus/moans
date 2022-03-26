@@ -18,13 +18,12 @@ class SaveTag extends StatefulWidget {
 
 class _SaveTagState extends State<SaveTag> {
   final List<Widget> listTags = [];
-  // final List<String> _listTagsString = [];
   final scrollController = ScrollController();
   final tagController = TextEditingController();
 
   loadingTags() {
     for (String tag in widget.listTagsString) {
-      listTags.add(SaveTagItem(tag, _delTagItem));
+      listTags.add(SaveTagItem(tag, delTagItem));
     }
   }
 
@@ -47,7 +46,7 @@ class _SaveTagState extends State<SaveTag> {
     });
   }
 
-  _delTagItem(text) {
+  delTagItem(text) {
     setState(() {
       for (int i = 0; i < widget.listTagsString.length; i++) {
         if (widget.listTagsString[i] == text) {
@@ -59,7 +58,7 @@ class _SaveTagState extends State<SaveTag> {
     });
   }
 
-  _animate() {
+  animate() {
     Timer(const Duration(milliseconds: 100), () {
       setState(() {
         if (listTags.length >= 2) {
@@ -71,7 +70,7 @@ class _SaveTagState extends State<SaveTag> {
     });
   }
 
-  _textChanged(String text) {
+  textChanged(String text) {
     if (listTags.length >= 16) {
       tagController.text = "";
     }
@@ -84,10 +83,10 @@ class _SaveTagState extends State<SaveTag> {
       String temp = text.trim().replaceAll(" ", "");
       setState(() {
         if (temp != "") {
-          listTags.add(SaveTagItem(temp, _delTagItem));
+          listTags.add(SaveTagItem(temp, delTagItem));
           widget.listTagsString.add(temp);
           widget.changeTagsCount(listTags.length);
-          _animate();
+          animate();
         }
         tagController.text = text.substring(temp.length + 1);
       });
@@ -116,6 +115,6 @@ class _SaveTagState extends State<SaveTag> {
                             children: listTags)))
                 : null),
         controller: tagController,
-        onChanged: _textChanged);
+        onChanged: textChanged);
   }
 }

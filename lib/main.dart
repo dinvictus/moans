@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:moans/login.dart';
@@ -56,7 +58,8 @@ class _ConfirmAgeState extends State<ConfirmAge> {
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
-    double textScaleFactor = MediaQuery.of(context).textScaleFactor;
+    double width = MediaQuery.of(context).size.width;
+    Utilities.setDeviceSize(sqrt(height * width));
     return ValueListenableBuilder<Map>(
         valueListenable: Utilities.curLang,
         builder: (_, lang, __) {
@@ -92,7 +95,7 @@ class _ConfirmAgeState extends State<ConfirmAge> {
                               lang["18eQuesText"],
                               style: GoogleFonts.inter(
                                   color: Colors.white,
-                                  fontSize: textScaleFactor * 30,
+                                  fontSize: Utilities.deviceSizeMultiply / 18,
                                   fontWeight: FontWeight.bold),
                             )),
                           ),
@@ -101,12 +104,12 @@ class _ConfirmAgeState extends State<ConfirmAge> {
                             lang["18eText"],
                             style: GoogleFonts.inter(
                                 color: Colors.white,
-                                fontSize: textScaleFactor * 18),
+                                fontSize: Utilities.deviceSizeMultiply / 28),
                           ),
                           Container(height: height / 15),
                           SizedBox(
                             width: double.infinity,
-                            height: height / 15,
+                            height: height / 16,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 primary: MColors.mainColor,
@@ -117,7 +120,8 @@ class _ConfirmAgeState extends State<ConfirmAge> {
                                 lang["18eButText"],
                                 style: GoogleFonts.inter(
                                     color: Colors.white,
-                                    fontSize: textScaleFactor * 15),
+                                    fontSize:
+                                        Utilities.deviceSizeMultiply / 34),
                               ),
                               onPressed: () {
                                 Utilities.ageConfirmed();
@@ -135,7 +139,9 @@ class _ConfirmAgeState extends State<ConfirmAge> {
                               child: Text(lang["18eTerAndCondText"],
                                   style: GoogleFonts.inter(
                                       color: MColors.mainColor,
-                                      decoration: TextDecoration.underline)))
+                                      decoration: TextDecoration.underline,
+                                      fontSize:
+                                          Utilities.deviceSizeMultiply / 40)))
                         ],
                       ),
                     ),

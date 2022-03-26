@@ -23,11 +23,11 @@ class EndFeedItem extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style: GoogleFonts.inter(
                             color: Colors.white,
-                            fontSize: 27,
+                            fontSize: Utilities.deviceSizeMultiply / 25,
                             fontWeight: FontWeight.w500)),
                     SizedBox(height: height / 15),
                     SizedBox(
-                        height: height / 14,
+                        height: height / 16,
                         width: double.infinity,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
@@ -35,7 +35,8 @@ class EndFeedItem extends StatelessWidget {
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(50.0))),
                           child: Text(lang["Refresh"],
-                              style: GoogleFonts.inter(fontSize: 17)),
+                              style: GoogleFonts.inter(
+                                  fontSize: Utilities.deviceSizeMultiply / 30)),
                           onPressed: () => toRefreshFeed(),
                         ))
                   ]);

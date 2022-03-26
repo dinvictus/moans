@@ -18,13 +18,13 @@ class ChangeLanguage extends StatefulWidget {
 }
 
 class _ChangeLanguageState extends State<ChangeLanguage> {
-  final List<Container> _listLanguagesButtons = [];
+  final List<Container> listLanguagesButtons = [];
   late Languages curLanguage = widget.curLanguage;
 
-  _init() {
+  init() {
     for (int i = 0; i < Languages.values.length; i++) {
       setState(() {
-        _listLanguagesButtons.add(_langButton(
+        listLanguagesButtons.add(langButton(
             Languages.values[i], curLanguage == Languages.values[i]));
       });
     }
@@ -33,52 +33,61 @@ class _ChangeLanguageState extends State<ChangeLanguage> {
   @override
   void initState() {
     super.initState();
-    _init();
+    init();
   }
 
-  Container _langButton(Languages language, bool active) {
+  Container langButton(Languages language, bool active) {
     return Container(
         margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
         child: ElevatedButton(
             style: ElevatedButton.styleFrom(
                 primary: Colors.transparent,
                 elevation: 0,
-                padding: const EdgeInsets.fromLTRB(30, 20, 20, 20),
+                padding: EdgeInsets.fromLTRB(
+                    30,
+                    Utilities.deviceSizeMultiply / 30,
+                    20,
+                    Utilities.deviceSizeMultiply / 30),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(50.0)),
                 side: BorderSide(color: Colors.white, width: active ? 2 : 1)),
             onPressed: () {
-              !active ? _changeLanguage(language) : null;
+              !active ? changeLanguage(language) : null;
             },
             child: active
                 ? Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(language == Languages.english
-                          ? "English"
-                          : "Русский"),
-                      Image.asset("assets/items/checkmark.png", scale: 3)
+                      Text(
+                          language == Languages.english ? "English" : "Русский",
+                          style: GoogleFonts.inter(
+                              fontSize: Utilities.deviceSizeMultiply / 30,
+                              fontWeight: FontWeight.bold)),
+                      Image.asset("assets/items/checkmark.png",
+                          scale: 1500 / Utilities.deviceSizeMultiply)
                     ],
                   )
                 : SizedBox(
                     width: double.infinity,
-                    child: Text(language == Languages.english
-                        ? "English"
-                        : "Русский"))));
+                    child: Text(
+                        language == Languages.english ? "English" : "Русский",
+                        style: GoogleFonts.inter(
+                            fontSize: Utilities.deviceSizeMultiply / 30)))));
   }
 
-  _changeLanguage(Languages language) {
+  changeLanguage(Languages language) {
     curLanguage = language;
     widget.saveTrack
         ? widget.changeSaveTrackLanguage!(language)
         : Utilities.changeLanguage(language);
 
-    _listLanguagesButtons.clear();
-    _init();
+    listLanguagesButtons.clear();
+    init();
   }
 
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -94,20 +103,23 @@ class _ChangeLanguageState extends State<ChangeLanguage> {
                     padding: const EdgeInsets.all(0),
                     primary: Colors.transparent),
                 onPressed: () {
-                  Navigator.pop(context);
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  Navigator.of(context).pop();
                 },
                 child: Row(
                   children: [
-                    Image.asset("assets/items/backbut.png", scale: 3),
-                    const SizedBox(
-                      width: 15,
+                    Image.asset("assets/items/backbut.png",
+                        scale: 1800 / Utilities.deviceSizeMultiply),
+                    SizedBox(
+                      width: width / 30,
                     ),
                     ValueListenableBuilder<Map>(
                         valueListenable: Utilities.curLang,
                         builder: (_, lang, __) {
                           return Text(
                             lang["Back"],
-                            style: GoogleFonts.inter(),
+                            style: GoogleFonts.inter(
+                                fontSize: Utilities.deviceSizeMultiply / 40),
                           );
                         })
                   ],
@@ -121,7 +133,7 @@ class _ChangeLanguageState extends State<ChangeLanguage> {
                 image: AssetImage("assets/back/back.png"), fit: BoxFit.fill)),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: _listLanguagesButtons,
+          children: listLanguagesButtons,
         ),
       ),
     );

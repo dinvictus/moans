@@ -19,13 +19,18 @@ class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
   final List<dynamic> pages = [];
   bool toastViewed = Utilities.showHelpNotification;
   bool tracksEnd = false;
+  bool refreshingFeed = false;
 
   refreshFeed() async {
-    await Server.refreshFeed();
-    pages.clear();
-    Utilities.handlers.removeRange(1, Utilities.handlers.length);
-    setState(() {});
-    loadTracks();
+    if (!refreshingFeed) {
+      refreshingFeed = true;
+      await Server.refreshFeed();
+      pages.clear();
+      Utilities.handlers.removeRange(1, Utilities.handlers.length);
+      setState(() {});
+      loadTracks();
+      refreshingFeed = false;
+    }
   }
 
   loadTracks() async {
@@ -98,28 +103,7 @@ class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    double height = MediaQuery.of(context).size.height;
     return Scaffold(
-        bottomSheet: !toastViewed
-            ? BottomSheet(
-                enableDrag: false,
-                backgroundColor: Colors.transparent,
-                onClosing: () {},
-                builder: (BuildContext context) {
-                  return Container(
-                      height: height / 10,
-                      margin: EdgeInsets.only(bottom: height / 20),
-                      alignment: Alignment.bottomCenter,
-                      child: GestureDetector(
-                          onVerticalDragUpdate: (details) {
-                            controller.animateToPage(1,
-                                duration: const Duration(milliseconds: 500),
-                                curve: Curves.ease);
-                          },
-                          child: Image.asset("assets/items/toast.png")));
-                },
-              )
-            : null,
         primary: true,
         extendBody: true,
         resizeToAvoidBottomInset: false,

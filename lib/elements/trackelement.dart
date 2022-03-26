@@ -27,6 +27,7 @@ class TrackElement extends StatefulWidget {
 class _TrackElementState extends State<TrackElement> {
   final List<Widget> listTracks = [];
   late double width;
+  late double height;
 
   back() {
     Navigator.pop(context);
@@ -38,6 +39,7 @@ class _TrackElementState extends State<TrackElement> {
     super.initState();
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       width = MediaQuery.of(context).size.width;
+      height = MediaQuery.of(context).size.height;
       for (int i = 0; i < widget.trackNames.length; i++) {
         listTracks.add(_trackElement(
             widget.trackNames[i],
@@ -54,10 +56,12 @@ class _TrackElementState extends State<TrackElement> {
     Widget? imageStatus;
     switch (trackStatus) {
       case Statuses.draft:
-        imageStatus = Image.asset("assets/items/doc.png");
+        imageStatus = Image.asset("assets/items/doc.png",
+            scale: 1000 / Utilities.deviceSizeMultiply);
         break;
       case Statuses.publish:
-        imageStatus = Image.asset("assets/items/ok.png");
+        imageStatus = Image.asset("assets/items/ok.png",
+            scale: 1000 / Utilities.deviceSizeMultiply);
         break;
       case Statuses.banned:
         // TODO: Handle this case.
@@ -67,45 +71,46 @@ class _TrackElementState extends State<TrackElement> {
         break;
     }
     Widget trackElement = Container(
-      padding: const EdgeInsets.only(bottom: 10),
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: EdgeInsets.only(bottom: height / 70),
       decoration: const BoxDecoration(
           border: Border(bottom: BorderSide(color: Color(0xff4b4b4f)))),
-      height: 60,
+      height: height / 15,
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
             alignment: Alignment.centerLeft,
-            width: width / 2.2,
+            width: width / 2.3,
             child: Text(trackName,
                 overflow: TextOverflow.ellipsis,
-                maxLines: 2,
+                maxLines: 1,
                 style: GoogleFonts.inter(
                     color: Colors.white,
                     fontWeight: FontWeight.w400,
-                    fontSize: 20)),
+                    fontSize: Utilities.deviceSizeMultiply / 25)),
           ),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                  height: 30,
-                  padding: const EdgeInsets.all(9),
+                  padding: const EdgeInsets.all(5),
                   margin: const EdgeInsets.only(right: 5),
                   child: imageStatus),
               Container(
-                width: 20,
                 padding: const EdgeInsets.all(3),
-                child: Image.asset("assets/items/likeoff.png"),
+                child: Image.asset("assets/items/likeoff.png",
+                    scale: 3000 / Utilities.deviceSizeMultiply),
               ),
               Container(
-                  width: 30,
+                  width: width / 30,
                   margin: const EdgeInsets.only(right: 30),
                   child: Text(trackLike,
                       style: GoogleFonts.inter(color: Colors.white))),
-              SizedBox(
-                  width: 25,
-                  height: 25,
+              Container(
+                  margin: EdgeInsets.only(bottom: height / 60),
+                  width: Utilities.deviceSizeMultiply / 20,
+                  height: Utilities.deviceSizeMultiply / 20,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                         primary: Colors.transparent,
@@ -120,12 +125,12 @@ class _TrackElementState extends State<TrackElement> {
                     },
                     child: Image.asset("assets/items/edit.png"),
                   )),
+              SizedBox(width: width / 20)
             ],
           )
         ],
       ),
     );
-
     return trackElement;
   }
 

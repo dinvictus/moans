@@ -12,7 +12,6 @@ class ConfirmEmail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
-    double textScaleFactor = MediaQuery.of(context).textScaleFactor;
     return Container(
         alignment: Alignment.topCenter,
         height: MediaQuery.of(context).size.height,
@@ -44,7 +43,8 @@ class ConfirmEmail extends StatelessWidget {
                                     lang["Thank"],
                                     style: GoogleFonts.inter(
                                         color: Colors.white,
-                                        fontSize: textScaleFactor * 35,
+                                        fontSize:
+                                            Utilities.deviceSizeMultiply / 18,
                                         fontWeight: FontWeight.bold),
                                   )),
                               Container(height: height / 20),
@@ -53,7 +53,9 @@ class ConfirmEmail extends StatelessWidget {
                                       text: lang["ConfEmail"],
                                       style: GoogleFonts.inter(
                                           color: Colors.white,
-                                          fontSize: textScaleFactor * 15),
+                                          fontSize:
+                                              Utilities.deviceSizeMultiply /
+                                                  35),
                                       children: [
                                         TextSpan(
                                             text: email + "\n\n",
@@ -84,7 +86,8 @@ class ConfirmEmail extends StatelessWidget {
                                     lang["Update"],
                                     style: GoogleFonts.inter(
                                         color: Colors.white,
-                                        fontSize: textScaleFactor * 16),
+                                        fontSize:
+                                            Utilities.deviceSizeMultiply / 30),
                                   ),
                                   onPressed: () async {
                                     // Проверка email на подтверждение, потом далее

@@ -105,7 +105,7 @@ class _LogInState extends State<LogIn> {
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
-    double textScaleFactor = MediaQuery.of(context).textScaleFactor;
+    // double textScaleFactor = MediaQuery.of(context).textScaleFactor;
     return Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -142,7 +142,8 @@ class _LogInState extends State<LogIn> {
                                   lang["login"],
                                   style: GoogleFonts.inter(
                                       color: Colors.white,
-                                      fontSize: textScaleFactor * 35,
+                                      fontSize:
+                                          Utilities.deviceSizeMultiply / 18,
                                       fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -156,15 +157,18 @@ class _LogInState extends State<LogIn> {
                                         Text(lang["Email"],
                                             style: GoogleFonts.inter(
                                                 color: getColorErrorEmail(),
-                                                fontSize:
-                                                    textScaleFactor * 12)),
+                                                fontSize: Utilities
+                                                        .deviceSizeMultiply /
+                                                    40)),
                                         Text(
                                           _submitter && errorTextEmail != null
                                               ? errorTextEmail!
                                               : "",
                                           style: GoogleFonts.inter(
                                               color: const Color(0xffa72627),
-                                              fontSize: textScaleFactor * 12),
+                                              fontSize:
+                                                  Utilities.deviceSizeMultiply /
+                                                      40),
                                         ),
                                       ])),
                               TextField(
@@ -200,15 +204,18 @@ class _LogInState extends State<LogIn> {
                                         Text(lang["Password"],
                                             style: GoogleFonts.inter(
                                                 color: getColorPassword(),
-                                                fontSize:
-                                                    textScaleFactor * 12)),
+                                                fontSize: Utilities
+                                                        .deviceSizeMultiply /
+                                                    40)),
                                         Text(
                                           _submitter && errorTextPass != null
                                               ? errorTextPass!
                                               : "",
                                           style: GoogleFonts.inter(
                                               color: const Color(0xffa72627),
-                                              fontSize: textScaleFactor * 12),
+                                              fontSize:
+                                                  Utilities.deviceSizeMultiply /
+                                                      40),
                                         ),
                                       ])),
                               TextField(
@@ -247,7 +254,8 @@ class _LogInState extends State<LogIn> {
                                     lang["login"],
                                     style: GoogleFonts.inter(
                                         color: Colors.white,
-                                        fontSize: textScaleFactor * 16),
+                                        fontSize:
+                                            Utilities.deviceSizeMultiply / 34),
                                   ),
                                   onPressed: controllerEmail
                                               .value.text.isNotEmpty &&
@@ -267,7 +275,9 @@ class _LogInState extends State<LogIn> {
                                           lang["LogQues"],
                                           style: GoogleFonts.inter(
                                               color: const Color(0xffcfcfd0),
-                                              fontSize: textScaleFactor * 13.5),
+                                              fontSize:
+                                                  Utilities.deviceSizeMultiply /
+                                                      35),
                                         ),
                                         Container(width: 10),
                                         GestureDetector(
@@ -282,8 +292,9 @@ class _LogInState extends State<LogIn> {
                                               lang["Signup"],
                                               style: GoogleFonts.inter(
                                                   color: MColors.mainColor,
-                                                  fontSize:
-                                                      textScaleFactor * 13.5,
+                                                  fontSize: Utilities
+                                                          .deviceSizeMultiply /
+                                                      35,
                                                   decoration:
                                                       TextDecoration.underline),
                                             ))
@@ -292,7 +303,9 @@ class _LogInState extends State<LogIn> {
                                   child: Text(lang["Continue"],
                                       style: GoogleFonts.inter(
                                           color: const Color(0xffcfcfd0),
-                                          fontSize: textScaleFactor * 13.5))),
+                                          fontSize:
+                                              Utilities.deviceSizeMultiply /
+                                                  35))),
                               SizedBox(height: height / 50),
                               Row(
                                 mainAxisAlignment:
@@ -331,14 +344,17 @@ class _LogInState extends State<LogIn> {
                                       lang["Forgotpass"],
                                       style: GoogleFonts.inter(
                                         color: const Color(0xff878789),
-                                        fontSize: textScaleFactor * 16,
+                                        fontSize:
+                                            Utilities.deviceSizeMultiply / 35,
                                       ),
                                     ),
                                     Container(height: 5),
                                     Text(lang["Click"],
                                         style: GoogleFonts.inter(
                                             color: MColors.mainColor,
-                                            fontSize: textScaleFactor * 16,
+                                            fontSize:
+                                                Utilities.deviceSizeMultiply /
+                                                    35,
                                             decoration:
                                                 TextDecoration.underline))
                                   ],

@@ -30,11 +30,12 @@ class _PostItemState extends State<PostItem> {
   bool he = true;
   bool they = true;
   bool isLoading = true;
-  final TextEditingController _descController = TextEditingController();
-  final TextEditingController _titleController = TextEditingController();
-  final TextStyle _textStyleSave =
-      GoogleFonts.inter(color: const Color(0xffcfcfd0));
-  InputDecoration _inputDecoration(String hint) {
+  final TextEditingController descController = TextEditingController();
+  final TextEditingController titleController = TextEditingController();
+  final TextStyle textStyleSave = GoogleFonts.inter(
+      color: const Color(0xffcfcfd0),
+      fontSize: Utilities.deviceSizeMultiply / 41);
+  InputDecoration inputDecoration(String hint) {
     return InputDecoration(
         focusedBorder: const UnderlineInputBorder(
             borderSide: BorderSide(color: Colors.white, width: 2)),
@@ -42,7 +43,7 @@ class _PostItemState extends State<PostItem> {
           borderSide: BorderSide(color: Color(0xff878789), width: 2),
         ),
         hintText: hint,
-        hintStyle: _textStyleSave);
+        hintStyle: textStyleSave);
   }
 
   int getVoiceCode() {
@@ -60,8 +61,8 @@ class _PostItemState extends State<PostItem> {
     }
     Map<String, String> editTrackInfo = {
       "id": widget.trackId.toString(),
-      "name": _titleController.text,
-      "description": _descController.text,
+      "name": titleController.text,
+      "description": descController.text,
       "voice": getVoiceCode().toString(),
       "language_id": Languages.values.indexOf(curLanguage.value).toString(),
       "tags": tags
@@ -95,8 +96,8 @@ class _PostItemState extends State<PostItem> {
     int voiceCode = getVoiceCode();
 
     Map<String, String> uploadTrackInfo = {
-      "name": _titleController.text,
-      "description": _descController.text,
+      "name": titleController.text,
+      "description": descController.text,
       "voice": voiceCode.toString(),
       "language_id": Languages.values.indexOf(curLanguage.value).toString(),
       "tag": tags
@@ -116,7 +117,7 @@ class _PostItemState extends State<PostItem> {
     tagsCountForSave.value = count;
   }
 
-  ElevatedButton _getButton(Function() func, String text) {
+  ElevatedButton getButton(Function() func, String text) {
     return ElevatedButton(
         style: ElevatedButton.styleFrom(
             primary: MColors.mainColor,
@@ -124,12 +125,14 @@ class _PostItemState extends State<PostItem> {
                 borderRadius: BorderRadius.circular(50.0))),
         onPressed: func,
         child: Text(text,
-            style:
-                GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500)));
+            style: GoogleFonts.inter(
+                fontSize: Utilities.deviceSizeMultiply / 35,
+                fontWeight: FontWeight.w500)));
   }
 
   changeLanguage(Languages language) {
     curLanguage.value = language;
+    setState(() {});
   }
 
   loadingTrackInfo() async {
@@ -137,26 +140,29 @@ class _PostItemState extends State<PostItem> {
       Map responceInfo = await Server.getEditTrackInfo(widget.trackId, context);
       if (responceInfo["status_code"] == 200) {
         Map trackEditInfo = responceInfo["track_info"];
-        _titleController.text = trackEditInfo["name"];
-        _descController.text = trackEditInfo["description"];
+        titleController.text = trackEditInfo["name"];
+        descController.text = trackEditInfo["description"];
         listTags = (trackEditInfo["tags"] as String).split(" ");
         curLanguage.value =
             Languages.values.elementAt(trackEditInfo["language_id"]);
         currentVoice =
             Voices.values.elementAt(int.parse(trackEditInfo["voice"]));
-        descLength.value = _descController.text.length;
-        titleLength.value = _titleController.text.length;
+        descLength.value = descController.text.length;
+        titleLength.value = titleController.text.length;
         tagsCountForSave.value = listTags.length;
         setState(() {
           she = (currentVoice == Voices.she ||
               currentVoice == Voices.sheHe ||
-              currentVoice == Voices.sheThey);
+              currentVoice == Voices.sheThey ||
+              currentVoice == Voices.sheHeThey);
           he = (currentVoice == Voices.he ||
               currentVoice == Voices.sheHe ||
-              currentVoice == Voices.heThey);
+              currentVoice == Voices.heThey ||
+              currentVoice == Voices.sheHeThey);
           they = (currentVoice == Voices.they ||
               currentVoice == Voices.heThey ||
-              currentVoice == Voices.sheThey);
+              currentVoice == Voices.sheThey ||
+              currentVoice == Voices.sheHeThey);
           isLoading = false;
         });
       } else {
@@ -176,8 +182,8 @@ class _PostItemState extends State<PostItem> {
       isLoading = false;
       pageAudioRecordNotifier.addListener(() {
         if (pageAudioRecordNotifier.value == AudioRecordState.main) {
-          _descController.text = "";
-          _titleController.text = "";
+          descController.text = "";
+          titleController.text = "";
           tagsCountForSave.value = 0;
           descLength.value = 0;
           titleLength.value = 0;
@@ -195,7 +201,8 @@ class _PostItemState extends State<PostItem> {
         valueListenable: Utilities.curLang,
         builder: (_, lang, __) {
           return Scaffold(
-              backgroundColor: Colors.transparent,
+              resizeToAvoidBottomInset: false,
+              backgroundColor: const Color(0xff000014),
               extendBodyBehindAppBar: true,
               appBar: AppBar(
                 automaticallyImplyLeading: false,
@@ -211,13 +218,15 @@ class _PostItemState extends State<PostItem> {
                         onPressed: widget.back,
                         child: Row(
                           children: [
-                            Image.asset("assets/items/backbut.png", scale: 3),
-                            const SizedBox(
-                              width: 15,
+                            Image.asset("assets/items/backbut.png",
+                                scale: 1800 / Utilities.deviceSizeMultiply),
+                            SizedBox(
+                              width: width / 30,
                             ),
                             Text(
                               lang["Back"],
-                              style: GoogleFonts.inter(),
+                              style: GoogleFonts.inter(
+                                  fontSize: Utilities.deviceSizeMultiply / 40),
                             )
                           ],
                         ))),
@@ -226,7 +235,9 @@ class _PostItemState extends State<PostItem> {
                 title: Text(
                   widget.trackId == -1 ? lang["Save"] : lang["Edit"],
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(color: Colors.white, fontSize: 20),
+                  style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontSize: Utilities.deviceSizeMultiply / 30),
                 ),
               ),
               body: Container(
@@ -238,7 +249,7 @@ class _PostItemState extends State<PostItem> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(lang["SaveTitle"], style: _textStyleSave),
+                          Text(lang["SaveTitle"], style: textStyleSave),
                           ValueListenableBuilder<int>(
                             valueListenable: titleLength,
                             builder: (_, value, __) {
@@ -247,32 +258,34 @@ class _PostItemState extends State<PostItem> {
                                   style: GoogleFonts.inter(
                                       color: value >= 30
                                           ? const Color(0xffa72627)
-                                          : Colors.white));
+                                          : Colors.white,
+                                      fontSize:
+                                          Utilities.deviceSizeMultiply / 43));
                             },
                           )
                         ],
                       ),
                       TextField(
-                          controller: _titleController,
+                          controller: titleController,
                           onChanged: (value) {
                             if (value.length >= 31) {
                               titleLength.value = 30;
-                              _titleController.text =
-                                  _titleController.text.substring(0, 30);
-                              _titleController.selection =
+                              titleController.text =
+                                  titleController.text.substring(0, 30);
+                              titleController.selection =
                                   TextSelection.fromPosition(TextPosition(
-                                      offset: _titleController.text.length));
+                                      offset: titleController.text.length));
                             } else {
                               titleLength.value = value.length;
                             }
                           },
-                          decoration: _inputDecoration("Track name"),
+                          decoration: inputDecoration("Track name"),
                           style: GoogleFonts.inter(color: Colors.white)),
                       SizedBox(height: height / 35),
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(lang["SaveDesc"], style: _textStyleSave),
+                            Text(lang["SaveDesc"], style: textStyleSave),
                             ValueListenableBuilder<int>(
                               valueListenable: descLength,
                               builder: (_, value, __) {
@@ -281,26 +294,28 @@ class _PostItemState extends State<PostItem> {
                                   style: GoogleFonts.inter(
                                       color: value >= 150
                                           ? const Color(0xffa72627)
-                                          : Colors.white),
+                                          : Colors.white,
+                                      fontSize:
+                                          Utilities.deviceSizeMultiply / 43),
                                 );
                               },
                             )
                           ]),
                       TextField(
-                        controller: _descController,
+                        controller: descController,
                         onChanged: (value) {
                           if (value.length >= 151) {
-                            _descController.text =
-                                _descController.text.substring(0, 150);
-                            _descController.selection =
+                            descController.text =
+                                descController.text.substring(0, 150);
+                            descController.selection =
                                 TextSelection.fromPosition(TextPosition(
-                                    offset: _descController.text.length));
+                                    offset: descController.text.length));
                             descLength.value = 150;
                           } else {
                             descLength.value = value.length;
                           }
                         },
-                        decoration: _inputDecoration(""),
+                        decoration: inputDecoration(""),
                         minLines: 4,
                         maxLines: 4,
                         style: GoogleFonts.inter(color: Colors.white),
@@ -309,7 +324,7 @@ class _PostItemState extends State<PostItem> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(lang["SaveTags"], style: _textStyleSave),
+                          Text(lang["SaveTags"], style: textStyleSave),
                           ValueListenableBuilder<int>(
                             valueListenable: tagsCountForSave,
                             builder: (_, value, __) {
@@ -318,7 +333,9 @@ class _PostItemState extends State<PostItem> {
                                   style: GoogleFonts.inter(
                                       color: value == 16
                                           ? const Color(0xffa72627)
-                                          : Colors.white));
+                                          : Colors.white,
+                                      fontSize:
+                                          Utilities.deviceSizeMultiply / 43));
                             },
                           )
                         ],
@@ -342,29 +359,31 @@ class _PostItemState extends State<PostItem> {
                           style: ElevatedButton.styleFrom(
                               primary: Colors.transparent,
                               elevation: 0,
-                              padding: const EdgeInsets.all(13),
+                              padding: EdgeInsets.all(
+                                  Utilities.deviceSizeMultiply / 45),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(50.0),
                                   side: const BorderSide(color: Colors.white))),
                           child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 curLanguage.value == Languages.english
                                     ? "English"
                                     : "Русский",
-                                style: _textStyleSave,
+                                style: textStyleSave,
                               ),
                               Image.asset(
                                 "assets/items/arrowright.png",
-                                scale: 2,
+                                scale: 1000 / Utilities.deviceSizeMultiply,
                               ),
                             ],
                           )),
                       SizedBox(height: height / 30),
                       Text(
                         lang["SaveVoice"],
-                        style: _textStyleSave,
+                        style: textStyleSave,
                       ),
                       SizedBox(height: height / 40),
                       Row(
@@ -386,7 +405,9 @@ class _PostItemState extends State<PostItem> {
                                 },
                               )),
                           Text(lang["she/her"],
-                              style: GoogleFonts.inter(color: Colors.white)),
+                              style: GoogleFonts.inter(
+                                  color: Colors.white,
+                                  textStyle: textStyleSave)),
                           const Spacer(),
                           Container(
                               margin: const EdgeInsets.only(right: 10),
@@ -405,7 +426,9 @@ class _PostItemState extends State<PostItem> {
                                 },
                               )),
                           Text(lang["he/him"],
-                              style: GoogleFonts.inter(color: Colors.white)),
+                              style: GoogleFonts.inter(
+                                  color: Colors.white,
+                                  textStyle: textStyleSave)),
                           const Spacer(),
                           Container(
                               margin: const EdgeInsets.only(right: 10),
@@ -424,7 +447,9 @@ class _PostItemState extends State<PostItem> {
                                 },
                               )),
                           Text(lang["they/them"],
-                              style: GoogleFonts.inter(color: Colors.white)),
+                              style: GoogleFonts.inter(
+                                  color: Colors.white,
+                                  textStyle: textStyleSave)),
                         ],
                       ),
                       SizedBox(height: height / 25),
@@ -440,21 +465,22 @@ class _PostItemState extends State<PostItem> {
                                   children: [
                                     SizedBox(
                                         width: width / 3,
-                                        height: height / 13,
-                                        child: _getButton(
+                                        height: height / 16,
+                                        child: getButton(
                                             () => editTrack(), lang["Edit"])),
                                     SizedBox(
                                         width: width / 3,
-                                        height: height / 13,
-                                        child: _getButton(() => toDraftTrack(),
+                                        height: height / 16,
+                                        child: getButton(() => toDraftTrack(),
                                             lang["ToDraft"]))
                                   ],
                                 )
                               : SizedBox(
                                   width: double.infinity,
-                                  height: height / 13,
-                                  child: _getButton(
-                                      () => postTrack(), lang["SavePost"])))
+                                  height: height / 16,
+                                  child: getButton(
+                                      () => postTrack(), lang["SavePost"]))),
+                      SizedBox(height: height / 8)
                     ],
                   ))));
         });

@@ -89,8 +89,8 @@ class _ChangePasswordState extends State<ChangePassword> {
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
     return Container(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
         decoration: const BoxDecoration(
             image: DecorationImage(
                 image: AssetImage('assets/back/back.png'), fit: BoxFit.fill)),
@@ -99,168 +99,197 @@ class _ChangePasswordState extends State<ChangePassword> {
             valueListenable: Utilities.curLang,
             builder: (_, lang, __) {
               return Scaffold(
-                backgroundColor: Colors.transparent,
-                extendBody: true,
-                extendBodyBehindAppBar: true,
-                appBar: AppBar(
-                  automaticallyImplyLeading: false,
-                  leadingWidth: 100,
-                  leading: Container(
-                      margin: const EdgeInsets.fromLTRB(10, 10, 0, 10),
-                      child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              elevation: 0,
-                              padding: const EdgeInsets.all(0),
-                              primary: Colors.transparent),
-                          onPressed: () {
-                            FocusManager.instance.primaryFocus?.unfocus();
-                            Navigator.pop(context);
-                          },
-                          child: Row(
-                            children: [
-                              Image.asset("assets/items/backbut.png", scale: 3),
-                              const SizedBox(width: 15),
-                              Text(lang["Back"], style: GoogleFonts.inter())
-                            ],
-                          ))),
                   backgroundColor: Colors.transparent,
-                  elevation: 0,
-                ),
-                body: SingleChildScrollView(
+                  extendBody: true,
+                  extendBodyBehindAppBar: true,
+                  appBar: AppBar(
+                    automaticallyImplyLeading: false,
+                    leadingWidth: 100,
+                    leading: Container(
+                        margin: const EdgeInsets.fromLTRB(10, 10, 0, 10),
+                        child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                elevation: 0,
+                                padding: const EdgeInsets.all(0),
+                                primary: Colors.transparent),
+                            onPressed: () {
+                              FocusManager.instance.primaryFocus?.unfocus();
+                              Navigator.pop(context);
+                            },
+                            child: Row(
+                              children: [
+                                Image.asset("assets/items/backbut.png",
+                                    scale: 1800 / Utilities.deviceSizeMultiply),
+                                SizedBox(
+                                  width: width / 30,
+                                ),
+                                Text(
+                                  lang["Back"],
+                                  style: GoogleFonts.inter(
+                                      fontSize:
+                                          Utilities.deviceSizeMultiply / 40),
+                                )
+                              ],
+                            ))),
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
+                  ),
+                  body: SingleChildScrollView(
                     physics: MediaQuery.of(context).viewInsets.bottom == 0
                         ? const NeverScrollableScrollPhysics()
                         : const BouncingScrollPhysics(),
                     scrollDirection: Axis.vertical,
-                    child: Column(
-                      children: [
-                        Container(
-                            alignment: Alignment.centerLeft,
-                            margin: EdgeInsets.only(top: height / 7),
-                            child: Text(lang["ChangePas"],
-                                style: GoogleFonts.inter(
-                                    color: Colors.white,
-                                    fontSize: 35,
-                                    fontWeight: FontWeight.bold))),
-                        SizedBox(
-                          height: height / 15,
-                        ),
-                        Container(
-                            alignment: Alignment.topLeft,
-                            child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    lang["OldPass"],
+                    child: Container(
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                        child: Column(
+                          children: [
+                            Container(
+                                alignment: Alignment.centerLeft,
+                                margin: EdgeInsets.only(top: height / 7),
+                                child: Text(lang["ChangePas"],
                                     style: GoogleFonts.inter(
-                                        color: _getColorErrorOldPassword(),
-                                        fontSize: 12),
-                                  ),
-                                  ValueListenableBuilder<String?>(
-                                    valueListenable: erTextOldPass,
-                                    builder: (_, value, __) {
-                                      return Text(
-                                        _submitter && value != null
-                                            ? value
+                                        color: Colors.white,
+                                        fontSize:
+                                            Utilities.deviceSizeMultiply / 20,
+                                        fontWeight: FontWeight.bold))),
+                            SizedBox(
+                              height: height / 15,
+                            ),
+                            Container(
+                                alignment: Alignment.topLeft,
+                                child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        lang["OldPass"],
+                                        style: GoogleFonts.inter(
+                                            color: _getColorErrorOldPassword(),
+                                            fontSize:
+                                                Utilities.deviceSizeMultiply /
+                                                    41),
+                                      ),
+                                      ValueListenableBuilder<String?>(
+                                        valueListenable: erTextOldPass,
+                                        builder: (_, value, __) {
+                                          return Text(
+                                            _submitter && value != null
+                                                ? value
+                                                : "",
+                                            style: GoogleFonts.inter(
+                                                color: const Color(0xffa72627),
+                                                fontSize: Utilities
+                                                        .deviceSizeMultiply /
+                                                    41),
+                                          );
+                                        },
+                                      )
+                                    ])),
+                            ValueListenableBuilder<String?>(
+                                valueListenable: erTextOldPass,
+                                builder: (_, value, __) {
+                                  return TextField(
+                                    controller: controllerOldPassword,
+                                    style: TextStyle(
+                                        color: _getColorErrorOldPassword()),
+                                    autofocus: true,
+                                    obscureText: true,
+                                    decoration: InputDecoration(
+                                      enabledBorder: const UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: Color(0xff878789)),
+                                      ),
+                                      focusedBorder: const UnderlineInputBorder(
+                                        borderSide:
+                                            BorderSide(color: Colors.white),
+                                      ),
+                                      errorText: _submitter ? value : null,
+                                      errorStyle: const TextStyle(
+                                          fontSize: 0, height: 0),
+                                    ),
+                                    onChanged: (_) => setState(() {
+                                      _submitter = false;
+                                    }),
+                                  );
+                                }),
+                            Container(
+                                height: height / 21,
+                                alignment: Alignment.bottomLeft,
+                                child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(lang["NewPass"],
+                                          style: GoogleFonts.inter(
+                                              color:
+                                                  _getColorErrorNewPassword(),
+                                              fontSize:
+                                                  Utilities.deviceSizeMultiply /
+                                                      41)),
+                                      Text(
+                                        _submitter &&
+                                                _errorTextNewPassword != null
+                                            ? _errorTextNewPassword!
                                             : "",
                                         style: GoogleFonts.inter(
                                             color: const Color(0xffa72627),
-                                            fontSize: 12),
-                                      );
-                                    },
-                                  )
-                                ])),
-                        ValueListenableBuilder<String?>(
-                            valueListenable: erTextOldPass,
-                            builder: (_, value, __) {
-                              return TextField(
-                                controller: controllerOldPassword,
-                                style: TextStyle(
-                                    color: _getColorErrorOldPassword()),
-                                autofocus: true,
-                                obscureText: true,
-                                decoration: InputDecoration(
-                                  enabledBorder: const UnderlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Color(0xff878789)),
-                                  ),
-                                  focusedBorder: const UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.white),
-                                  ),
-                                  errorText: _submitter ? value : null,
-                                  errorStyle:
-                                      const TextStyle(fontSize: 0, height: 0),
+                                            fontSize:
+                                                Utilities.deviceSizeMultiply /
+                                                    41),
+                                      ),
+                                    ])),
+                            TextField(
+                              controller: controllerNewPassword,
+                              obscureText: true,
+                              style:
+                                  TextStyle(color: _getColorErrorNewPassword()),
+                              decoration: InputDecoration(
+                                enabledBorder: const UnderlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Color(0xff878789)),
                                 ),
-                                onChanged: (_) => setState(() {
-                                  _submitter = false;
-                                }),
-                              );
-                            }),
-                        Container(
-                            height: height / 21,
-                            alignment: Alignment.bottomLeft,
-                            child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(lang["NewPass"],
-                                      style: GoogleFonts.inter(
-                                          color: _getColorErrorNewPassword(),
-                                          fontSize: 12)),
-                                  Text(
-                                    _submitter && _errorTextNewPassword != null
-                                        ? _errorTextNewPassword!
-                                        : "",
-                                    style: GoogleFonts.inter(
-                                        color: const Color(0xffa72627),
-                                        fontSize: 12),
-                                  ),
-                                ])),
-                        TextField(
-                          controller: controllerNewPassword,
-                          obscureText: true,
-                          style: TextStyle(color: _getColorErrorNewPassword()),
-                          decoration: InputDecoration(
-                            enabledBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(color: Color(0xff878789)),
+                                focusedBorder: const UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white),
+                                ),
+                                errorText:
+                                    _submitter ? _errorTextNewPassword : null,
+                                errorStyle:
+                                    const TextStyle(fontSize: 0, height: 0),
+                              ),
+                              onChanged: (_) => setState(() {
+                                _submitter = false;
+                              }),
                             ),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
+                            SizedBox(height: height / 20),
+                            SizedBox(
+                              width: double.infinity,
+                              height: height / 16,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  primary: MColors.mainColor,
+                                  onSurface: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(25.0)),
+                                ),
+                                child: Text(
+                                  lang["ChangePas"],
+                                  style: GoogleFonts.inter(
+                                      color: Colors.white,
+                                      fontSize:
+                                          Utilities.deviceSizeMultiply / 35),
+                                ),
+                                onPressed: controllerOldPassword
+                                            .value.text.isNotEmpty &&
+                                        controllerNewPassword
+                                            .value.text.isNotEmpty
+                                    ? _submit
+                                    : null,
+                              ),
                             ),
-                            errorText:
-                                _submitter ? _errorTextNewPassword : null,
-                            errorStyle: const TextStyle(fontSize: 0, height: 0),
-                          ),
-                          onChanged: (_) => setState(() {
-                            _submitter = false;
-                          }),
-                        ),
-                        SizedBox(height: height / 20),
-                        SizedBox(
-                          width: double.infinity,
-                          height: height / 15,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              primary: MColors.mainColor,
-                              onSurface: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(25.0)),
-                            ),
-                            child: Text(
-                              lang["ChangePas"],
-                              style: GoogleFonts.inter(
-                                  color: Colors.white, fontSize: height / 50),
-                            ),
-                            onPressed: controllerOldPassword
-                                        .value.text.isNotEmpty &&
-                                    controllerNewPassword.value.text.isNotEmpty
-                                ? _submit
-                                : null,
-                          ),
-                        ),
-                      ],
-                    )),
-              );
+                          ],
+                        )),
+                  ));
             }));
   }
 }

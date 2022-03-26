@@ -41,10 +41,13 @@ class MyDropButtonState extends State<MyDropButton>
                   valueListenable: Utilities.curLang,
                   builder: (_, lang, __) {
                     return Text(lang["lang"],
-                        style: const TextStyle(color: MColors.mainColor));
+                        style: TextStyle(
+                            color: MColors.mainColor,
+                            fontSize: Utilities.deviceSizeMultiply / 40));
                   }),
               const SizedBox(width: 7),
-              Image.asset("assets/items/arrow.png", scale: 2.5),
+              Image.asset("assets/items/arrow.png",
+                  scale: 1500 / Utilities.deviceSizeMultiply),
             ],
           ),
         ));

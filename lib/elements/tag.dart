@@ -18,13 +18,17 @@ class _TagItemState extends State<TagItem> {
   late final int averageSymbols;
   final TextStyle _textStyle = GoogleFonts.montserrat(
     color: MColors.mainColor,
-    fontSize: 13,
+    fontSize: Utilities.deviceSizeMultiply / 40,
     fontWeight: FontWeight.w500,
   );
   final BoxDecoration _boxDecoration = BoxDecoration(
       borderRadius: BorderRadius.circular(20),
       border: Border.all(color: MColors.mainColor));
-  final EdgeInsets _padding = const EdgeInsets.fromLTRB(22, 0, 22, 1);
+  final EdgeInsets _padding = EdgeInsets.fromLTRB(
+      Utilities.deviceSizeMultiply / 22,
+      0,
+      Utilities.deviceSizeMultiply / 22,
+      0);
   final EdgeInsets _margin = const EdgeInsets.fromLTRB(5, 0, 5, 10);
   late ScrollController _scrollController;
   final List<Container> elementsList = [];
@@ -48,7 +52,7 @@ class _TagItemState extends State<TagItem> {
   Container getTagItem(String text) {
     return Container(
         alignment: Alignment.center,
-        height: 35,
+        height: Utilities.deviceSizeMultiply / 15,
         margin: _margin,
         padding: _padding,
         decoration: _boxDecoration,
@@ -98,10 +102,7 @@ class _TagItemState extends State<TagItem> {
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-    double textScaleFactor = MediaQuery.of(context).textScaleFactor;
-    double devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
         animateForward();
@@ -110,7 +111,7 @@ class _TagItemState extends State<TagItem> {
     return Center(
         child: Container(
             alignment: Alignment.center,
-            margin: EdgeInsets.fromLTRB(0, height / 19, 0, height / 16),
+            margin: EdgeInsets.fromLTRB(0, height / 19, 0, height / 18),
             child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 scrollDirection: Axis.horizontal,

@@ -187,8 +187,8 @@ class Server {
       Map<String, String> parameters, BuildContext context) async {
     try {
       Utilities.showLoadingScreen(context);
-      var request =
-          http.MultipartRequest('PATCH', Uri.parse(Utilities.url + "tracks/"));
+      var request = http.MultipartRequest(
+          'POST', Uri.parse(Utilities.url + "tracks/update"));
       request.headers.addAll({
         "Authorization": "Bearer " + Utilities.authToken,
         "Content-Type": "application/x-www-form-urlencoded"
@@ -248,6 +248,9 @@ class Utilities {
     currentLanguage = Languages.english;
     showHelpNotification = false;
     preferences = await SharedPreferences.getInstance();
+    if (preferences.getDouble(_keyDeviceSizeMultiply) != null) {
+      deviceSizeMultiply = preferences.getDouble(_keyDeviceSizeMultiply)!;
+    }
     if (preferences.getString(_keyEmailUser) != null) {
       email = preferences.getString(_keyEmailUser)!;
     }
@@ -331,6 +334,11 @@ class Utilities {
     logout.logOut();
   }
 
+  static setDeviceSize(double deviceSize) {
+    preferences.setDouble(_keyDeviceSizeMultiply, deviceSize);
+    deviceSizeMultiply = deviceSize;
+  }
+
   static const bool isConnectedToServer = true;
   static List<AudioManager> handlers = [];
   static NotifyLogout logout = NotifyLogout();
@@ -341,6 +349,8 @@ class Utilities {
   static int voiceId = 6;
   static String authToken = "";
   static late bool showHelpNotification;
+  static late double deviceSizeMultiply;
+  static const String _keyDeviceSizeMultiply = "DeviceSize";
   static const String _keyLanguage = "Languages";
   static const String _keyHelpNotification = "HelpNotification";
   static const String _keyVoices = "Voices";

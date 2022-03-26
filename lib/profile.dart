@@ -24,14 +24,13 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
   final List<String> trackLikes = [];
   final List<int> trackIds = [];
   final List<int> trackStatuses = [];
+  late double width;
+  late double height;
 
   @override
   void initState() {
     super.initState();
     loadingTracks();
-    // Utilities.logout.addListener(() {
-    //   dispose();
-    // });
   }
 
   String getLikeString(int countLikes) {
@@ -99,44 +98,35 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
     }
   }
 
-  Widget forLoadingShimmer = Column(children: [
-    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Container(
-            height: 20,
-            width: 200,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(50),
-              color: Colors.grey.withAlpha(50),
-            )),
-        const SizedBox(height: 5),
-        Container(
-            height: 20,
-            width: 150,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(50),
-              color: Colors.grey.withAlpha(50),
-            )),
-        const SizedBox(height: 10)
-      ]),
-      Container(
-          height: 20,
-          width: 100,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(50),
-            color: Colors.grey.withAlpha(50),
-          )),
-    ]),
-    Container(
-        margin: const EdgeInsets.fromLTRB(0, 4, 0, 10),
-        height: 1,
-        color: const Color(0xff4b4b4f))
-  ]);
+  Widget forLoadingShimmer() => Container(
+        margin: EdgeInsets.only(bottom: height / 70),
+        decoration: const BoxDecoration(
+            border: Border(bottom: BorderSide(color: Color(0xff4b4b4f)))),
+        height: height / 15,
+        child:
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Container(
+              height: Utilities.deviceSizeMultiply / 25,
+              width: width / 2.3,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(50),
+                color: Colors.grey.withAlpha(50),
+              )),
+          Container(
+              height: Utilities.deviceSizeMultiply / 25,
+              width: width / 2.5,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(50),
+                color: Colors.grey.withAlpha(50),
+              )),
+        ]),
+      );
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    double height = MediaQuery.of(context).size.height;
+    height = MediaQuery.of(context).size.height;
+    width = MediaQuery.of(context).size.width;
     return ValueListenableBuilder<Map>(
         valueListenable: Utilities.curLang,
         builder: (_, lang, __) {
@@ -152,7 +142,9 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                 title: Text(
                   lang["Profile"],
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(color: Colors.white, fontSize: 20),
+                  style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontSize: Utilities.deviceSizeMultiply / 30),
                 ),
               ),
               body: Container(
@@ -180,7 +172,7 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                             Text(Utilities.email,
                                 style: GoogleFonts.inter(
                                     color: Colors.white,
-                                    fontSize: height / 25,
+                                    fontSize: Utilities.deviceSizeMultiply / 22,
                                     fontWeight: FontWeight.bold)),
                             SizedBox(height: height / 40),
                             GestureDetector(
@@ -196,9 +188,10 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                                 child: Text(lang["ChangePas"],
                                     style: GoogleFonts.inter(
                                         color: MColors.mainColor,
-                                        fontSize: height / 45,
+                                        fontSize:
+                                            Utilities.deviceSizeMultiply / 38,
                                         decoration: TextDecoration.underline))),
-                            SizedBox(height: height / 45),
+                            SizedBox(height: height / 55),
                             GestureDetector(
                                 onTap: () {
                                   if (!isLoading.value) {
@@ -213,13 +206,14 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                                 child: Text(lang["Logout"],
                                     style: GoogleFonts.inter(
                                         color: MColors.mainColor,
-                                        fontSize: height / 45,
+                                        fontSize:
+                                            Utilities.deviceSizeMultiply / 38,
                                         decoration: TextDecoration.underline))),
                             SizedBox(height: height / 20),
                             Text(lang["Voice"],
                                 style: GoogleFonts.inter(
                                     color: Colors.white,
-                                    fontSize: height / 35,
+                                    fontSize: Utilities.deviceSizeMultiply / 29,
                                     fontWeight: FontWeight.bold)),
                             SizedBox(height: height / 25),
                             Row(
@@ -245,8 +239,10 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                                       },
                                     )),
                                 Text(lang["she/her"],
-                                    style:
-                                        GoogleFonts.inter(color: Colors.white)),
+                                    style: GoogleFonts.inter(
+                                        color: Colors.white,
+                                        fontSize:
+                                            Utilities.deviceSizeMultiply / 41)),
                                 const Spacer(),
                                 Container(
                                     margin: const EdgeInsets.only(right: 10),
@@ -269,8 +265,10 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                                       },
                                     )),
                                 Text(lang["he/him"],
-                                    style:
-                                        GoogleFonts.inter(color: Colors.white)),
+                                    style: GoogleFonts.inter(
+                                        color: Colors.white,
+                                        fontSize:
+                                            Utilities.deviceSizeMultiply / 41)),
                                 const Spacer(),
                                 Container(
                                     margin: const EdgeInsets.only(right: 10),
@@ -293,15 +291,17 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                                       },
                                     )),
                                 Text(lang["they/them"],
-                                    style:
-                                        GoogleFonts.inter(color: Colors.white)),
+                                    style: GoogleFonts.inter(
+                                        color: Colors.white,
+                                        fontSize:
+                                            Utilities.deviceSizeMultiply / 41)),
                               ],
                             ),
                             SizedBox(height: height / 12),
                             Text(lang["MyRec"],
                                 style: GoogleFonts.inter(
                                     color: Colors.white,
-                                    fontSize: height / 25,
+                                    fontSize: Utilities.deviceSizeMultiply / 23,
                                     fontWeight: FontWeight.bold)),
                             SizedBox(height: height / 30),
                             ValueListenableBuilder<bool>(
@@ -318,11 +318,11 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                                                     isLoading: isloading,
                                                     child: Column(
                                                       children: [
-                                                        forLoadingShimmer,
-                                                        forLoadingShimmer,
-                                                        forLoadingShimmer,
-                                                        forLoadingShimmer,
-                                                        forLoadingShimmer,
+                                                        forLoadingShimmer(),
+                                                        forLoadingShimmer(),
+                                                        forLoadingShimmer(),
+                                                        forLoadingShimmer(),
+                                                        forLoadingShimmer(),
                                                       ],
                                                     ))
                                               ]),

@@ -18,11 +18,13 @@ class SaveTagItem extends StatelessWidget {
             child: Row(children: [
               Text(text,
                   style: GoogleFonts.inter(
-                      color: MColors.mainColor, fontWeight: FontWeight.bold)),
+                      color: MColors.mainColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: Utilities.deviceSizeMultiply / 42)),
               Container(
                   margin: const EdgeInsets.only(left: 5),
-                  height: 20,
-                  width: 20,
+                  height: Utilities.deviceSizeMultiply / 30,
+                  width: Utilities.deviceSizeMultiply / 30,
                   child: IconButton(
                       padding: const EdgeInsets.all(5),
                       splashRadius: 0.01,

@@ -27,12 +27,12 @@ class MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    double height = MediaQuery.of(context).size.height;
-    double iconBottomBarSize = MediaQuery.of(context).devicePixelRatio * 10;
+    double iconBottomBarSize = Utilities.deviceSizeMultiply / 20;
     precacheImage(const AssetImage("assets/items/recordon.png"), context);
     precacheImage(const AssetImage("assets/items/profileon.png"), context);
     precacheImage(const AssetImage("assets/items/feedoff.png"), context);
     return Scaffold(
+        extendBody: true,
         backgroundColor: const Color(0xff000014),
         body: PageView(
           controller: controller,
@@ -67,15 +67,15 @@ class MainScreenState extends State<MainScreen> {
                   BoxShadow(
                       color: Colors.black38, spreadRadius: 0, blurRadius: 10)
                 ]),
-            height: height / 11,
+            height: Utilities.deviceSizeMultiply / 8.5,
             child: ValueListenableBuilder<Map>(
                 valueListenable: Utilities.curLang,
                 builder: (_, lang, __) {
                   return BottomNavigationBar(
                     selectedItemColor: Colors.white,
                     unselectedItemColor: const Color(0xffcc80d3),
-                    selectedFontSize: 12,
-                    unselectedFontSize: 12,
+                    selectedFontSize: Utilities.deviceSizeMultiply / 45,
+                    unselectedFontSize: Utilities.deviceSizeMultiply / 45,
                     selectedLabelStyle: const TextStyle(height: 1.8),
                     elevation: 0.0,
                     backgroundColor: Colors.transparent,

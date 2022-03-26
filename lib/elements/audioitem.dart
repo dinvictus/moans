@@ -9,27 +9,27 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AudioItem extends StatefulWidget {
   AudioItem(this._indexPage, {Key? key}) : super(key: key);
-  bool _liked = false;
+  final ValueNotifier<bool> _isliked = ValueNotifier<bool>(false);
   late final String _titleTrack;
   late final String _descriptionTrack;
   late final List<String> _listTags;
-  late int _countLikes;
   late final AudioManager audioManager;
   late final int _trackId;
+  late final ValueNotifier<int> countLikesNotifier;
   final ValueNotifier<bool> _isloading = ValueNotifier<bool>(true);
   addInfo(String title, String description, List<String> tags, int likes,
       int idTrack, bool liked) {
     _titleTrack = title;
     _descriptionTrack = description;
     _listTags = tags;
-    _countLikes = likes;
     _trackId = idTrack;
     audioManager = AudioManager(
         Utilities.url + "tracks/get_audio?track_id=" + idTrack.toString(),
         _titleTrack,
         _indexPage + 1);
+    _isliked.value = liked;
+    countLikesNotifier = ValueNotifier<int>(likes);
     _isloading.value = false;
-    _liked = liked;
   }
 
   final int _indexPage;
@@ -43,55 +43,52 @@ class AudioItem extends StatefulWidget {
 class _AudioItemState extends State<AudioItem>
     with AutomaticKeepAliveClientMixin {
   late ValueNotifier<double> notifierforLikeSize;
-  TextStyle textStyleLS(double textSFactor) =>
-      GoogleFonts.inter(color: Colors.white, fontSize: textSFactor * 12);
-  TextStyle textStyleTime(double textSFactor) => GoogleFonts.inter(
-      color: const Color(0xff878789), fontSize: textSFactor * 12);
-
-  Widget loadingWidget(double devicePixelR) => Container(
-      width: devicePixelR * 21,
-      height: devicePixelR * 21,
+  final TextStyle textStyleLS = GoogleFonts.inter(
+      color: Colors.white, fontSize: Utilities.deviceSizeMultiply / 50);
+  final TextStyle textStyleTime = GoogleFonts.inter(
+      color: const Color(0xff878789),
+      fontSize: Utilities.deviceSizeMultiply / 40);
+  final Widget loadingWidget = Container(
+      width: Utilities.deviceSizeMultiply / 9,
+      height: Utilities.deviceSizeMultiply / 9,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
           color: Colors.white, borderRadius: BorderRadius.circular(50.0)),
-      child: const CircularProgressIndicator(
+      child: CircularProgressIndicator(
+        strokeWidth: Utilities.deviceSizeMultiply / 150,
         color: Colors.black,
       ));
 
   animateLikeButton() {
-    notifierforLikeSize.value = 42;
+    notifierforLikeSize.value = Utilities.deviceSizeMultiply / 13;
     Timer(const Duration(milliseconds: 100), () {
-      notifierforLikeSize.value = 32;
+      notifierforLikeSize.value = Utilities.deviceSizeMultiply / 17;
     });
   }
 
   liked() async {
     if (!widget._isloading.value) {
-      // Запрос к серверу на поставку лайка.
-      widget._liked = true;
+      widget.countLikesNotifier.value++;
+      widget._isliked.value = true;
       animateLikeButton();
       Map<String, String> forLike = {
         "track_id": widget._trackId.toString(),
         "liked": "true"
       };
       Server.likeRequest(forLike);
-      widget._countLikes++;
-      setState(() {});
     }
   }
 
   unLiked() async {
     if (!widget._isloading.value) {
-      // Запрос к серверу на удаление лайка.
-      widget._liked = false;
+      widget.countLikesNotifier.value--;
+      widget._isliked.value = false;
       animateLikeButton();
       Map<String, String> forLike = {
         "track_id": widget._trackId.toString(),
         "liked": "false"
       };
       Server.likeRequest(forLike);
-      widget._countLikes--;
-      setState(() {});
     }
   }
 
@@ -100,7 +97,8 @@ class _AudioItemState extends State<AudioItem>
   @override
   void initState() {
     super.initState();
-    notifierforLikeSize = ValueNotifier<double>(32);
+    notifierforLikeSize =
+        ValueNotifier<double>(Utilities.deviceSizeMultiply / 17);
   }
 
   Widget getRootElement(Widget? child, bool isloading) {
@@ -114,8 +112,6 @@ class _AudioItemState extends State<AudioItem>
     super.build(context);
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-    double textScaleFactor = MediaQuery.of(context).textScaleFactor;
-    double devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
     return SizedBox(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
@@ -141,7 +137,8 @@ class _AudioItemState extends State<AudioItem>
                                       child: Column(children: [
                                         Container(
                                           width: width / 1.3,
-                                          height: devicePixelRatio * 10,
+                                          height:
+                                              Utilities.deviceSizeMultiply / 20,
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(15),
@@ -150,7 +147,8 @@ class _AudioItemState extends State<AudioItem>
                                         ),
                                         SizedBox(height: height / 15),
                                         Container(
-                                          height: devicePixelRatio * 7,
+                                          height:
+                                              Utilities.deviceSizeMultiply / 32,
                                           width: width / 1.2,
                                           decoration: BoxDecoration(
                                             borderRadius:
@@ -160,7 +158,9 @@ class _AudioItemState extends State<AudioItem>
                                         ),
                                         SizedBox(height: height / 75),
                                         Container(
-                                            height: devicePixelRatio * 7,
+                                            height:
+                                                Utilities.deviceSizeMultiply /
+                                                    32,
                                             width: width / 1.5,
                                             decoration: BoxDecoration(
                                                 borderRadius:
@@ -169,7 +169,9 @@ class _AudioItemState extends State<AudioItem>
                                                     Colors.grey.withAlpha(50))),
                                         SizedBox(height: height / 19),
                                         Container(
-                                            height: 35,
+                                            height:
+                                                Utilities.deviceSizeMultiply /
+                                                    15,
                                             width: width / 1.1,
                                             decoration: BoxDecoration(
                                                 color:
@@ -186,8 +188,9 @@ class _AudioItemState extends State<AudioItem>
                                                 textAlign: TextAlign.center,
                                                 style: GoogleFonts.inter(
                                                     color: Colors.white,
-                                                    fontSize:
-                                                        textScaleFactor * 30,
+                                                    fontSize: Utilities
+                                                            .deviceSizeMultiply /
+                                                        25,
                                                     fontWeight:
                                                         FontWeight.bold))),
                                         SizedBox(height: height / 25),
@@ -199,8 +202,9 @@ class _AudioItemState extends State<AudioItem>
                                                 style: GoogleFonts.inter(
                                                     color:
                                                         const Color(0xffcfcfd0),
-                                                    fontSize:
-                                                        textScaleFactor * 20))),
+                                                    fontSize: Utilities
+                                                            .deviceSizeMultiply /
+                                                        30))),
                                         TagItem(widget._listTags,
                                             widget._indexPage),
                                       ],
@@ -210,7 +214,8 @@ class _AudioItemState extends State<AudioItem>
                         },
                       ),
                       Container(
-                        margin: const EdgeInsets.fromLTRB(30, 0, 30, 30),
+                        margin: EdgeInsets.fromLTRB(
+                            width / 13, 0, width / 13, height / 25),
                         height: height / 60,
                         child: ValueListenableBuilder<bool>(
                             valueListenable: widget._isloading,
@@ -218,11 +223,13 @@ class _AudioItemState extends State<AudioItem>
                               return isloading
                                   ? ProgressBar(
                                       thumbColor: Colors.white,
-                                      thumbGlowRadius: devicePixelRatio * 5,
-                                      thumbRadius: devicePixelRatio * 2,
-                                      timeLabelPadding: devicePixelRatio * 4,
-                                      timeLabelTextStyle:
-                                          textStyleTime(textScaleFactor),
+                                      thumbGlowRadius:
+                                          Utilities.deviceSizeMultiply / 40,
+                                      thumbRadius:
+                                          Utilities.deviceSizeMultiply / 85,
+                                      timeLabelPadding:
+                                          Utilities.deviceSizeMultiply / 40,
+                                      timeLabelTextStyle: textStyleTime,
                                       bufferedBarColor: const Color(0xff898994),
                                       progressBarColor: Colors.white,
                                       baseBarColor: const Color(0xff4b4b4f),
@@ -236,12 +243,16 @@ class _AudioItemState extends State<AudioItem>
                                       builder: (_, value, __) {
                                         return ProgressBar(
                                           thumbColor: Colors.white,
-                                          thumbGlowRadius: devicePixelRatio * 5,
-                                          thumbRadius: devicePixelRatio * 2,
+                                          thumbGlowRadius:
+                                              Utilities.deviceSizeMultiply / 40,
+                                          thumbRadius:
+                                              Utilities.deviceSizeMultiply / 85,
                                           timeLabelPadding:
-                                              devicePixelRatio * 4,
-                                          timeLabelTextStyle:
-                                              textStyleTime(textScaleFactor),
+                                              Utilities.deviceSizeMultiply / 40,
+                                          timeLabelTextStyle: textStyleTime,
+                                          barHeight:
+                                              Utilities.deviceSizeMultiply /
+                                                  100,
                                           bufferedBarColor:
                                               const Color(0xff898994),
                                           progressBarColor: Colors.white,
@@ -257,36 +268,38 @@ class _AudioItemState extends State<AudioItem>
                       ),
                       Stack(alignment: Alignment.center, children: [
                         Container(
-                            height: devicePixelRatio * 21,
-                            width: devicePixelRatio * 21,
-                            margin: EdgeInsets.fromLTRB(0, 0, 0, height / 5),
+                            height: Utilities.deviceSizeMultiply / 9,
+                            width: Utilities.deviceSizeMultiply / 9,
+                            margin: EdgeInsets.fromLTRB(0, 0, 0, height / 4),
                             child: ValueListenableBuilder<bool>(
                                 valueListenable: widget._isloading,
                                 builder: (_, isloading, __) {
                                   return isloading
-                                      ? loadingWidget(devicePixelRatio)
+                                      ? loadingWidget
                                       : ValueListenableBuilder<ButtonState>(
                                           valueListenable: widget
                                               .audioManager.buttonNotifier,
                                           builder: (_, value, __) {
                                             switch (value) {
                                               case ButtonState.loading:
-                                                return loadingWidget(
-                                                    devicePixelRatio);
+                                                return loadingWidget;
                                               case ButtonState.paused:
                                                 return ElevatedButton(
                                                   style: ElevatedButton.styleFrom(
                                                       elevation: 0,
-                                                      padding:
-                                                          EdgeInsets.fromLTRB(
-                                                              devicePixelRatio *
-                                                                  6,
-                                                              devicePixelRatio *
-                                                                  5,
-                                                              devicePixelRatio *
-                                                                  5,
-                                                              devicePixelRatio *
-                                                                  5),
+                                                      padding: EdgeInsets.fromLTRB(
+                                                          Utilities
+                                                                  .deviceSizeMultiply /
+                                                              30,
+                                                          Utilities
+                                                                  .deviceSizeMultiply /
+                                                              35,
+                                                          Utilities
+                                                                  .deviceSizeMultiply /
+                                                              35,
+                                                          Utilities
+                                                                  .deviceSizeMultiply /
+                                                              35),
                                                       primary: Colors.white,
                                                       shape:
                                                           RoundedRectangleBorder(
@@ -314,7 +327,9 @@ class _AudioItemState extends State<AudioItem>
                                                   style: ElevatedButton.styleFrom(
                                                       elevation: 0,
                                                       padding: EdgeInsets.all(
-                                                          devicePixelRatio * 5),
+                                                          Utilities
+                                                                  .deviceSizeMultiply /
+                                                              30),
                                                       primary: Colors.white,
                                                       shape:
                                                           RoundedRectangleBorder(
@@ -340,7 +355,8 @@ class _AudioItemState extends State<AudioItem>
                                   builder: (_, value, __) {
                                     return AnimatedContainer(
                                         width: value,
-                                        height: devicePixelRatio * 11,
+                                        height:
+                                            Utilities.deviceSizeMultiply / 17,
                                         duration:
                                             const Duration(milliseconds: 100),
                                         child: ElevatedButton(
@@ -353,37 +369,41 @@ class _AudioItemState extends State<AudioItem>
                                                         BorderRadius.circular(
                                                             50.0))),
                                             onPressed: () {
-                                              !widget._liked
+                                              !widget._isliked.value
                                                   ? liked()
                                                   : unLiked();
                                             },
-                                            child: widget._liked
+                                            child: widget._isliked.value
                                                 ? Image.asset(
                                                     'assets/items/likeon.png')
                                                 : Image.asset(
                                                     'assets/items/likeoff.png')));
                                   },
                                 ),
-                                SizedBox(height: devicePixelRatio * 2),
+                                SizedBox(height: height / 100),
                                 ValueListenableBuilder<bool>(
                                     valueListenable: widget._isloading,
                                     builder: (_, isloading, __) {
                                       return isloading
                                           ? SizedBox(
-                                              height: devicePixelRatio * 5,
-                                              width: devicePixelRatio * 7.5,
+                                              height:
+                                                  Utilities.deviceSizeMultiply /
+                                                      40,
+                                              width:
+                                                  Utilities.deviceSizeMultiply /
+                                                      20,
                                               child: ListView(
                                                   padding: EdgeInsets.zero,
                                                   children: [
                                                     ShimmerLoading(
                                                         isLoading: isloading,
                                                         child: Container(
-                                                            height:
-                                                                devicePixelRatio *
-                                                                    5,
-                                                            width:
-                                                                devicePixelRatio *
-                                                                    7.5,
+                                                            height: Utilities
+                                                                    .deviceSizeMultiply /
+                                                                40,
+                                                            width: Utilities
+                                                                    .deviceSizeMultiply /
+                                                                20,
                                                             decoration: BoxDecoration(
                                                                 color: Colors
                                                                     .grey
@@ -394,14 +414,19 @@ class _AudioItemState extends State<AudioItem>
                                                                         .circular(
                                                                             15))))
                                                   ]))
-                                          : Text(widget._countLikes.toString(),
-                                              style:
-                                                  textStyleLS(textScaleFactor));
+                                          : ValueListenableBuilder<int>(
+                                              valueListenable:
+                                                  widget.countLikesNotifier,
+                                              builder: (_, likesCount, __) {
+                                                return Text(
+                                                    likesCount.toString(),
+                                                    style: textStyleLS);
+                                              });
                                     }),
                                 SizedBox(height: height / 25),
                                 SizedBox(
-                                    height: devicePixelRatio * 11,
-                                    width: devicePixelRatio * 11,
+                                    height: Utilities.deviceSizeMultiply / 17,
+                                    width: Utilities.deviceSizeMultiply / 17,
                                     child: ElevatedButton(
                                         style: ElevatedButton.styleFrom(
                                             padding: const EdgeInsets.all(0),
@@ -413,22 +438,21 @@ class _AudioItemState extends State<AudioItem>
                                         onPressed: share,
                                         child: Image.asset(
                                             'assets/items/share.png'))),
-                                SizedBox(height: devicePixelRatio),
+                                const SizedBox(height: 2),
                                 SizedBox(
-                                    width: 71,
+                                    width: width / 4.5,
                                     child: ValueListenableBuilder<Map>(
                                         valueListenable: Utilities.curLang,
                                         builder: (_, lang, __) {
                                           return Text(lang["Share"],
                                               textAlign: TextAlign.center,
-                                              style:
-                                                  textStyleLS(textScaleFactor));
+                                              style: textStyleLS);
                                         })),
-                                SizedBox(height: devicePixelRatio * 4)
+                                SizedBox(height: height / 50)
                               ]),
-                              SizedBox(width: devicePixelRatio * 3.4)
                             ]),
                       ]),
+                      SizedBox(height: height / 16.5)
                     ],
                   ),
                   isloading);

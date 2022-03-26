@@ -9,6 +9,7 @@ class ActionConfirm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
     return Scaffold(
         backgroundColor: const Color(0xff0f0f14),
         body: ValueListenableBuilder<Map>(
@@ -21,7 +22,7 @@ class ActionConfirm extends StatelessWidget {
                       style: GoogleFonts.inter(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: 35)),
+                          fontSize: Utilities.deviceSizeMultiply / 15)),
                   SizedBox(
                     height: height / 12,
                   ),
@@ -29,11 +30,14 @@ class ActionConfirm extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       SizedBox(
-                          width: 120,
+                          width: width / 3,
                           child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(40, 15, 40, 15),
+                                  padding: EdgeInsets.fromLTRB(
+                                      0,
+                                      Utilities.deviceSizeMultiply / 40,
+                                      0,
+                                      Utilities.deviceSizeMultiply / 40),
                                   primary: Colors.transparent,
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
@@ -53,14 +57,19 @@ class ActionConfirm extends StatelessWidget {
                               child: Text(
                                 lang["No"],
                                 style: GoogleFonts.inter(
-                                    color: MColors.mainColor, fontSize: 16),
+                                    color: MColors.mainColor,
+                                    fontSize:
+                                        Utilities.deviceSizeMultiply / 30),
                               ))),
                       SizedBox(
-                          width: 120,
+                          width: width / 3,
                           child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                padding:
-                                    const EdgeInsets.fromLTRB(40, 15, 40, 15),
+                                padding: EdgeInsets.fromLTRB(
+                                    0,
+                                    Utilities.deviceSizeMultiply / 40,
+                                    0,
+                                    Utilities.deviceSizeMultiply / 40),
                                 primary: MColors.mainColor,
                                 onSurface: Colors.white,
                                 shape: RoundedRectangleBorder(
@@ -71,7 +80,9 @@ class ActionConfirm extends StatelessWidget {
                                 confirmtrue();
                               },
                               child: Text(lang["Yes"],
-                                  style: GoogleFonts.inter(fontSize: 16)))),
+                                  style: GoogleFonts.inter(
+                                      fontSize:
+                                          Utilities.deviceSizeMultiply / 30)))),
                     ],
                   )
                 ],

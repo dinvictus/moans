@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:moans/elements/postitem.dart';
 import 'package:moans/res.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -12,26 +15,28 @@ class Record extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return RecordState();
+    return _RecordState();
   }
 }
 
 late double _height;
 late double _width;
 late final AudioRecorder _audioRecorder = AudioRecorder();
-final TextStyle _textStyleTime =
-    GoogleFonts.inter(color: const Color(0xff878789));
+
+final TextStyle _textStyleTime = GoogleFonts.inter(
+    color: const Color(0xff878789),
+    fontSize: Utilities.deviceSizeMultiply / 40);
 
 class MainRecordItem extends StatefulWidget {
   const MainRecordItem({Key? key}) : super(key: key);
 
   @override
   State<MainRecordItem> createState() {
-    return MainRecordItemState();
+    return _MainRecordItemState();
   }
 }
 
-class MainRecordItemState extends State<MainRecordItem> {
+class _MainRecordItemState extends State<MainRecordItem> {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<Map>(
@@ -48,7 +53,9 @@ class MainRecordItemState extends State<MainRecordItem> {
                 title: Text(
                   lang["Record"],
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(color: Colors.white, fontSize: 20),
+                  style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontSize: Utilities.deviceSizeMultiply / 30),
                 ),
               ),
               body: Container(
@@ -62,12 +69,12 @@ class MainRecordItemState extends State<MainRecordItem> {
                         lang["TapToRecord"],
                         style: GoogleFonts.inter(
                             color: const Color(0xffcfcfd0),
-                            fontSize: _height / 43),
+                            fontSize: Utilities.deviceSizeMultiply / 30),
                       ),
                     ),
                     SizedBox(
-                        height: _height / 5,
-                        width: _height / 5,
+                        height: Utilities.deviceSizeMultiply / 4,
+                        width: Utilities.deviceSizeMultiply / 4,
                         child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                                 padding: const EdgeInsets.all(35),
@@ -83,7 +90,7 @@ class MainRecordItemState extends State<MainRecordItem> {
                             child: Image.asset('assets/items/recordbut.png'))),
                     Container(
                         margin: EdgeInsets.only(top: _height / 20),
-                        height: _height / 17,
+                        height: Utilities.deviceSizeMultiply / 13,
                         child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                                 padding:
@@ -104,18 +111,15 @@ class MainRecordItemState extends State<MainRecordItem> {
                                       type: FileType.custom,
                                       allowedExtensions: ['mp3', 'aac']);
                               if (result != null) {
-                                // File file = File(result.files.single.path!);
                                 _audioRecorder
                                     .loadFile(result.files.single.path!);
-                              } else {
-                                // User canceled the picker
                               }
                             },
                             child: Text(
                               lang["PickLib"],
                               style: GoogleFonts.inter(
                                   color: MColors.mainColor,
-                                  fontSize: _width / 24),
+                                  fontSize: Utilities.deviceSizeMultiply / 35),
                             ))),
                     const Spacer()
                   ],
@@ -130,18 +134,18 @@ class RecordRecordItem extends StatefulWidget {
 
   @override
   State<RecordRecordItem> createState() {
-    return RecordRecordItemState();
+    return _RecordRecordItemState();
   }
 }
 
-class RecordRecordItemState extends State<RecordRecordItem> {
+class _RecordRecordItemState extends State<RecordRecordItem> {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<Map>(
         valueListenable: Utilities.curLang,
         builder: (_, lang, __) {
           return Scaffold(
-              backgroundColor: Colors.transparent,
+              backgroundColor: const Color(0xff0f0f14),
               extendBodyBehindAppBar: true,
               appBar: AppBar(
                 automaticallyImplyLeading: false,
@@ -151,11 +155,14 @@ class RecordRecordItemState extends State<RecordRecordItem> {
                 title: Text(
                   lang["Record"],
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(color: Colors.white, fontSize: 20),
+                  style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontSize: Utilities.deviceSizeMultiply / 30),
                 ),
               ),
               body: Container(
                 padding: EdgeInsets.only(top: _height / 4),
+                margin: EdgeInsets.only(bottom: _height / 9),
                 alignment: Alignment.center,
                 decoration: const BoxDecoration(
                     image: DecorationImage(
@@ -171,27 +178,29 @@ class RecordRecordItemState extends State<RecordRecordItem> {
                           value.curtime.toString().substring(2, 7),
                           style: GoogleFonts.inter(
                               color: const Color(0xffcfcfd0),
-                              fontSize: _height / 10,
+                              fontSize: Utilities.deviceSizeMultiply / 8,
                               fontWeight: FontWeight.bold),
                         );
                       },
                     ),
                     const Spacer(),
+                    SizedBox(height: _height / 7),
                     Text(
                       lang["StopRec"],
                       style: GoogleFonts.inter(
                           color: const Color(0xffcfcfd0),
                           fontWeight: FontWeight.w400,
-                          fontSize: 17),
+                          fontSize: Utilities.deviceSizeMultiply / 30),
                     ),
                     SizedBox(height: _height / 30),
                     SizedBox(
-                        width: _height / 10,
-                        height: _height / 10,
+                        width: Utilities.deviceSizeMultiply / 7,
+                        height: Utilities.deviceSizeMultiply / 7,
                         child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                                 primary: MColors.mainColor,
-                                padding: EdgeInsets.all(_height / 29),
+                                padding: EdgeInsets.all(
+                                    Utilities.deviceSizeMultiply / 20),
                                 shape: RoundedRectangleBorder(
                                     borderRadius:
                                         BorderRadius.circular(100.0))),
@@ -235,7 +244,9 @@ class _PlayRecordItemState extends State<PlayRecordItem> {
                 title: Text(
                   lang["Record"],
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(color: Colors.white, fontSize: 20),
+                  style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontSize: Utilities.deviceSizeMultiply / 30),
                 ),
               ),
               body: Container(
@@ -250,13 +261,14 @@ class _PlayRecordItemState extends State<PlayRecordItem> {
                           value.curtime.toString().substring(2, 7),
                           style: GoogleFonts.inter(
                               color: const Color(0xffcfcfd0),
-                              fontSize: _height / 10,
+                              fontSize: Utilities.deviceSizeMultiply / 9,
                               fontWeight: FontWeight.bold),
                         );
                       },
                     ),
                     Container(
-                      margin: EdgeInsets.fromLTRB(30, _height / 40, 30, 30),
+                      margin: EdgeInsets.fromLTRB(
+                          _width / 13, _height / 35, _width / 13, _height / 27),
                       height: _height / 60,
                       child: ValueListenableBuilder<ProgressBarState>(
                         valueListenable:
@@ -264,10 +276,11 @@ class _PlayRecordItemState extends State<PlayRecordItem> {
                         builder: (_, value, __) {
                           return ProgressBar(
                             thumbColor: Colors.white,
-                            thumbGlowRadius: 20,
-                            thumbRadius: 7,
-                            timeLabelPadding: 10,
+                            thumbGlowRadius: Utilities.deviceSizeMultiply / 40,
+                            thumbRadius: Utilities.deviceSizeMultiply / 85,
+                            timeLabelPadding: Utilities.deviceSizeMultiply / 40,
                             timeLabelTextStyle: _textStyleTime,
+                            barHeight: Utilities.deviceSizeMultiply / 100,
                             bufferedBarColor: const Color(0xff898994),
                             progressBarColor: Colors.white,
                             baseBarColor: const Color(0xff4b4b4f),
@@ -281,8 +294,8 @@ class _PlayRecordItemState extends State<PlayRecordItem> {
                     ),
                     Container(
                       margin: EdgeInsets.fromLTRB(0, 0, 0, _height / 9),
-                      height: 68,
-                      width: 68,
+                      height: Utilities.deviceSizeMultiply / 9,
+                      width: Utilities.deviceSizeMultiply / 9,
                       child: ValueListenableBuilder<ButtonState>(
                         valueListenable:
                             Utilities.managerForRecord.buttonNotifier,
@@ -290,21 +303,27 @@ class _PlayRecordItemState extends State<PlayRecordItem> {
                           switch (value) {
                             case ButtonState.loading:
                               return Container(
-                                  height: 68,
-                                  width: 68,
+                                  height: Utilities.deviceSizeMultiply / 9,
+                                  width: Utilities.deviceSizeMultiply / 9,
                                   padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
                                       color: Colors.white,
                                       borderRadius:
                                           BorderRadius.circular(50.0)),
-                                  child: const CircularProgressIndicator(
+                                  child: CircularProgressIndicator(
+                                    strokeWidth:
+                                        Utilities.deviceSizeMultiply / 150,
                                     color: Colors.black,
                                   ));
                             case ButtonState.paused:
                               return ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                     elevation: 0,
-                                    padding: EdgeInsets.all(_width / 25),
+                                    padding: EdgeInsets.fromLTRB(
+                                        Utilities.deviceSizeMultiply / 30,
+                                        Utilities.deviceSizeMultiply / 35,
+                                        Utilities.deviceSizeMultiply / 35,
+                                        Utilities.deviceSizeMultiply / 35),
                                     primary: Colors.white,
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
@@ -319,7 +338,8 @@ class _PlayRecordItemState extends State<PlayRecordItem> {
                               return ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                     elevation: 0,
-                                    padding: EdgeInsets.all(_width / 25),
+                                    padding: EdgeInsets.all(
+                                        Utilities.deviceSizeMultiply / 30),
                                     primary: Colors.white,
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
@@ -338,8 +358,11 @@ class _PlayRecordItemState extends State<PlayRecordItem> {
                             width: _width / 3,
                             child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.fromLTRB(
-                                        30, 15, 30, 15),
+                                    padding: EdgeInsets.fromLTRB(
+                                        0,
+                                        Utilities.deviceSizeMultiply / 40,
+                                        0,
+                                        Utilities.deviceSizeMultiply / 40),
                                     primary: Colors.transparent,
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
@@ -355,15 +378,20 @@ class _PlayRecordItemState extends State<PlayRecordItem> {
                                       lang["Again"],
                                       style: GoogleFonts.inter(
                                           color: MColors.mainColor,
-                                          fontSize: 15),
+                                          fontSize:
+                                              Utilities.deviceSizeMultiply /
+                                                  38),
                                     )))),
                         SizedBox(
                             width: _width / 3,
                             child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                     primary: MColors.mainColor,
-                                    padding: const EdgeInsets.fromLTRB(
-                                        30, 15, 30, 15),
+                                    padding: EdgeInsets.fromLTRB(
+                                        0,
+                                        Utilities.deviceSizeMultiply / 40,
+                                        0,
+                                        Utilities.deviceSizeMultiply / 40),
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(50.0))),
@@ -372,7 +400,10 @@ class _PlayRecordItemState extends State<PlayRecordItem> {
                                 },
                                 child: FittedBox(
                                     child: Text(lang["Save"],
-                                        style: GoogleFonts.inter())))),
+                                        style: GoogleFonts.inter(
+                                            fontSize:
+                                                Utilities.deviceSizeMultiply /
+                                                    38))))),
                       ],
                     ),
                   ],
@@ -382,8 +413,8 @@ class _PlayRecordItemState extends State<PlayRecordItem> {
   }
 }
 
-class RecordState extends State<Record> with AutomaticKeepAliveClientMixin {
-  final PageController _scrollController = PageController(initialPage: 0);
+class _RecordState extends State<Record> with AutomaticKeepAliveClientMixin {
+  final PageController scrollController = PageController(initialPage: 0);
 
   @override
   void initState() {
@@ -391,9 +422,9 @@ class RecordState extends State<Record> with AutomaticKeepAliveClientMixin {
     _audioRecorder.back();
   }
 
-  _animate(index) {
-    if (_scrollController.hasClients) {
-      _scrollController.animateToPage(index,
+  animate(index) {
+    if (scrollController.hasClients) {
+      scrollController.animateToPage(index,
           duration: const Duration(milliseconds: 300), curve: Curves.ease);
     }
   }
@@ -401,10 +432,9 @@ class RecordState extends State<Record> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    double height = MediaQuery.of(context).size.height;
-    double width = MediaQuery.of(context).size.width;
-    _height = height;
-    _width = width;
+    _height = MediaQuery.of(context).size.height;
+    _width = MediaQuery.of(context).size.width;
+
     return WillPopScope(
       onWillPop: () async {
         switch (pageAudioRecordNotifier.value) {
@@ -426,20 +456,20 @@ class RecordState extends State<Record> with AutomaticKeepAliveClientMixin {
           builder: (_, value, __) {
             switch (value) {
               case AudioRecordState.main:
-                _animate(0);
+                animate(0);
                 break;
               case AudioRecordState.record:
-                _animate(1);
+                animate(1);
                 break;
               case AudioRecordState.playrecord:
-                _animate(2);
+                animate(2);
                 break;
               case AudioRecordState.saverecord:
-                _animate(3);
+                animate(3);
                 break;
             }
             return PageView(
-              controller: _scrollController,
+              controller: scrollController,
               physics: const NeverScrollableScrollPhysics(),
               scrollDirection: Axis.horizontal,
               children: [

@@ -82,7 +82,6 @@ class _SignUpState extends State<SignUp> {
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
-    double textScaleFactor = MediaQuery.of(context).textScaleFactor;
     return Container(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         decoration: const BoxDecoration(
@@ -106,7 +105,7 @@ class _SignUpState extends State<SignUp> {
                   builder: (_, lang, __) {
                     return Column(
                       children: [
-                        SizedBox(height: height / 7),
+                        SizedBox(height: height / 10),
                         Container(
                             alignment: Alignment.topRight,
                             child: Container(
@@ -120,7 +119,8 @@ class _SignUpState extends State<SignUp> {
                                       lang["SignUp"],
                                       style: GoogleFonts.inter(
                                           color: Colors.white,
-                                          fontSize: textScaleFactor * 35,
+                                          fontSize:
+                                              Utilities.deviceSizeMultiply / 18,
                                           fontWeight: FontWeight.bold),
                                     ),
                                   ),
@@ -135,8 +135,9 @@ class _SignUpState extends State<SignUp> {
                                               lang["Email"],
                                               style: GoogleFonts.inter(
                                                   color: getColorErrorEmail(),
-                                                  fontSize:
-                                                      textScaleFactor * 12),
+                                                  fontSize: Utilities
+                                                          .deviceSizeMultiply /
+                                                      40),
                                             ),
                                             Text(
                                               submitter &&
@@ -146,8 +147,9 @@ class _SignUpState extends State<SignUp> {
                                               style: GoogleFonts.inter(
                                                   color:
                                                       const Color(0xffa72627),
-                                                  fontSize:
-                                                      textScaleFactor * 12),
+                                                  fontSize: Utilities
+                                                          .deviceSizeMultiply /
+                                                      40),
                                             ),
                                           ])),
                                   TextField(
@@ -186,8 +188,9 @@ class _SignUpState extends State<SignUp> {
                                             Text(lang["CreatePass"],
                                                 style: GoogleFonts.inter(
                                                     color: getColorPassword(),
-                                                    fontSize:
-                                                        textScaleFactor * 12)),
+                                                    fontSize: Utilities
+                                                            .deviceSizeMultiply /
+                                                        40)),
                                             Text(
                                               submitter && errorTextPass != null
                                                   ? errorTextPass!
@@ -195,8 +198,9 @@ class _SignUpState extends State<SignUp> {
                                               style: GoogleFonts.inter(
                                                   color:
                                                       const Color(0xffa72627),
-                                                  fontSize:
-                                                      textScaleFactor * 12),
+                                                  fontSize: Utilities
+                                                          .deviceSizeMultiply /
+                                                      40),
                                             ),
                                           ])),
                                   TextField(
@@ -229,10 +233,12 @@ class _SignUpState extends State<SignUp> {
                                               style: TextStyle(
                                                   color:
                                                       const Color(0xff878789),
-                                                  fontSize:
-                                                      textScaleFactor * 14,
-                                                  height:
-                                                      textScaleFactor * 1.35),
+                                                  fontSize: Utilities
+                                                          .deviceSizeMultiply /
+                                                      35,
+                                                  height: Utilities
+                                                          .deviceSizeMultiply /
+                                                      350),
                                               text: lang["SignText1"],
                                               children: [
                                             TextSpan(
@@ -259,7 +265,7 @@ class _SignUpState extends State<SignUp> {
                                   Container(height: height / 13),
                                   SizedBox(
                                     width: double.infinity,
-                                    height: height / 15,
+                                    height: height / 16,
                                     child: ElevatedButton(
                                       style: ElevatedButton.styleFrom(
                                         onSurface: Colors.white,
@@ -272,7 +278,9 @@ class _SignUpState extends State<SignUp> {
                                         lang["SignUp"],
                                         style: GoogleFonts.inter(
                                             color: Colors.white,
-                                            fontSize: textScaleFactor * 16),
+                                            fontSize:
+                                                Utilities.deviceSizeMultiply /
+                                                    30),
                                       ),
                                       onPressed: controllerEmail
                                                   .value.text.isNotEmpty &&
@@ -294,8 +302,9 @@ class _SignUpState extends State<SignUp> {
                                               style: GoogleFonts.inter(
                                                   color:
                                                       const Color(0xffcfcfd0),
-                                                  fontSize:
-                                                      textScaleFactor * 15),
+                                                  fontSize: Utilities
+                                                          .deviceSizeMultiply /
+                                                      35),
                                             ),
                                             Container(width: 10),
                                             GestureDetector(
@@ -310,8 +319,9 @@ class _SignUpState extends State<SignUp> {
                                                   lang["login"],
                                                   style: GoogleFonts.inter(
                                                       color: MColors.mainColor,
-                                                      fontSize:
-                                                          textScaleFactor * 15,
+                                                      fontSize: Utilities
+                                                              .deviceSizeMultiply /
+                                                          35,
                                                       decoration: TextDecoration
                                                           .underline),
                                                 ))
