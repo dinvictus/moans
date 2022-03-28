@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:moans/res.dart';
+import 'package:moans/utils/utilities.dart';
 
 class ActionConfirm extends StatelessWidget {
   final Function() confirmtrue;

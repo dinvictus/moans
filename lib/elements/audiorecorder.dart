@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:moans/res.dart';
+import 'package:moans/utils/utilities.dart';
 import 'package:record/record.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -35,8 +35,6 @@ class AudioRecorder {
         status == PermissionStatus.limited) {
       _audioRecorder = Record();
       _isInitialize = true;
-    } else {
-      // Нет разрешения
     }
   }
 
@@ -70,16 +68,20 @@ class AudioRecorder {
         if (await _audioRecorder.isRecording()) {
           _audioRecorder.stop();
         }
-        if (timeNotifier.value.curtime != Duration.zero && !_isFile) {
-          _timer.cancel();
-        }
-        _isFile = false;
-        timeNotifier.value = TimeRecordState(Duration.zero);
+        clearTimer();
         pageAudioRecordNotifier.value = AudioRecordState.main;
       }
     } catch (e) {
-      print(e);
+      Utilities.showToast(Utilities.curLang.value["Error"]);
     }
+  }
+
+  clearTimer() {
+    if (timeNotifier.value.curtime != Duration.zero && !_isFile) {
+      _timer.cancel();
+    }
+    _isFile = false;
+    timeNotifier.value = TimeRecordState(Duration.zero);
   }
 
   backSave() {
@@ -92,6 +94,7 @@ class AudioRecorder {
       init();
     } else {
       if (_isInitialize && !await _audioRecorder.isRecording()) {
+        clearTimer();
         Utilities.isPlaying.value = Utilities.isPlaying.value ? false : true;
         pageAudioRecordNotifier.value = AudioRecordState.record;
         _audioRecorder.start();

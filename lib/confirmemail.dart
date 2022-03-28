@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:moans/utils/server.dart';
 import 'mainscreen.dart';
-import 'res.dart';
+import 'package:moans/utils/utilities.dart';
 import 'elements/dropbutton.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -103,10 +104,12 @@ class ConfirmEmail extends StatelessWidget {
                                                       const MainScreen()));
                                           break;
                                         case 404:
-                                          // Ошибка подключения к серверу
+                                          Utilities.showToast(Utilities
+                                              .curLang.value["ServerError"]);
                                           break;
                                         default:
-                                          // Ошибка
+                                          Utilities.showToast(
+                                              Utilities.curLang.value["Error"]);
                                           break;
                                       }
                                     }

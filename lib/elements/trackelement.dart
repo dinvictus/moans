@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:moans/elements/postitem.dart';
-import 'package:moans/res.dart';
+import 'package:moans/utils/utilities.dart';
 
 class TrackElement extends StatefulWidget {
   final List<String> trackNames;
@@ -57,17 +57,17 @@ class _TrackElementState extends State<TrackElement> {
     switch (trackStatus) {
       case Statuses.draft:
         imageStatus = Image.asset("assets/items/doc.png",
-            scale: 1000 / Utilities.deviceSizeMultiply);
+            scale: 1400 / Utilities.deviceSizeMultiply);
         break;
       case Statuses.publish:
         imageStatus = Image.asset("assets/items/ok.png",
             scale: 1000 / Utilities.deviceSizeMultiply);
         break;
       case Statuses.banned:
-        // TODO: Handle this case.
+        //  Handle this case.
         break;
       case Statuses.deleted:
-        // TODO: Handle this case.
+        //  Handle this case.
         break;
     }
     Widget trackElement = Container(

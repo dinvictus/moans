@@ -2,7 +2,8 @@ import 'dart:async';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:moans/elements/shimmer.dart';
-import '../res.dart';
+import 'package:moans/utils/server.dart';
+import 'package:moans/utils/utilities.dart';
 import 'audiomanager.dart';
 import 'tag.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -90,6 +91,16 @@ class _AudioItemState extends State<AudioItem>
       };
       Server.likeRequest(forLike);
     }
+  }
+
+  String getLikeString(int countLikes) {
+    if (countLikes > 1000000) {
+      return (countLikes ~/ 1000000).toString() + "M";
+    }
+    if (countLikes > 1000) {
+      return (countLikes ~/ 1000).toString() + "k";
+    }
+    return countLikes.toString();
   }
 
   share() async {}
@@ -318,7 +329,9 @@ class _AudioItemState extends State<AudioItem>
                                                       Utilities.audioHandler
                                                           .play();
                                                     } catch (e) {
-                                                      print("error");
+                                                      Utilities.showToast(
+                                                          Utilities.curLang
+                                                              .value["Error"]);
                                                     }
                                                   },
                                                 );
@@ -419,7 +432,7 @@ class _AudioItemState extends State<AudioItem>
                                                   widget.countLikesNotifier,
                                               builder: (_, likesCount, __) {
                                                 return Text(
-                                                    likesCount.toString(),
+                                                    getLikeString(likesCount),
                                                     style: textStyleLS);
                                               });
                                     }),

@@ -3,7 +3,8 @@ import 'package:moans/changelanguage.dart';
 import 'package:moans/elements/audiorecorder.dart';
 import 'package:moans/elements/savetag.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../res.dart';
+import 'package:moans/utils/server.dart';
+import 'package:moans/utils/utilities.dart';
 
 class PostItem extends StatefulWidget {
   final Function() back;
@@ -26,6 +27,7 @@ class _PostItemState extends State<PostItem> {
       ValueNotifier<Languages>(Utilities.currentLanguage);
   late Voices currentVoice;
   late final List<String> listTags;
+  Statuses curStatus = Statuses.publish;
   bool she = true;
   bool he = true;
   bool they = true;
@@ -71,22 +73,42 @@ class _PostItemState extends State<PostItem> {
     int statusCodeEdit = await Server.editTrackInfo(editTrackInfo, context);
     switch (statusCodeEdit) {
       case 200:
-        // Редактирование завершено успешно
+        Utilities.showToast(Utilities.curLang.value["ToastEditTrack"]);
         widget.back();
         break;
       case 306:
-        // У вас уже существует трек с таким именем
+        Utilities.showToast(Utilities.curLang.value["AlreadyHaveTitle"]);
         break;
       case 404:
-        // Ошибка подключения к серверу
+        Utilities.showToast(Utilities.curLang.value["ServerError"]);
         break;
       default:
-        // Ошибка
+        Utilities.showToast(Utilities.curLang.value["Error"]);
         break;
     }
   }
 
-  toDraftTrack() async {}
+  toPublishTrack() async {
+    int statusCodeToDraft = await Server.changeTrackStatus(
+        widget.trackId, Statuses.publish, context);
+    if (statusCodeToDraft == 200) {
+      Utilities.showToast(Utilities.curLang.value["ToastPostTrack"]);
+      widget.back();
+    } else {
+      Utilities.showToast(Utilities.curLang.value["ServerError"]);
+    }
+  }
+
+  toDraftTrack() async {
+    int statusCodeToDraft =
+        await Server.changeTrackStatus(widget.trackId, Statuses.draft, context);
+    if (statusCodeToDraft == 200) {
+      Utilities.showToast(Utilities.curLang.value["ToastDraftTrack"]);
+      widget.back();
+    } else {
+      Utilities.showToast(Utilities.curLang.value["ServerError"]);
+    }
+  }
 
   postTrack() async {
     String tags = "";
@@ -104,35 +126,53 @@ class _PostItemState extends State<PostItem> {
     };
     int statusCodeUpload =
         await Server.uploadTrack(uploadTrackInfo, widget.pathToFile, context);
-    if (statusCodeUpload == 201) {
-      pageAudioRecordNotifier.value = AudioRecordState.main;
-      widget.back();
-      // Успешно загружено
-    } else {
-      // Ошибка подключения к серверу
+    switch (statusCodeUpload) {
+      case 201:
+        Utilities.showToast(Utilities.curLang.value["ToastPostTrack"]);
+        FocusManager.instance.primaryFocus?.unfocus();
+        pageAudioRecordNotifier.value = AudioRecordState.main;
+        break;
+      case 306:
+        Utilities.showToast(Utilities.curLang.value["AlreadyHaveTitle"]);
+        break;
+      case 404:
+        Utilities.showToast(Utilities.curLang.value["ServerError"]);
+        break;
+      default:
+        Utilities.showToast(Utilities.curLang.value["Error"]);
     }
   }
 
   changeTagsCount(int count) {
     tagsCountForSave.value = count;
+    setState(() {});
+  }
+
+  bool getTrueInfo() {
+    return titleController.text.isNotEmpty &&
+        descController.text.isNotEmpty &&
+        listTags.isNotEmpty;
   }
 
   ElevatedButton getButton(Function() func, String text) {
     return ElevatedButton(
         style: ElevatedButton.styleFrom(
+            onSurface: Colors.white,
             primary: MColors.mainColor,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(50.0))),
-        onPressed: func,
-        child: Text(text,
-            style: GoogleFonts.inter(
-                fontSize: Utilities.deviceSizeMultiply / 35,
-                fontWeight: FontWeight.w500)));
+        onPressed: func == toDraftTrack ? func : (getTrueInfo() ? func : null),
+        child: FittedBox(
+            child: Text(text,
+                style: GoogleFonts.inter(
+                    fontSize: Utilities.deviceSizeMultiply / 35,
+                    fontWeight: FontWeight.w500))));
   }
 
   changeLanguage(Languages language) {
-    curLanguage.value = language;
-    setState(() {});
+    setState(() {
+      curLanguage.value = language;
+    });
   }
 
   loadingTrackInfo() async {
@@ -147,6 +187,8 @@ class _PostItemState extends State<PostItem> {
             Languages.values.elementAt(trackEditInfo["language_id"]);
         currentVoice =
             Voices.values.elementAt(int.parse(trackEditInfo["voice"]));
+        curStatus =
+            Statuses.values.elementAt(int.parse(trackEditInfo["status"]));
         descLength.value = descController.text.length;
         titleLength.value = titleController.text.length;
         tagsCountForSave.value = listTags.length;
@@ -166,7 +208,7 @@ class _PostItemState extends State<PostItem> {
           isLoading = false;
         });
       } else {
-        // Ошибка подключения к серверу
+        Utilities.showToast(Utilities.curLang.value["ServerError"]);
         Navigator.pop(context);
       }
     });
@@ -268,6 +310,7 @@ class _PostItemState extends State<PostItem> {
                       TextField(
                           controller: titleController,
                           onChanged: (value) {
+                            setState(() {});
                             if (value.length >= 31) {
                               titleLength.value = 30;
                               titleController.text =
@@ -279,7 +322,7 @@ class _PostItemState extends State<PostItem> {
                               titleLength.value = value.length;
                             }
                           },
-                          decoration: inputDecoration("Track name"),
+                          decoration: inputDecoration(lang["TrackName"]),
                           style: GoogleFonts.inter(color: Colors.white)),
                       SizedBox(height: height / 35),
                       Row(
@@ -304,6 +347,7 @@ class _PostItemState extends State<PostItem> {
                       TextField(
                         controller: descController,
                         onChanged: (value) {
+                          setState(() {});
                           if (value.length >= 151) {
                             descController.text =
                                 descController.text.substring(0, 150);
@@ -471,8 +515,11 @@ class _PostItemState extends State<PostItem> {
                                     SizedBox(
                                         width: width / 3,
                                         height: height / 16,
-                                        child: getButton(() => toDraftTrack(),
-                                            lang["ToDraft"]))
+                                        child: curStatus == Statuses.publish
+                                            ? getButton(() => toDraftTrack(),
+                                                lang["ToDraft"])
+                                            : getButton(() => toPublishTrack(),
+                                                lang["SavePost"]))
                                   ],
                                 )
                               : SizedBox(
@@ -480,7 +527,7 @@ class _PostItemState extends State<PostItem> {
                                   height: height / 16,
                                   child: getButton(
                                       () => postTrack(), lang["SavePost"]))),
-                      SizedBox(height: height / 8)
+                      SizedBox(height: height / 10)
                     ],
                   ))));
         });

@@ -4,8 +4,9 @@ import 'package:moans/elements/dropbutton.dart';
 import 'package:moans/elements/shimmer.dart';
 import 'package:moans/elements/trackelement.dart';
 import 'package:moans/login.dart';
-import 'package:moans/res.dart';
+import 'package:moans/utils/utilities.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:moans/utils/server.dart';
 
 class Profile extends StatefulWidget {
   const Profile({Key? key}) : super(key: key);
@@ -94,7 +95,7 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
         initVoice();
       });
     } else {
-      // Ошибка подключения к серверу
+      Utilities.showToast(Utilities.curLang.value["ServerError"]);
     }
   }
 
@@ -148,7 +149,7 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                 ),
               ),
               body: Container(
-                  padding: EdgeInsets.fromLTRB(20, height / 7, 20, 0),
+                  padding: EdgeInsets.fromLTRB(20, height / 7, 20, height / 10),
                   alignment: Alignment.topLeft,
                   decoration: const BoxDecoration(
                       image: DecorationImage(
@@ -174,32 +175,38 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                                     color: Colors.white,
                                     fontSize: Utilities.deviceSizeMultiply / 22,
                                     fontWeight: FontWeight.bold)),
-                            SizedBox(height: height / 40),
-                            GestureDetector(
-                                onTap: () {
-                                  if (!isLoading.value) {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const ChangePassword()));
-                                  }
-                                },
-                                child: Text(lang["ChangePas"],
-                                    style: GoogleFonts.inter(
-                                        color: MColors.mainColor,
-                                        fontSize:
-                                            Utilities.deviceSizeMultiply / 38,
-                                        decoration: TextDecoration.underline))),
+                            !Utilities.isGoogleSignUp
+                                ? SizedBox(height: height / 40)
+                                : const SizedBox(),
+                            !Utilities.isGoogleSignUp
+                                ? GestureDetector(
+                                    onTap: () {
+                                      if (!isLoading.value) {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const ChangePassword()));
+                                      }
+                                    },
+                                    child: Text(lang["ChangePas"],
+                                        style: GoogleFonts.inter(
+                                            color: MColors.mainColor,
+                                            fontSize:
+                                                Utilities.deviceSizeMultiply /
+                                                    38,
+                                            decoration:
+                                                TextDecoration.underline)))
+                                : const SizedBox(),
                             SizedBox(height: height / 55),
                             GestureDetector(
                                 onTap: () {
                                   if (!isLoading.value) {
-                                    Navigator.push(
+                                    Navigator.pushAndRemoveUntil(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) =>
-                                                const LogIn()));
+                                            builder: (_) => const LogIn()),
+                                        (route) => false);
                                     Utilities.logOut();
                                   }
                                 },

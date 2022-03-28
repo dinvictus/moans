@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moans/changelanguage.dart';
-import 'package:moans/res.dart';
+import 'package:moans/utils/utilities.dart';
 
 class MyDropButton extends StatefulWidget {
   const MyDropButton({Key? key}) : super(key: key);

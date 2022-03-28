@@ -2,7 +2,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:moans/login.dart';
-import 'res.dart';
+import 'package:moans/utils/server.dart';
+import 'package:moans/utils/utilities.dart';
 import 'elements/dropbutton.dart';
 import 'confirmemail.dart';
 
@@ -18,12 +19,16 @@ class SignUp extends StatefulWidget {
 class _SignUpState extends State<SignUp> {
   final controllerEmail = TextEditingController();
   final controllerPass = TextEditingController();
+  String? errorPassText;
+  String? errorEmailText;
   bool submitter = false;
   submit() async {
     setState(() {
       submitter = true;
+      errorTextEmail();
+      errorTextPass();
     });
-    if (errorTextEmail == null && errorTextPass == null) {
+    if (errorEmailText == null && errorPassText == null) {
       int statusCodeSignup = await Server.signUp(
           controllerEmail.value.text, controllerPass.value.text, context);
       switch (statusCodeSignup) {
@@ -34,11 +39,16 @@ class _SignUpState extends State<SignUp> {
                   builder: (context) =>
                       ConfirmEmail(controllerEmail.text, controllerPass.text)));
           break;
+        case 306:
+          setState(() {
+            errorEmailText = Utilities.curLang.value["UserAlreadyExists"];
+          });
+          break;
         case 404:
-          // Ошибка подключения к серверу
+          Utilities.showToast(Utilities.curLang.value["ServerError"]);
           break;
         default:
-          // Ошибка
+          Utilities.showToast(Utilities.curLang.value["Error"]);
           break;
       }
     }
@@ -51,30 +61,32 @@ class _SignUpState extends State<SignUp> {
     super.dispose();
   }
 
-  String? get errorTextEmail {
+  errorTextEmail() {
     final text = controllerEmail.value.text.toString();
     if (!text.contains("@") || !text.contains(".")) {
-      return Utilities.curLang.value["EmailNotCorrect"];
+      errorEmailText = Utilities.curLang.value["EmailNotCorrect"];
+    } else {
+      errorEmailText = null;
     }
-    return null;
   }
 
-  String? get errorTextPass {
+  errorTextPass() {
     final text = controllerPass.value.text.toString();
-    if (text.length <= 8) {
-      return Utilities.curLang.value["ShortPass"];
+    if (text.length < 8) {
+      errorPassText = Utilities.curLang.value["ShortPass"];
+    } else {
+      errorPassText = null;
     }
-    return null;
   }
 
   Color getColorErrorEmail() {
-    return submitter && errorTextEmail != null
+    return submitter && errorEmailText != null
         ? const Color(0xffa72627)
         : Colors.white;
   }
 
   Color getColorPassword() {
-    return submitter && errorTextPass != null
+    return submitter && errorPassText != null
         ? const Color(0xffa72627)
         : Colors.white;
   }
@@ -141,8 +153,8 @@ class _SignUpState extends State<SignUp> {
                                             ),
                                             Text(
                                               submitter &&
-                                                      errorTextEmail != null
-                                                  ? errorTextEmail!
+                                                      errorEmailText != null
+                                                  ? errorEmailText!
                                                   : "",
                                               style: GoogleFonts.inter(
                                                   color:
@@ -170,7 +182,7 @@ class _SignUpState extends State<SignUp> {
                                       hintStyle: const TextStyle(
                                           color: Color(0xff878789)),
                                       errorText:
-                                          submitter ? errorTextEmail : null,
+                                          submitter ? errorEmailText : null,
                                       errorStyle: const TextStyle(
                                           fontSize: 0, height: 0),
                                     ),
@@ -192,8 +204,8 @@ class _SignUpState extends State<SignUp> {
                                                             .deviceSizeMultiply /
                                                         40)),
                                             Text(
-                                              submitter && errorTextPass != null
-                                                  ? errorTextPass!
+                                              submitter && errorPassText != null
+                                                  ? errorPassText!
                                                   : "",
                                               style: GoogleFonts.inter(
                                                   color:
@@ -217,7 +229,7 @@ class _SignUpState extends State<SignUp> {
                                             BorderSide(color: Colors.white),
                                       ),
                                       errorText:
-                                          submitter ? errorTextPass : null,
+                                          submitter ? errorPassText : null,
                                       errorStyle: const TextStyle(
                                           fontSize: 0, height: 0),
                                     ),

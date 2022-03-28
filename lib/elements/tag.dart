@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:moans/res.dart';
+import 'package:moans/utils/utilities.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class TagItem extends StatefulWidget {

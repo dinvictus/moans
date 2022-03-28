@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:moans/res.dart';
+import 'package:moans/utils/utilities.dart';
 import 'feed.dart';
 import 'record.dart';
 import 'profile.dart';
@@ -8,20 +8,29 @@ class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() {
-    return MainScreenState();
+  State<MainScreen> createState() {
+    return _MainScreenState();
   }
 }
 
 int _selectionIndex = 0;
 
-class MainScreenState extends State<MainScreen> {
-  PageController controller = PageController();
-  void onItemTapped(int index) {
-    setState(() {
-      _selectionIndex = index;
-      controller.animateToPage(index,
-          duration: const Duration(milliseconds: 250), curve: Curves.ease);
+class _MainScreenState extends State<MainScreen> {
+  final PageController controller = PageController();
+  bool isAnimated = false;
+  Future<void> onItemTapped(int index) async {
+    isAnimated = true;
+    _selectionIndex = index;
+    await controller.animateToPage(index,
+        duration: const Duration(milliseconds: 250), curve: Curves.ease);
+    isAnimated = false;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    Utilities.logout.addListener(() {
+      _selectionIndex = 0;
     });
   }
 
@@ -31,27 +40,25 @@ class MainScreenState extends State<MainScreen> {
     precacheImage(const AssetImage("assets/items/recordon.png"), context);
     precacheImage(const AssetImage("assets/items/profileon.png"), context);
     precacheImage(const AssetImage("assets/items/feedoff.png"), context);
+    precacheImage(const AssetImage("assets/items/pause.png"), context);
+    precacheImage(const AssetImage("assets/items/likeon.png"), context);
+    precacheImage(const AssetImage("assets/back/backrecord.png"), context);
     return Scaffold(
         extendBody: true,
         backgroundColor: const Color(0xff000014),
         body: PageView(
+          physics: const ClampingScrollPhysics(),
           controller: controller,
           scrollDirection: Axis.horizontal,
           onPageChanged: (value) {
             setState(() {
               FocusManager.instance.primaryFocus?.unfocus();
-              if (value == 0) {
-                _selectionIndex = 0;
-              }
-              if (value == 1) {
-                _selectionIndex = 1;
-              }
-              if (value == 2) {
-                _selectionIndex = 2;
+              if (!isAnimated) {
+                _selectionIndex = value;
               }
             });
           },
-          children: [
+          children: const [
             Feed(),
             Record(),
             Profile(),

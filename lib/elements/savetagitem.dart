@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../res.dart';
+import 'package:moans/utils/utilities.dart';
 
 class SaveTagItem extends StatelessWidget {
   final String text;

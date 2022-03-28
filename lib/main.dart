@@ -1,18 +1,16 @@
 import 'dart:math';
-
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:moans/login.dart';
 import 'package:moans/mainscreen.dart';
 import 'elements/audiomanager.dart';
-import 'res.dart';
+import 'package:moans/utils/utilities.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'elements/dropbutton.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter/services.dart';
 
 Future<void> main() async {
-  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  WidgetsFlutterBinding.ensureInitialized();
   await Utilities.init();
   Utilities.managerForRecord = AudioManager("", "Record", 0);
   Utilities.handlers.add(Utilities.managerForRecord);
@@ -23,8 +21,10 @@ Future<void> main() async {
           androidNotificationChannelId: 'com.ryanheise.myapp.channel.audio',
           androidNotificationChannelName: 'Audio playback',
           androidNotificationOngoing: true));
-  FlutterNativeSplash.remove();
-  runApp(const Moans());
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+      .then((_) {
+    runApp(const Moans());
+  });
 }
 
 class Moans extends StatelessWidget {
@@ -128,8 +128,7 @@ class _ConfirmAgeState extends State<ConfirmAge> {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) =>
-                                            const LogIn())); // Заменить на Login
+                                        builder: (context) => const LogIn()));
                               },
                             ),
                           ),

@@ -8,7 +8,6 @@
 import 'package:audio_service_web/audio_service_web.dart';
 import 'package:audio_session/audio_session_web.dart';
 import 'package:file_picker/_internal/file_picker_web.dart';
-import 'package:flutter_facebook_auth_web/flutter_facebook_auth_web.dart';
 import 'package:flutter_native_splash/flutter_native_splash_web.dart';
 import 'package:fluttertoast/fluttertoast_web.dart';
 import 'package:google_sign_in_web/google_sign_in_web.dart';
@@ -23,7 +22,6 @@ void registerPlugins(Registrar registrar) {
   AudioServiceWeb.registerWith(registrar);
   AudioSessionWeb.registerWith(registrar);
   FilePickerWeb.registerWith(registrar);
-  FlutterFacebookAuthPlugin.registerWith(registrar);
   FlutterNativeSplashWeb.registerWith(registrar);
   FluttertoastWebPlugin.registerWith(registrar);
   GoogleSignInPlugin.registerWith(registrar);

@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
 import 'package:moans/actionconfirm.dart';
-import 'package:moans/res.dart';
+import 'package:moans/utils/utilities.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:moans/utils/server.dart';
 
 class ChangePassword extends StatefulWidget {
   const ChangePassword({Key? key}) : super(key: key);
@@ -14,15 +14,18 @@ class ChangePassword extends StatefulWidget {
 class _ChangePasswordState extends State<ChangePassword> {
   final TextEditingController controllerOldPassword = TextEditingController();
   final TextEditingController controllerNewPassword = TextEditingController();
-  final ValueNotifier<String?> erTextOldPass = ValueNotifier<String?>(null);
+  String? erTextOldPass;
+  String? erTextNewPass;
   bool _submitter = false;
 
   Future<void> _submit() async {
-    _errorTextOldPassword();
+    errorTextOldPassword();
     setState(() {
       _submitter = true;
+      errorTextNewPassword();
+      errorTextOldPassword();
     });
-    if (_errorTextNewPassword == null && erTextOldPass.value == null) {
+    if (erTextNewPass == null && erTextOldPass == null) {
       Navigator.push(
           context,
           MaterialPageRoute(
@@ -36,25 +39,23 @@ class _ChangePasswordState extends State<ChangePassword> {
       "password": controllerOldPassword.text,
       "new_password": controllerNewPassword.text
     };
-    Utilities.showLoadingScreen(context);
-    int statusCodePass = await Server.changePassword(userPasss);
-    Navigator.of(context).pop();
+    int statusCodePass = await Server.changePassword(userPasss, context);
     switch (statusCodePass) {
       case 200:
-        Fluttertoast.showToast(msg: "Пароль успешно изменён!");
+        Utilities.showToast(Utilities.curLang.value["ToastChangePass"]);
         FocusManager.instance.primaryFocus?.unfocus();
         Navigator.of(context).pop();
         break;
       case 403:
         setState(() {
-          erTextOldPass.value = Utilities.curLang.value["OldPassMatch"];
+          erTextOldPass = Utilities.curLang.value["OldPassMatch"];
         });
         break;
       case 404:
-        // Ошибка подключения к серверу
+        Utilities.showToast(Utilities.curLang.value["ServerError"]);
         break;
       default:
-        // Ошибка
+        Utilities.showToast(Utilities.curLang.value["Error"]);
         break;
     }
   }
@@ -66,22 +67,32 @@ class _ChangePasswordState extends State<ChangePassword> {
     super.dispose();
   }
 
-  _errorTextOldPassword() {
-    erTextOldPass.value = null;
+  errorTextOldPassword() {
+    final text = controllerOldPassword.value.text.toString();
+    if (text.length < 8) {
+      erTextOldPass = Utilities.curLang.value["ShortPass"];
+    } else {
+      erTextOldPass = null;
+    }
   }
 
-  String? get _errorTextNewPassword {
-    return null;
+  errorTextNewPassword() {
+    final text = controllerNewPassword.value.text.toString();
+    if (text.length < 8) {
+      return Utilities.curLang.value["ShortPass"];
+    } else {
+      erTextNewPass = null;
+    }
   }
 
-  Color _getColorErrorOldPassword() {
-    return _submitter && erTextOldPass.value != null
+  Color getColorErrorOldPassword() {
+    return _submitter && erTextOldPass != null
         ? const Color(0xffa72627)
         : Colors.white;
   }
 
-  Color _getColorErrorNewPassword() {
-    return _submitter && _errorTextNewPassword != null
+  Color getColorErrorNewPassword() {
+    return _submitter && erTextNewPass != null
         ? const Color(0xffa72627)
         : Colors.white;
   }
@@ -164,54 +175,44 @@ class _ChangePasswordState extends State<ChangePassword> {
                                       Text(
                                         lang["OldPass"],
                                         style: GoogleFonts.inter(
-                                            color: _getColorErrorOldPassword(),
+                                            color: getColorErrorOldPassword(),
                                             fontSize:
                                                 Utilities.deviceSizeMultiply /
                                                     41),
                                       ),
-                                      ValueListenableBuilder<String?>(
-                                        valueListenable: erTextOldPass,
-                                        builder: (_, value, __) {
-                                          return Text(
-                                            _submitter && value != null
-                                                ? value
-                                                : "",
-                                            style: GoogleFonts.inter(
-                                                color: const Color(0xffa72627),
-                                                fontSize: Utilities
-                                                        .deviceSizeMultiply /
+                                      Text(
+                                        _submitter && erTextOldPass != null
+                                            ? erTextOldPass!
+                                            : "",
+                                        style: GoogleFonts.inter(
+                                            color: const Color(0xffa72627),
+                                            fontSize:
+                                                Utilities.deviceSizeMultiply /
                                                     41),
-                                          );
-                                        },
                                       )
                                     ])),
-                            ValueListenableBuilder<String?>(
-                                valueListenable: erTextOldPass,
-                                builder: (_, value, __) {
-                                  return TextField(
-                                    controller: controllerOldPassword,
-                                    style: TextStyle(
-                                        color: _getColorErrorOldPassword()),
-                                    autofocus: true,
-                                    obscureText: true,
-                                    decoration: InputDecoration(
-                                      enabledBorder: const UnderlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: Color(0xff878789)),
-                                      ),
-                                      focusedBorder: const UnderlineInputBorder(
-                                        borderSide:
-                                            BorderSide(color: Colors.white),
-                                      ),
-                                      errorText: _submitter ? value : null,
-                                      errorStyle: const TextStyle(
-                                          fontSize: 0, height: 0),
-                                    ),
-                                    onChanged: (_) => setState(() {
-                                      _submitter = false;
-                                    }),
-                                  );
-                                }),
+                            TextField(
+                              controller: controllerOldPassword,
+                              style:
+                                  TextStyle(color: getColorErrorOldPassword()),
+                              autofocus: true,
+                              obscureText: true,
+                              decoration: InputDecoration(
+                                enabledBorder: const UnderlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Color(0xff878789)),
+                                ),
+                                focusedBorder: const UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white),
+                                ),
+                                errorText: _submitter ? erTextOldPass : null,
+                                errorStyle:
+                                    const TextStyle(fontSize: 0, height: 0),
+                              ),
+                              onChanged: (_) => setState(() {
+                                _submitter = false;
+                              }),
+                            ),
                             Container(
                                 height: height / 21,
                                 alignment: Alignment.bottomLeft,
@@ -221,15 +222,13 @@ class _ChangePasswordState extends State<ChangePassword> {
                                     children: [
                                       Text(lang["NewPass"],
                                           style: GoogleFonts.inter(
-                                              color:
-                                                  _getColorErrorNewPassword(),
+                                              color: getColorErrorNewPassword(),
                                               fontSize:
                                                   Utilities.deviceSizeMultiply /
                                                       41)),
                                       Text(
-                                        _submitter &&
-                                                _errorTextNewPassword != null
-                                            ? _errorTextNewPassword!
+                                        _submitter && erTextNewPass != null
+                                            ? erTextNewPass!
                                             : "",
                                         style: GoogleFonts.inter(
                                             color: const Color(0xffa72627),
@@ -242,7 +241,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                               controller: controllerNewPassword,
                               obscureText: true,
                               style:
-                                  TextStyle(color: _getColorErrorNewPassword()),
+                                  TextStyle(color: getColorErrorNewPassword()),
                               decoration: InputDecoration(
                                 enabledBorder: const UnderlineInputBorder(
                                   borderSide:
@@ -251,8 +250,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                                 focusedBorder: const UnderlineInputBorder(
                                   borderSide: BorderSide(color: Colors.white),
                                 ),
-                                errorText:
-                                    _submitter ? _errorTextNewPassword : null,
+                                errorText: _submitter ? erTextNewPass : null,
                                 errorStyle:
                                     const TextStyle(fontSize: 0, height: 0),
                               ),

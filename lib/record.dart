@@ -1,10 +1,7 @@
-import 'dart:math';
-
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:moans/elements/postitem.dart';
-import 'package:moans/res.dart';
+import 'package:moans/utils/utilities.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'elements/audiomanager.dart';
 import 'elements/audiorecorder.dart';
@@ -205,7 +202,9 @@ class _RecordRecordItemState extends State<RecordRecordItem> {
                                     borderRadius:
                                         BorderRadius.circular(100.0))),
                             onPressed: () {
-                              _audioRecorder.toggleRecording();
+                              if (_audioRecorder.isRecording) {
+                                _audioRecorder.toggleRecording();
+                              }
                             },
                             child: Container(
                               color: Colors.white,

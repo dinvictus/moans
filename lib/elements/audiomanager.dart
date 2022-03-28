@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:moans/res.dart';
+import 'package:moans/utils/utilities.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -13,10 +13,6 @@ extension DemoAudioHandler on AudioHandler {
     await Utilities.audioHandler
         .customAction('switchToHandler', <String, dynamic>{'index': index});
   }
-}
-
-extension AudioHandlerExtension on AudioHandler {
-  Future<void> dispose() => customAction('dispose');
 }
 
 class CustomEvent {
@@ -62,18 +58,13 @@ class AudioManager extends BaseAudioHandler with SeekHandler {
       total: Duration.zero,
     ),
   );
+
   final buttonNotifier = ValueNotifier<ButtonState>(ButtonState.paused);
-
   String? url;
-
   final String title;
-
   late MediaItem _source;
-
   final int _indexPage;
-
   bool initNoti = false;
-
   bool initDuration = false;
 
   late AudioPlayer _audioPlayer;
@@ -85,10 +76,9 @@ class AudioManager extends BaseAudioHandler with SeekHandler {
   setUR(String? ur) async {
     url = ur;
     try {
-      // await _audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(url!)));
       await _audioPlayer.setUrl(url!);
     } catch (e) {
-      // Не удалось найти файл, попробуйте записать снова, или он слишком короткий
+      Utilities.showToast(Utilities.curLang.value["Error"]);
     }
   }
 
@@ -130,11 +120,14 @@ class AudioManager extends BaseAudioHandler with SeekHandler {
 
   _init() async {
     _audioPlayer = AudioPlayer();
+    buttonNotifier.value = ButtonState.loading;
     try {
-      buttonNotifier.value = ButtonState.loading;
-      // await _audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(url!)));
-      await _audioPlayer.setUrl(url!);
-    } catch (e) {}
+      if (url != "") {
+        await _audioPlayer.setUrl(url!);
+      }
+    } catch (e) {
+      Utilities.showToast(Utilities.curLang.value["Error"]);
+    }
     _audioPlayer.playerStateStream.listen((playerState) {
       final isPlaying = playerState.playing;
       final processingState = playerState.processingState;

@@ -1,11 +1,12 @@
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:moans/elements/dropbutton.dart';
 import 'package:moans/mainscreen.dart';
 import 'package:moans/signup.dart';
-import 'res.dart';
+import 'package:moans/utils/server.dart';
+import 'package:moans/utils/utilities.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'signup.dart';
+import 'dart:io' show Platform;
 
 class LogIn extends StatefulWidget {
   const LogIn({Key? key}) : super(key: key);
@@ -20,30 +21,35 @@ class _LogInState extends State<LogIn> {
   final controllerEmail = TextEditingController();
   final controllerPass = TextEditingController();
   bool _submitter = false;
+  String? errorPassText;
+  String? errorEmailText;
   submit() async {
     setState(() {
       _submitter = true;
+      errorTextEmail();
+      errorTextPass();
     });
-    if (Utilities.isConnectedToServer) {
-      if (errorTextEmail == null && errorTextPass == null) {
-        int statusCodeLogin = await Server.logIn(
-            controllerEmail.value.text, controllerPass.value.text, context);
-        switch (statusCodeLogin) {
-          case 200:
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const MainScreen()));
-            break;
-          case 404:
-            // Ошибка подключения к серверу
-            break;
-          default:
-            // Ошибка
-            break;
-        }
+    if (errorEmailText == null && errorPassText == null) {
+      int statusCodeLogin = await Server.logIn(
+          controllerEmail.value.text, controllerPass.value.text, context);
+      switch (statusCodeLogin) {
+        case 200:
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const MainScreen()));
+          break;
+        case 401:
+          setState(() {
+            errorEmailText = Utilities.curLang.value["InvalidUser"];
+            errorPassText = Utilities.curLang.value["InvalidUser"];
+          });
+          break;
+        case 404:
+          Utilities.showToast(Utilities.curLang.value["ServerError"]);
+          break;
+        default:
+          Utilities.showToast(Utilities.curLang.value["Error"]);
+          break;
       }
-    } else {
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => const MainScreen()));
     }
   }
 
@@ -54,58 +60,79 @@ class _LogInState extends State<LogIn> {
     super.dispose();
   }
 
-  String? get errorTextEmail {
+  errorTextEmail() {
     final text = controllerEmail.value.text.toString();
-    if (!text.contains("@") || !text.contains(".")) {
-      return Utilities.curLang.value["EmailNotCorrect"];
+    if (!text.contains("@") ||
+        !text.contains(".") ||
+        text.indexOf("@") == 0 ||
+        text.indexOf(".") == text.length - 1) {
+      errorEmailText = Utilities.curLang.value["EmailNotCorrect"];
+    } else {
+      errorEmailText = null;
     }
-    return null;
   }
 
-  String? get errorTextPass {
+  errorTextPass() {
     final text = controllerPass.value.text.toString();
-    if (text.length <= 8) {
-      return Utilities.curLang.value["ShortPass"];
+    if (text.length < 8) {
+      errorPassText = Utilities.curLang.value["ShortPass"];
+    } else {
+      errorPassText = null;
     }
-    return null;
   }
 
   Color getColorErrorEmail() {
-    return _submitter && errorTextEmail != null
+    return _submitter && errorEmailText != null
         ? const Color(0xffa72627)
         : Colors.white;
   }
 
   Color getColorPassword() {
-    return _submitter && errorTextPass != null
+    return _submitter && errorPassText != null
         ? const Color(0xffa72627)
         : Colors.white;
   }
 
   googleAuth() async {
-    GoogleSignIn _googleSignIn = GoogleSignIn(
-      scopes: [
-        'email',
-      ],
-    );
-    await _googleSignIn.disconnect();
-    try {
-      await _googleSignIn.signIn();
-      print(_googleSignIn.currentUser!.email.toString());
-      final GoogleSignInAuthentication googleAuth =
-          await _googleSignIn.currentUser!.authentication;
-      print(googleAuth.idToken);
-      // Переход дальше
-    } catch (error) {
-      // Окошко с ошибкой
-      print(error);
+    int statusCodeGoogleSignUp = await Server.googleSignUp(context);
+    if (statusCodeGoogleSignUp == 200) {
+      Utilities.setGoogleSignUp();
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => const MainScreen()));
+    } else {
+      Utilities.showToast(Utilities.curLang.value["Error"]);
     }
+  }
+
+  Widget getAuthButtons(double height) {
+    return Column(children: [
+      SizedBox(
+          child: Text(Utilities.curLang.value["Continue"],
+              style: GoogleFonts.inter(
+                  color: const Color(0xffcfcfd0),
+                  fontSize: Utilities.deviceSizeMultiply / 35))),
+      SizedBox(height: height / 50),
+      SizedBox(
+          height: 40,
+          width: 110,
+          child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  primary: const Color(0xfff7f7f7),
+                  padding: const EdgeInsets.fromLTRB(10, 5, 15, 5)),
+              onPressed: () => googleAuth(),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Image.asset("assets/items/googlelogo.png"),
+                  Text("Google", style: GoogleFonts.inter(color: Colors.black)),
+                ],
+              ))),
+    ]);
   }
 
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
-    // double textScaleFactor = MediaQuery.of(context).textScaleFactor;
     return Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -161,8 +188,8 @@ class _LogInState extends State<LogIn> {
                                                         .deviceSizeMultiply /
                                                     40)),
                                         Text(
-                                          _submitter && errorTextEmail != null
-                                              ? errorTextEmail!
+                                          _submitter && errorEmailText != null
+                                              ? errorEmailText!
                                               : "",
                                           style: GoogleFonts.inter(
                                               color: const Color(0xffa72627),
@@ -186,7 +213,7 @@ class _LogInState extends State<LogIn> {
                                   hintText: "example@example.com",
                                   hintStyle:
                                       const TextStyle(color: Color(0xff878789)),
-                                  errorText: _submitter ? errorTextEmail : null,
+                                  errorText: _submitter ? errorEmailText : null,
                                   errorStyle:
                                       const TextStyle(fontSize: 0, height: 0),
                                 ),
@@ -208,8 +235,8 @@ class _LogInState extends State<LogIn> {
                                                         .deviceSizeMultiply /
                                                     40)),
                                         Text(
-                                          _submitter && errorTextPass != null
-                                              ? errorTextPass!
+                                          _submitter && errorPassText != null
+                                              ? errorPassText!
                                               : "",
                                           style: GoogleFonts.inter(
                                               color: const Color(0xffa72627),
@@ -230,7 +257,7 @@ class _LogInState extends State<LogIn> {
                                   focusedBorder: const UnderlineInputBorder(
                                     borderSide: BorderSide(color: Colors.white),
                                   ),
-                                  errorText: _submitter ? errorTextPass : null,
+                                  errorText: _submitter ? errorPassText : null,
                                   errorStyle:
                                       const TextStyle(fontSize: 0, height: 0),
                                 ),
@@ -299,41 +326,9 @@ class _LogInState extends State<LogIn> {
                                                       TextDecoration.underline),
                                             ))
                                       ])),
-                              SizedBox(
-                                  child: Text(lang["Continue"],
-                                      style: GoogleFonts.inter(
-                                          color: const Color(0xffcfcfd0),
-                                          fontSize:
-                                              Utilities.deviceSizeMultiply /
-                                                  35))),
-                              SizedBox(height: height / 50),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  SizedBox(
-                                      height: 40,
-                                      width: 110,
-                                      child: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                              primary: const Color(0xfff7f7f7),
-                                              padding:
-                                                  const EdgeInsets.fromLTRB(
-                                                      10, 5, 15, 5)),
-                                          onPressed: () => googleAuth(),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Image.asset(
-                                                  "assets/items/googlelogo.png"),
-                                              Text("Google",
-                                                  style: GoogleFonts.inter(
-                                                      color: Colors.black)),
-                                            ],
-                                          ))),
-                                ],
-                              ),
+                              Platform.isAndroid
+                                  ? getAuthButtons(height)
+                                  : const SizedBox(),
                               Container(
                                 height: height / 10,
                                 alignment: Alignment.bottomCenter,
