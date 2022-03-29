@@ -102,9 +102,11 @@ class _TrackElementState extends State<TrackElement> {
                 child: Image.asset("assets/items/likeoff.png",
                     scale: 3000 / Utilities.deviceSizeMultiply),
               ),
+              const SizedBox(width: 2),
               Container(
-                  width: width / 30,
-                  margin: const EdgeInsets.only(right: 30),
+                  padding: const EdgeInsets.only(bottom: 3),
+                  width: width / 12,
+                  margin: EdgeInsets.only(right: width / 15),
                   child: Text(trackLike,
                       style: GoogleFonts.inter(color: Colors.white))),
               Container(
