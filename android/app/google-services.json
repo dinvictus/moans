@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "371847382881",
+    "project_id": "moans-f47a3",
+    "storage_bucket": "moans-f47a3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:371847382881:android:01f8d401234fdc4a80a720",
+        "android_client_info": {
+          "package_name": "com.example.moans"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "371847382881-u6459o7pvclbtgs0b8t1rdlf2fg0evq7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.moans",
+            "certificate_hash": "c11a2cd5b0d30f9fe91e9a7dfff2610ca0590b41"
+          }
+        },
+        {
+          "client_id": "371847382881-07404orl32am9tfa48236aro6070r2c8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgqUemOnSeLhNLU5snr-zdhF_0lP8LMos"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "371847382881-07404orl32am9tfa48236aro6070r2c8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
