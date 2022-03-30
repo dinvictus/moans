@@ -6,6 +6,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:moans/utils/utilities.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:rxdart/rxdart.dart';
+import 'dart:io' show Platform;
 
 extension DemoAudioHandler on AudioHandler {
   Future<void> switchToHandler(int? index) async {

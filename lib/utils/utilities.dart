@@ -164,7 +164,7 @@ class Utilities {
   static late SharedPreferences preferences;
   static late AudioHandler audioHandler;
   static late AudioManager managerForRecord;
-  static const String url = "https://moans.pagekite.me/";
+  static const String url = "https://62aae155b22ba1.lhrtunnel.link/";
   static ValueNotifier<int> curPage = ValueNotifier(0);
   static ValueNotifier<Map> curLang = ValueNotifier<Map>(_englishStrings);
   static String email = "";
