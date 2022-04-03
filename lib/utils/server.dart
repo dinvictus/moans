@@ -26,7 +26,9 @@ class Server {
       if (responce.statusCode == 200) {
         Map userInfo = jsonDecode(responce.body);
         Utilities.authToken = userInfo["access_token"];
+        print(Utilities.authToken);
         Utilities.email = email;
+        Utilities.password = password;
         Utilities.setUser(email, password);
         return 200;
       } else {
@@ -70,6 +72,7 @@ class Server {
 
   static Future<Map> getTracks(Map<String, String> parameters) async {
     Map errorMap = {"status_code": 404, "tracks_info": ""};
+    Map errorMapAccesToken = {"status_code": 403, "tracks_info": ""};
     try {
       var responce = await http.get(
           Utilities.getUri(Utilities.url + "tracks/", parameters),
@@ -77,29 +80,35 @@ class Server {
             "Authorization": "Bearer " + Utilities.authToken,
             "Content-Type": "application/json"
           });
-      if (responce.statusCode == 200) {
-        Map trackInfo = {
-          "status_code": 200,
-          "tracks_info": jsonDecode(utf8.decode(responce.bodyBytes))
-        };
-        return trackInfo;
-      } else {
-        return errorMap;
+      switch (responce.statusCode) {
+        case 200:
+          Map trackInfo = {
+            "status_code": 200,
+            "tracks_info": jsonDecode(utf8.decode(responce.bodyBytes))
+          };
+          return trackInfo;
+        case 403:
+          return errorMapAccesToken;
+        default:
+          return errorMap;
       }
     } catch (e) {
       return errorMap;
     }
   }
 
-  static Future<int> refreshFeed() async {
+  static Future<int> refreshFeed(BuildContext context) async {
     try {
+      Utilities.showLoadingScreen(context);
       var responce =
           await http.get(Uri.parse(Utilities.url + "tracks/refresh"), headers: {
         "Authorization": "Bearer " + Utilities.authToken,
         "Content-Type": "application/json"
       });
+      Navigator.of(context).pop();
       return responce.statusCode;
     } catch (e) {
+      Navigator.of(context).pop();
       return 404;
     }
   }
@@ -123,7 +132,6 @@ class Server {
       Navigator.of(context).pop();
       return responced.statusCode;
     } catch (e) {
-      print(e);
       Navigator.of(context).pop();
       return 404;
     }
@@ -131,6 +139,7 @@ class Server {
 
   static Future<Map> getProfileTracks(Map<String, String> parameters) async {
     Map errorMap = {"status_code": 404, "tracks_info": ""};
+    Map errorMapAccesToken = {"status_code": 403, "tracks_info": ""};
     try {
       var responce = await http.get(
           Utilities.getUri(Utilities.url + "tracks/my_tracks", parameters),
@@ -138,22 +147,57 @@ class Server {
             "Authorization": "Bearer " + Utilities.authToken,
             "Content-Type": "application/json"
           });
-      if (responce.statusCode == 200) {
-        Map trackInfo = {
-          "status_code": 200,
-          "tracks_info": jsonDecode(utf8.decode(responce.bodyBytes))
-        };
-        return trackInfo;
-      } else {
-        return errorMap;
+      switch (responce.statusCode) {
+        case 200:
+          Map trackInfo = {
+            "status_code": 200,
+            "tracks_info": jsonDecode(utf8.decode(responce.bodyBytes))
+          };
+          return trackInfo;
+        case 403:
+          return errorMapAccesToken;
+        default:
+          return errorMap;
       }
     } catch (e) {
       return errorMap;
     }
   }
 
+  static Future<Map> getOneTrackInfo(int trackId, BuildContext context) async {
+    Map errorMap = {"status_code": 404, "tracks_info": ""};
+    Map errorMapAccesToken = {"status_code": 403, "tracks_info": ""};
+    Map<String, String> trackIdMap = {"id": trackId.toString()};
+    try {
+      Utilities.showLoadingScreen(context);
+      var responce = await http.get(
+          Utilities.getUri(Utilities.url + "tracks/track", trackIdMap),
+          headers: {
+            "Authorization": "Bearer " + Utilities.authToken,
+            "Content-Type": "application/json"
+          });
+      Navigator.of(context).pop();
+      switch (responce.statusCode) {
+        case 200:
+          Map trackInfo = {
+            "status_code": 200,
+            "track_info": jsonDecode(utf8.decode(responce.bodyBytes))
+          };
+          return trackInfo;
+        case 403:
+          return errorMapAccesToken;
+        default:
+          return errorMap;
+      }
+    } catch (e) {
+      Navigator.of(context).pop();
+      return errorMap;
+    }
+  }
+
   static Future<Map> getEditTrackInfo(int trackId, BuildContext context) async {
     Map errorMap = {"status_code": 404, "tracks_info": ""};
+    Map errorMapAccesToken = {"status_code": 403, "tracks_info": ""};
     Map<String, String> trackIdMap = {"track_id": trackId.toString()};
     try {
       Utilities.showLoadingScreen(context);
@@ -164,14 +208,17 @@ class Server {
             "Content-Type": "application/json"
           });
       Navigator.of(context).pop();
-      if (responce.statusCode == 200) {
-        Map trackInfo = {
-          "status_code": 200,
-          "track_info": jsonDecode(utf8.decode(responce.bodyBytes))
-        };
-        return trackInfo;
-      } else {
-        return errorMap;
+      switch (responce.statusCode) {
+        case 200:
+          Map trackInfo = {
+            "status_code": 200,
+            "track_info": jsonDecode(utf8.decode(responce.bodyBytes))
+          };
+          return trackInfo;
+        case 403:
+          return errorMapAccesToken;
+        default:
+          return errorMap;
       }
     } catch (e) {
       Navigator.of(context).pop();

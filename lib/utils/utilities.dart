@@ -75,14 +75,16 @@ class Utilities {
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
-          return const Center(
-              child: SizedBox(
-            height: 60,
-            width: 60,
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(MColors.mainColor),
-            ),
-          ));
+          return WillPopScope(
+              onWillPop: () async => false,
+              child: const Center(
+                  child: SizedBox(
+                height: 60,
+                width: 60,
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(MColors.mainColor),
+                ),
+              )));
         });
   }
 
@@ -164,7 +166,7 @@ class Utilities {
   static late SharedPreferences preferences;
   static late AudioHandler audioHandler;
   static late AudioManager managerForRecord;
-  static const String url = "https://62aae155b22ba1.lhrtunnel.link/";
+  static const String url = "https://moans2.pagekite.me/";
   static ValueNotifier<int> curPage = ValueNotifier(0);
   static ValueNotifier<Map> curLang = ValueNotifier<Map>(_englishStrings);
   static String email = "";
@@ -246,7 +248,13 @@ class Utilities {
     "UserAlreadyExists": "User already exists",
     "AlreadyHaveTitle": "You already have record with this title",
     "TrackName": "Track name",
-    "HintFeed": "Swipe up for more"
+    "HintFeed": "Swipe up for more",
+    "ShareMsg": "Check this track: ",
+    "ErrorLinkShare": "Unable to open link",
+    "SendEmail": "Send email",
+    "ForgotPassText":
+        "To recover your password, enter the email associated with your account. We will send an email with instructions.",
+    "ForgotPassTitle": "Password recovery",
   };
 
   static const Map _russianStrings = {
@@ -259,7 +267,7 @@ class Utilities {
     "login": "Вход",
     "Email": "Email",
     "Password": "Пароль",
-    "LogQues": "Ещё не зарегестрированы?",
+    "LogQues": "Ещё не зарегистрированы?",
     "Signup": "Регистрация",
     "Forgotpass": "Забыли пароль?",
     "Click": "Нажмите сюда",
@@ -324,7 +332,13 @@ class Utilities {
     "UserAlreadyExists": "Пользователь уже существует",
     "AlreadyHaveTitle": "У вас уже есть запись с таким названием",
     "TrackName": "Название",
-    "HintFeed": "Смахните, чтобы увидеть больше"
+    "HintFeed": "Смахните, чтобы увидеть больше",
+    "ShareMsg": "Послушай это: ",
+    "ErrorLinkShare": "Невозможно открыть ссылку",
+    "SendEmail": "Отправить письмо",
+    "ForgotPassText":
+        "Чтобы восстановить пароль, введите почту, привязанную к вашему аккаунту. Мы отправим на неё письмо с инструкцией.",
+    "ForgotPassTitle": "Восстановление пароля",
   };
   static void changeLanguage(Languages language) {
     switch (language) {

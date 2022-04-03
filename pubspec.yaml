@@ -47,6 +47,8 @@ dependencies:
   fluttertoast: ^8.0.8
   google_sign_in: ^5.2.1
   flutter_native_splash: ^2.1.1
+  share_plus: ^4.0.3
+  app_links: ^3.0.1
 
 dev_dependencies:
   flutter_test:
@@ -84,7 +86,6 @@ flutter:
   - assets/items/checkmark.png
   - assets/items/hint.png
   - assets/items/googlelogo.png
-  - assets/items/facebooklogo.png
 
 flutter_native_splash:
   background_image: "assets/logo/logo.png"

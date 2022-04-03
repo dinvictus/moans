@@ -438,7 +438,7 @@ class _RecordState extends State<Record> with AutomaticKeepAliveClientMixin {
       onWillPop: () async {
         switch (pageAudioRecordNotifier.value) {
           case AudioRecordState.main:
-            return false;
+            return true;
           case AudioRecordState.playrecord:
             _audioRecorder.back();
             return false;

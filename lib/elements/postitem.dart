@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moans/changelanguage.dart';
+import 'package:moans/elements/appbarleading.dart';
 import 'package:moans/elements/audiorecorder.dart';
 import 'package:moans/elements/savetag.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -7,7 +8,7 @@ import 'package:moans/utils/server.dart';
 import 'package:moans/utils/utilities.dart';
 
 class PostItem extends StatefulWidget {
-  final Function() back;
+  final Function back;
   final int trackId;
   final String pathToFile;
   const PostItem(this.back, this.trackId, this.pathToFile, {Key? key})
@@ -83,31 +84,40 @@ class _PostItemState extends State<PostItem>
       case 404:
         Utilities.showToast(Utilities.curLang.value["ServerError"]);
         break;
+      case 403:
+        await Server.logIn(Utilities.email, Utilities.password, context);
+        editTrack();
+        break;
       default:
         Utilities.showToast(Utilities.curLang.value["Error"]);
         break;
     }
   }
 
-  toPublishTrack() async {
-    int statusCodeToDraft = await Server.changeTrackStatus(
-        widget.trackId, Statuses.publish, context);
-    if (statusCodeToDraft == 200) {
-      Utilities.showToast(Utilities.curLang.value["ToastPostTrack"]);
-      widget.back();
-    } else {
-      Utilities.showToast(Utilities.curLang.value["ServerError"]);
-    }
-  }
-
-  toDraftTrack() async {
+  changeTrackStatus(Statuses status) async {
     int statusCodeToDraft =
-        await Server.changeTrackStatus(widget.trackId, Statuses.draft, context);
-    if (statusCodeToDraft == 200) {
-      Utilities.showToast(Utilities.curLang.value["ToastDraftTrack"]);
-      widget.back();
-    } else {
-      Utilities.showToast(Utilities.curLang.value["ServerError"]);
+        await Server.changeTrackStatus(widget.trackId, status, context);
+    switch (statusCodeToDraft) {
+      case 200:
+        switch (status) {
+          case Statuses.draft:
+            Utilities.showToast(Utilities.curLang.value["ToastDraftTrack"]);
+            break;
+          case Statuses.publish:
+            Utilities.showToast(Utilities.curLang.value["ToastPostTrack"]);
+            break;
+          default:
+            break;
+        }
+        widget.back();
+        break;
+      case 403:
+        await Server.logIn(Utilities.email, Utilities.password, context);
+        changeTrackStatus(status);
+        break;
+      default:
+        Utilities.showToast(Utilities.curLang.value["ServerError"]);
+        break;
     }
   }
 
@@ -139,8 +149,13 @@ class _PostItemState extends State<PostItem>
       case 404:
         Utilities.showToast(Utilities.curLang.value["ServerError"]);
         break;
+      case 403:
+        await Server.logIn(Utilities.email, Utilities.password, null);
+        postTrack();
+        break;
       default:
         Utilities.showToast(Utilities.curLang.value["Error"]);
+        break;
     }
   }
 
@@ -162,7 +177,8 @@ class _PostItemState extends State<PostItem>
             primary: MColors.mainColor,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(50.0))),
-        onPressed: func == toDraftTrack ? func : (getTrueInfo() ? func : null),
+        onPressed:
+            func == changeTrackStatus ? func : (getTrueInfo() ? func : null),
         child: FittedBox(
             child: Text(text,
                 style: GoogleFonts.inter(
@@ -179,38 +195,45 @@ class _PostItemState extends State<PostItem>
   loadingTrackInfo() async {
     WidgetsBinding.instance!.addPostFrameCallback((_) async {
       Map responceInfo = await Server.getEditTrackInfo(widget.trackId, context);
-      if (responceInfo["status_code"] == 200) {
-        Map trackEditInfo = responceInfo["track_info"];
-        titleController.text = trackEditInfo["name"];
-        descController.text = trackEditInfo["description"];
-        listTags = (trackEditInfo["tags"] as String).split(" ");
-        curLanguage.value =
-            Languages.values.elementAt(trackEditInfo["language_id"]);
-        currentVoice =
-            Voices.values.elementAt(int.parse(trackEditInfo["voice"]));
-        curStatus =
-            Statuses.values.elementAt(int.parse(trackEditInfo["status"]));
-        descLength.value = descController.text.length;
-        titleLength.value = titleController.text.length;
-        tagsCountForSave.value = listTags.length;
-        setState(() {
-          she = (currentVoice == Voices.she ||
-              currentVoice == Voices.sheHe ||
-              currentVoice == Voices.sheThey ||
-              currentVoice == Voices.sheHeThey);
-          he = (currentVoice == Voices.he ||
-              currentVoice == Voices.sheHe ||
-              currentVoice == Voices.heThey ||
-              currentVoice == Voices.sheHeThey);
-          they = (currentVoice == Voices.they ||
-              currentVoice == Voices.heThey ||
-              currentVoice == Voices.sheThey ||
-              currentVoice == Voices.sheHeThey);
-          isLoading = false;
-        });
-      } else {
-        Utilities.showToast(Utilities.curLang.value["ServerError"]);
-        Navigator.pop(context);
+      switch (responceInfo["status_code"]) {
+        case 200:
+          Map trackEditInfo = responceInfo["track_info"];
+          titleController.text = trackEditInfo["name"];
+          descController.text = trackEditInfo["description"];
+          listTags = (trackEditInfo["tags"] as String).split(" ");
+          curLanguage.value =
+              Languages.values.elementAt(trackEditInfo["language_id"]);
+          currentVoice =
+              Voices.values.elementAt(int.parse(trackEditInfo["voice"]));
+          curStatus =
+              Statuses.values.elementAt(int.parse(trackEditInfo["status"]));
+          descLength.value = descController.text.length;
+          titleLength.value = titleController.text.length;
+          tagsCountForSave.value = listTags.length;
+          setState(() {
+            she = (currentVoice == Voices.she ||
+                currentVoice == Voices.sheHe ||
+                currentVoice == Voices.sheThey ||
+                currentVoice == Voices.sheHeThey);
+            he = (currentVoice == Voices.he ||
+                currentVoice == Voices.sheHe ||
+                currentVoice == Voices.heThey ||
+                currentVoice == Voices.sheHeThey);
+            they = (currentVoice == Voices.they ||
+                currentVoice == Voices.heThey ||
+                currentVoice == Voices.sheThey ||
+                currentVoice == Voices.sheHeThey);
+            isLoading = false;
+          });
+          break;
+        case 403:
+          await Server.logIn(Utilities.email, Utilities.password, context);
+          loadingTrackInfo();
+          break;
+        default:
+          Utilities.showToast(Utilities.curLang.value["ServerError"]);
+          Navigator.pop(context);
+          break;
       }
     });
   }
@@ -238,41 +261,20 @@ class _PostItemState extends State<PostItem>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     return ValueListenableBuilder<Map>(
         valueListenable: Utilities.curLang,
         builder: (_, lang, __) {
           return Scaffold(
-              resizeToAvoidBottomInset: false,
               backgroundColor: const Color(0xff000014),
               extendBodyBehindAppBar: true,
               appBar: AppBar(
                 automaticallyImplyLeading: false,
                 backgroundColor: Colors.transparent,
                 leadingWidth: 100,
-                leading: Container(
-                    margin: const EdgeInsets.fromLTRB(10, 10, 0, 10),
-                    child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            elevation: 0,
-                            padding: const EdgeInsets.all(0),
-                            primary: Colors.transparent),
-                        onPressed: widget.back,
-                        child: Row(
-                          children: [
-                            Image.asset("assets/items/backbut.png",
-                                scale: 1800 / Utilities.deviceSizeMultiply),
-                            SizedBox(
-                              width: width / 30,
-                            ),
-                            Text(
-                              lang["Back"],
-                              style: GoogleFonts.inter(
-                                  fontSize: Utilities.deviceSizeMultiply / 40),
-                            )
-                          ],
-                        ))),
+                leading: AppBarLeading(back: widget.back),
                 elevation: 0,
                 centerTitle: true,
                 title: Text(
@@ -517,9 +519,13 @@ class _PostItemState extends State<PostItem>
                                         width: width / 3,
                                         height: height / 16,
                                         child: curStatus == Statuses.publish
-                                            ? getButton(() => toDraftTrack(),
+                                            ? getButton(
+                                                () => changeTrackStatus(
+                                                    Statuses.draft),
                                                 lang["ToDraft"])
-                                            : getButton(() => toPublishTrack(),
+                                            : getButton(
+                                                () => changeTrackStatus(
+                                                    Statuses.publish),
                                                 lang["SavePost"]))
                                   ],
                                 )

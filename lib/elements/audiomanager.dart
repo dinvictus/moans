@@ -6,7 +6,6 @@ import 'package:just_audio/just_audio.dart';
 import 'package:moans/utils/utilities.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:rxdart/rxdart.dart';
-import 'dart:io' show Platform;
 
 extension DemoAudioHandler on AudioHandler {
   Future<void> switchToHandler(int? index) async {
@@ -78,10 +77,8 @@ class AudioManager extends BaseAudioHandler with SeekHandler {
     url = ur;
     File fileRecord = File.fromUri(Uri.parse(ur!));
     try {
-      await _audioPlayer.setAsset(fileRecord.path);
-      // await _audioPlayer.setUrl(fileRecord.path);
+      await _audioPlayer.setUrl(fileRecord.path);
     } catch (e) {
-      print(e);
       Utilities.showToast(Utilities.curLang.value["Error"]);
     }
   }
@@ -155,10 +152,6 @@ class AudioManager extends BaseAudioHandler with SeekHandler {
         buffered: oldState.buffered,
         total: oldState.total,
       );
-      // if (oldState.total == position) {
-      //   await _audioPlayer.seek(Duration.zero);
-      //   _audioPlayer.stop();
-      // }
     });
 
     _audioPlayer.bufferedPositionStream.listen((bufferedPosition) {

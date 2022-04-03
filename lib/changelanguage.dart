@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moans/elements/appbarleading.dart';
 import 'package:moans/utils/utilities.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -34,6 +35,11 @@ class _ChangeLanguageState extends State<ChangeLanguage> {
   void initState() {
     super.initState();
     init();
+  }
+
+  back() {
+    FocusManager.instance.primaryFocus?.unfocus();
+    Navigator.of(context, rootNavigator: true).pop();
   }
 
   Container langButton(Languages language, bool active) {
@@ -87,44 +93,14 @@ class _ChangeLanguageState extends State<ChangeLanguage> {
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.transparent,
-        leadingWidth: 100,
-        leading: Container(
-            margin: const EdgeInsets.fromLTRB(10, 10, 0, 10),
-            child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    elevation: 0,
-                    padding: const EdgeInsets.all(0),
-                    primary: Colors.transparent),
-                onPressed: () {
-                  FocusManager.instance.primaryFocus?.unfocus();
-                  Navigator.of(context, rootNavigator: true).pop();
-                },
-                child: Row(
-                  children: [
-                    Image.asset("assets/items/backbut.png",
-                        scale: 1800 / Utilities.deviceSizeMultiply),
-                    SizedBox(
-                      width: width / 30,
-                    ),
-                    ValueListenableBuilder<Map>(
-                        valueListenable: Utilities.curLang,
-                        builder: (_, lang, __) {
-                          return Text(
-                            lang["Back"],
-                            style: GoogleFonts.inter(
-                                fontSize: Utilities.deviceSizeMultiply / 40),
-                          );
-                        })
-                  ],
-                ))),
-      ),
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.transparent,
+          leadingWidth: 100,
+          leading: AppBarLeading(back: back)),
       body: Container(
         padding: const EdgeInsets.all(30),
         alignment: Alignment.center,

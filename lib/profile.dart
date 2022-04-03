@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:moans/changepass.dart';
 import 'package:moans/elements/dropbutton.dart';
@@ -80,22 +82,32 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
     trackIds.clear();
     trackStatuses.clear();
     trackLikes.clear();
-    Map<String, String> forProfileTracks = {"limit": "20", "skip": "0"};
+    Map<String, String> forProfileTracks = {"limit": "5", "skip": "0"};
     Map profileTracksInfo = await Server.getProfileTracks(forProfileTracks);
-    if (profileTracksInfo["status_code"] == 200) {
-      var myTracksInfo = profileTracksInfo["tracks_info"];
-      for (int i = 0; i < myTracksInfo.length; i++) {
-        trackNames.add(myTracksInfo[i]["name"]);
-        trackIds.add(myTracksInfo[i]["id"]);
-        trackStatuses.add(int.parse(myTracksInfo[i]["status"]));
-        trackLikes.add(getLikeString(myTracksInfo[i]["likes"]));
-      }
-      setState(() {
-        isLoading.value = false;
-        initVoice();
-      });
-    } else {
-      Utilities.showToast(Utilities.curLang.value["ServerError"]);
+    switch (profileTracksInfo["status_code"]) {
+      case 200:
+        var myTracksInfo = profileTracksInfo["tracks_info"];
+        for (int i = 0; i < myTracksInfo.length; i++) {
+          trackNames.add(myTracksInfo[i]["name"]);
+          trackIds.add(myTracksInfo[i]["id"]);
+          trackStatuses.add(int.parse(myTracksInfo[i]["status"]));
+          trackLikes.add(getLikeString(myTracksInfo[i]["likes"]));
+        }
+        setState(() {
+          isLoading.value = false;
+          initVoice();
+        });
+        break;
+      case 403:
+        await Server.logIn(Utilities.email, Utilities.password, null);
+        loadingTracks();
+        break;
+      default:
+        Utilities.showToast(Utilities.curLang.value["ServerError"]);
+        Timer(const Duration(seconds: 15), () {
+          loadingTracks();
+        });
+        break;
     }
   }
 
@@ -149,7 +161,7 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                 ),
               ),
               body: Container(
-                  padding: EdgeInsets.fromLTRB(20, height / 7, 20, height / 10),
+                  padding: EdgeInsets.fromLTRB(20, height / 7, 20, height / 12),
                   alignment: Alignment.topLeft,
                   decoration: const BoxDecoration(
                       image: DecorationImage(

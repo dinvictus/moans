@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:moans/elements/endfeeditem.dart';
 import 'package:moans/utils/utilities.dart';
@@ -24,21 +24,36 @@ class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
   bool tracksEnd = false;
   bool refreshingFeed = false;
   bool forHintView = true;
+  bool isLoading = false;
 
   refreshFeed() async {
     if (!refreshingFeed) {
       refreshingFeed = true;
-      await Server.refreshFeed();
-      pages.clear();
-      Utilities.handlers.removeRange(1, Utilities.handlers.length);
-      setState(() {});
-      loadTracks();
-      refreshingFeed = false;
-      tracksEnd = false;
+      int refreshStatusCode = await Server.refreshFeed(context);
+      switch (refreshStatusCode) {
+        case 200:
+          pages.clear();
+          Utilities.handlers.removeRange(1, Utilities.handlers.length);
+          setState(() {});
+          loadTracks();
+          refreshingFeed = false;
+          tracksEnd = false;
+          break;
+        case 403:
+          await Server.logIn(Utilities.email, Utilities.password, context);
+          refreshingFeed = false;
+          refreshFeed();
+          break;
+        default:
+          Utilities.showToast(Utilities.curLang.value["ServerError"]);
+          refreshingFeed = false;
+          break;
+      }
     }
   }
 
   loadTracks() async {
+    isLoading = true;
     int counter = pages.length;
     for (int i = counter; i < counter + 10; i++) {
       pages.add(AudioItem(i));
@@ -53,31 +68,96 @@ class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
       "voice": (Voices.values.indexOf(Utilities.curVoice)).toString(),
     };
     Map responceInfo = await Server.getTracks(forTracksInfo);
-    if (responceInfo["status_code"] == 200) {
-      var tracksInfo = responceInfo["tracks_info"];
-      if (tracksInfo.length != 0) {
-        int j = 0;
-        for (int i = counter; i < counter + tracksInfo.length; i++) {
-          List<String> tags = tracksInfo[j]["tags"].toString().split(" ");
-          bool liked = tracksInfo[j]["liked"] != null ? true : false;
-          pages[i].addInfo(tracksInfo[j]["name"], tracksInfo[j]["description"],
-              tags, tracksInfo[j]["likes"], tracksInfo[j]["id"], liked);
-          Utilities.handlers.add(pages[i].audioManager);
-          j++;
+    switch (responceInfo["status_code"]) {
+      case 200:
+        var tracksInfo = responceInfo["tracks_info"];
+        if (tracksInfo.length != 0) {
+          int j = 0;
+          for (int i = counter; i < counter + tracksInfo.length; i++) {
+            List<String> tags = tracksInfo[j]["tags"].toString().split(" ");
+            bool liked = tracksInfo[j]["liked"] != null ? true : false;
+            pages[i].addInfo(
+                tracksInfo[j]["name"],
+                tracksInfo[j]["description"],
+                tags,
+                tracksInfo[j]["likes"],
+                tracksInfo[j]["id"],
+                liked);
+            Utilities.handlers.add(pages[i].audioManager);
+            j++;
+          }
         }
-      }
-      if (tracksInfo.length < 10) {
-        tracksEnd = true;
-        int voidPages = pages.length - 1 - (10 - tracksInfo.length) as int;
-        for (int i = pages.length - 1; i > voidPages; i--) {
-          pages.removeAt(i);
+        if (tracksInfo.length < 10) {
+          tracksEnd = true;
+          int voidPages = pages.length - 1 - (10 - tracksInfo.length) as int;
+          for (int i = pages.length - 1; i > voidPages; i--) {
+            pages.removeAt(i);
+          }
+          pages.add(EndFeedItem(refreshFeed));
+          setState(() {});
+          return;
         }
-        pages.add(EndFeedItem(refreshFeed));
+        isLoading = false;
+        break;
+      case 403:
+        await Server.logIn(Utilities.email, Utilities.password, null);
+        loadTracks();
+        break;
+      default:
+        Utilities.showToast(Utilities.curLang.value["ServerError"]);
+        Timer(const Duration(seconds: 15), () {
+          setState(() {
+            pages.clear();
+          });
+          loadTracks();
+        });
+        break;
+    }
+  }
+
+  insertLinkTrack(int trackId) async {
+    Map responceInfo = await Server.getOneTrackInfo(trackId, context);
+    print(responceInfo.entries);
+    switch (responceInfo["status_code"]) {
+      case 200:
+        int newId = tracksEnd ? pages.length - 1 : pages.length;
+        pages.insert(newId, AudioItem(newId));
+        var tracksInfo = responceInfo["track_info"];
+        List<String> tags = tracksInfo["tags"].toString().split(" ");
+        bool liked = tracksInfo["liked"] != null ? true : false;
+        pages[newId].addInfo(tracksInfo["name"], tracksInfo["description"],
+            tags, tracksInfo["likes"], trackId, liked);
+        Utilities.handlers.add(pages[newId].audioManager);
         setState(() {});
-        return;
-      }
-    } else {
-      Utilities.showToast(Utilities.curLang.value["ServerError"]);
+        controller.jumpToPage(newId);
+        break;
+      case 403:
+        await Server.logIn(Utilities.email, Utilities.password, context);
+        insertLinkTrack(trackId);
+        break;
+      default:
+        Utilities.showToast(Utilities.curLang.value["ErrorLinkShare"]);
+        break;
+    }
+  }
+
+  catchLink() {
+    try {
+      AppLinks _appLinks = AppLinks();
+      _appLinks.uriLinkStream.listen((uri) {
+        String url = uri.toString();
+        int trackId =
+            int.parse(url.substring(url.indexOf("_") + 1, url.length));
+        for (int i = 0; i < pages.length - 1; i++) {
+          if (pages[i].getTrackId as int == trackId) {
+            controller.jumpToPage(i);
+            return;
+          }
+        }
+        insertLinkTrack(trackId);
+      });
+    } catch (e) {
+      Utilities.showToast(Utilities.curLang.value["ErrorLinkShare"]);
     }
   }
 
@@ -86,6 +166,7 @@ class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
     super.initState();
     controller = PageController(initialPage: curpage, keepPage: true);
     loadTracks();
+    catchLink();
   }
 
   @override
@@ -154,7 +235,7 @@ class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
                     }
                   });
                   Utilities.curPage.value = value;
-                  if (value == pages.length - 1 && !tracksEnd) {
+                  if (value == pages.length - 1 && !tracksEnd && !isLoading) {
                     await loadTracks();
                   }
                 },

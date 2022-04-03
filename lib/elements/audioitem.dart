@@ -7,6 +7,7 @@ import 'package:moans/utils/utilities.dart';
 import 'audiomanager.dart';
 import 'tag.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:share_plus/share_plus.dart';
 
 class AudioItem extends StatefulWidget {
   AudioItem(this._indexPage, {Key? key}) : super(key: key);
@@ -32,6 +33,8 @@ class AudioItem extends StatefulWidget {
     countLikesNotifier = ValueNotifier<int>(likes);
     _isloading.value = false;
   }
+
+  int get getTrackId => _trackId;
 
   final int _indexPage;
 
@@ -76,7 +79,11 @@ class _AudioItemState extends State<AudioItem>
         "track_id": widget._trackId.toString(),
         "liked": "true"
       };
-      Server.likeRequest(forLike);
+      int statusCodeLike = await Server.likeRequest(forLike);
+      if (statusCodeLike == 403) {
+        await Server.logIn(Utilities.email, Utilities.password, null);
+        Server.likeRequest(forLike);
+      }
     }
   }
 
@@ -89,7 +96,11 @@ class _AudioItemState extends State<AudioItem>
         "track_id": widget._trackId.toString(),
         "liked": "false"
       };
-      Server.likeRequest(forLike);
+      int statusCodeLike = await Server.likeRequest(forLike);
+      if (statusCodeLike == 403) {
+        await Server.logIn(Utilities.email, Utilities.password, null);
+        Server.likeRequest(forLike);
+      }
     }
   }
 
@@ -103,7 +114,16 @@ class _AudioItemState extends State<AudioItem>
     return countLikes.toString();
   }
 
-  share() async {}
+  share() async {
+    if (!widget._isloading.value) {
+      Share.share(Utilities.curLang.value["ShareMsg"] +
+          "\n" +
+          widget._titleTrack +
+          "\n"
+              "http://moans.com/track_" +
+          widget._trackId.toString());
+    }
+  }
 
   @override
   void initState() {

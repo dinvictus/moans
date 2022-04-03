@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moans/elements/dropbutton.dart';
+import 'package:moans/forgotpassword.dart';
 import 'package:moans/mainscreen.dart';
 import 'package:moans/signup.dart';
 import 'package:moans/utils/server.dart';
@@ -20,12 +21,12 @@ class LogIn extends StatefulWidget {
 class _LogInState extends State<LogIn> {
   final controllerEmail = TextEditingController();
   final controllerPass = TextEditingController();
-  bool _submitter = false;
+  bool submitter = false;
   String? errorPassText;
   String? errorEmailText;
   submit() async {
     setState(() {
-      _submitter = true;
+      submitter = true;
       errorTextEmail();
       errorTextPass();
     });
@@ -34,8 +35,10 @@ class _LogInState extends State<LogIn> {
           controllerEmail.value.text, controllerPass.value.text, context);
       switch (statusCodeLogin) {
         case 200:
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const MainScreen()));
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const MainScreen()),
+              (route) => false);
           break;
         case 401:
           setState(() {
@@ -46,11 +49,20 @@ class _LogInState extends State<LogIn> {
         case 404:
           Utilities.showToast(Utilities.curLang.value["ServerError"]);
           break;
+        case 422:
+          setState(() {
+            errorEmailText = Utilities.curLang.value["EmailNotCorrect"];
+          });
+          break;
         default:
           Utilities.showToast(Utilities.curLang.value["Error"]);
           break;
       }
     }
+  }
+
+  back() {
+    Navigator.pop(context);
   }
 
   @override
@@ -82,13 +94,13 @@ class _LogInState extends State<LogIn> {
   }
 
   Color getColorErrorEmail() {
-    return _submitter && errorEmailText != null
+    return submitter && errorEmailText != null
         ? const Color(0xffa72627)
         : Colors.white;
   }
 
   Color getColorPassword() {
-    return _submitter && errorPassText != null
+    return submitter && errorPassText != null
         ? const Color(0xffa72627)
         : Colors.white;
   }
@@ -160,7 +172,7 @@ class _LogInState extends State<LogIn> {
                       children: [
                         Container(
                           margin: EdgeInsets.only(top: height / 10),
-                          padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
+                          padding: const EdgeInsets.fromLTRB(20, 40, 20, 0),
                           child: Column(
                             children: [
                               Container(
@@ -188,7 +200,7 @@ class _LogInState extends State<LogIn> {
                                                         .deviceSizeMultiply /
                                                     40)),
                                         Text(
-                                          _submitter && errorEmailText != null
+                                          submitter && errorEmailText != null
                                               ? errorEmailText!
                                               : "",
                                           style: GoogleFonts.inter(
@@ -213,12 +225,12 @@ class _LogInState extends State<LogIn> {
                                   hintText: "example@example.com",
                                   hintStyle:
                                       const TextStyle(color: Color(0xff878789)),
-                                  errorText: _submitter ? errorEmailText : null,
+                                  errorText: submitter ? errorEmailText : null,
                                   errorStyle:
                                       const TextStyle(fontSize: 0, height: 0),
                                 ),
                                 onChanged: (_) => setState(() {
-                                  _submitter = false;
+                                  submitter = false;
                                 }),
                               ),
                               Container(
@@ -235,7 +247,7 @@ class _LogInState extends State<LogIn> {
                                                         .deviceSizeMultiply /
                                                     40)),
                                         Text(
-                                          _submitter && errorPassText != null
+                                          submitter && errorPassText != null
                                               ? errorPassText!
                                               : "",
                                           style: GoogleFonts.inter(
@@ -257,12 +269,12 @@ class _LogInState extends State<LogIn> {
                                   focusedBorder: const UnderlineInputBorder(
                                     borderSide: BorderSide(color: Colors.white),
                                   ),
-                                  errorText: _submitter ? errorPassText : null,
+                                  errorText: submitter ? errorPassText : null,
                                   errorStyle:
                                       const TextStyle(fontSize: 0, height: 0),
                                 ),
                                 onChanged: (_) => setState(() {
-                                  _submitter = false;
+                                  submitter = false;
                                 }),
                               ),
                               Container(height: height / 20),
@@ -345,14 +357,23 @@ class _LogInState extends State<LogIn> {
                                       ),
                                     ),
                                     Container(height: 5),
-                                    Text(lang["Click"],
-                                        style: GoogleFonts.inter(
-                                            color: MColors.mainColor,
-                                            fontSize:
-                                                Utilities.deviceSizeMultiply /
+                                    GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ForgotPassword(
+                                                          back: back)));
+                                        },
+                                        child: Text(lang["Click"],
+                                            style: GoogleFonts.inter(
+                                                color: MColors.mainColor,
+                                                fontSize: Utilities
+                                                        .deviceSizeMultiply /
                                                     35,
-                                            decoration:
-                                                TextDecoration.underline))
+                                                decoration:
+                                                    TextDecoration.underline)))
                                   ],
                                 ),
                               )

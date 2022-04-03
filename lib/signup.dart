@@ -95,7 +95,7 @@ class _SignUpState extends State<SignUp> {
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
     return Container(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
         decoration: const BoxDecoration(
             image: DecorationImage(
                 image: AssetImage('assets/back/back.png'), fit: BoxFit.fill)),

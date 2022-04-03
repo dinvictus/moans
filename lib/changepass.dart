@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:moans/actionconfirm.dart';
+import 'package:moans/elements/appbarleading.dart';
 import 'package:moans/utils/utilities.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:moans/utils/server.dart';
@@ -47,12 +48,16 @@ class _ChangePasswordState extends State<ChangePassword> {
         Navigator.of(context, rootNavigator: true).pop();
         break;
       case 403:
-        setState(() {
-          erTextOldPass = Utilities.curLang.value["OldPassMatch"];
-        });
+        await Server.logIn(Utilities.email, Utilities.password, context);
+        changePass();
         break;
       case 404:
         Utilities.showToast(Utilities.curLang.value["ServerError"]);
+        break;
+      case 409:
+        setState(() {
+          erTextOldPass = Utilities.curLang.value["OldPassMatch"];
+        });
         break;
       default:
         Utilities.showToast(Utilities.curLang.value["Error"]);
@@ -116,32 +121,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                   appBar: AppBar(
                     automaticallyImplyLeading: false,
                     leadingWidth: 100,
-                    leading: Container(
-                        margin: const EdgeInsets.fromLTRB(10, 10, 0, 10),
-                        child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                                elevation: 0,
-                                padding: const EdgeInsets.all(0),
-                                primary: Colors.transparent),
-                            onPressed: () {
-                              FocusManager.instance.primaryFocus?.unfocus();
-                              Navigator.pop(context);
-                            },
-                            child: Row(
-                              children: [
-                                Image.asset("assets/items/backbut.png",
-                                    scale: 1800 / Utilities.deviceSizeMultiply),
-                                SizedBox(
-                                  width: width / 30,
-                                ),
-                                Text(
-                                  lang["Back"],
-                                  style: GoogleFonts.inter(
-                                      fontSize:
-                                          Utilities.deviceSizeMultiply / 40),
-                                )
-                              ],
-                            ))),
+                    leading: const AppBarLeading(back: null),
                     backgroundColor: Colors.transparent,
                     elevation: 0,
                   ),
