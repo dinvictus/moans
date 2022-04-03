@@ -6,6 +6,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:moans/utils/utilities.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:rxdart/rxdart.dart';
+import 'dart:io' show Platform;
 
 extension DemoAudioHandler on AudioHandler {
   Future<void> switchToHandler(int? index) async {
@@ -77,7 +78,11 @@ class AudioManager extends BaseAudioHandler with SeekHandler {
     url = ur;
     File fileRecord = File.fromUri(Uri.parse(ur!));
     try {
-      await _audioPlayer.setUrl(fileRecord.path);
+      if (Platform.isIOS) {
+        await _audioPlayer.setAsset(fileRecord.path);
+      } else {
+        await _audioPlayer.setUrl(fileRecord.path);
+      }
     } catch (e) {
       Utilities.showToast(Utilities.curLang.value["Error"]);
     }

@@ -101,6 +101,9 @@ class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
         break;
       case 403:
         await Server.logIn(Utilities.email, Utilities.password, null);
+        setState(() {
+          pages.clear();
+        });
         loadTracks();
         break;
       default:

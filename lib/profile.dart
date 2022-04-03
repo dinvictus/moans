@@ -161,223 +161,230 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                 ),
               ),
               body: Container(
-                  padding: EdgeInsets.fromLTRB(20, height / 7, 20, height / 12),
+                  padding: EdgeInsets.fromLTRB(20, height / 40, 20, 0),
                   alignment: Alignment.topLeft,
                   decoration: const BoxDecoration(
                       image: DecorationImage(
                           image: AssetImage('assets/back/back.png'),
                           fit: BoxFit.fill)),
-                  child: RefreshIndicator(
-                      displacement: 0,
-                      backgroundColor: Colors.transparent,
-                      color: MColors.mainColor,
-                      triggerMode: RefreshIndicatorTriggerMode.onEdge,
-                      onRefresh: () async {
-                        await loadingTracks();
-                      },
-                      child: SizedBox(
-                          height: height,
-                          child: SingleChildScrollView(
-                            physics: isLoading.value
-                                ? const NeverScrollableScrollPhysics()
-                                : const AlwaysScrollableScrollPhysics(),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.max,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(Utilities.email,
-                                    style: GoogleFonts.inter(
-                                        color: Colors.white,
-                                        fontSize:
-                                            Utilities.deviceSizeMultiply / 22,
-                                        fontWeight: FontWeight.bold)),
-                                !Utilities.isGoogleSignUp
-                                    ? SizedBox(height: height / 40)
-                                    : const SizedBox(),
-                                !Utilities.isGoogleSignUp
-                                    ? GestureDetector(
+                  child: SafeArea(
+                      child: RefreshIndicator(
+                          displacement: 0,
+                          backgroundColor: Colors.transparent,
+                          color: MColors.mainColor,
+                          triggerMode: RefreshIndicatorTriggerMode.onEdge,
+                          onRefresh: () async {
+                            await loadingTracks();
+                          },
+                          child: SizedBox(
+                              height: height,
+                              child: SingleChildScrollView(
+                                physics: isLoading.value
+                                    ? const NeverScrollableScrollPhysics()
+                                    : const AlwaysScrollableScrollPhysics(),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.max,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(Utilities.email,
+                                        style: GoogleFonts.inter(
+                                            color: Colors.white,
+                                            fontSize:
+                                                Utilities.deviceSizeMultiply /
+                                                    22,
+                                            fontWeight: FontWeight.bold)),
+                                    !Utilities.isGoogleSignUp
+                                        ? SizedBox(height: height / 40)
+                                        : const SizedBox(),
+                                    !Utilities.isGoogleSignUp
+                                        ? GestureDetector(
+                                            onTap: () {
+                                              if (!isLoading.value) {
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            const ChangePassword()));
+                                              }
+                                            },
+                                            child: Text(lang["ChangePas"],
+                                                style: GoogleFonts.inter(
+                                                    color: MColors.mainColor,
+                                                    fontSize: Utilities
+                                                            .deviceSizeMultiply /
+                                                        38,
+                                                    decoration: TextDecoration
+                                                        .underline)))
+                                        : const SizedBox(),
+                                    SizedBox(height: height / 55),
+                                    GestureDetector(
                                         onTap: () {
                                           if (!isLoading.value) {
-                                            Navigator.push(
+                                            Navigator.pushAndRemoveUntil(
                                                 context,
                                                 MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        const ChangePassword()));
+                                                    builder: (_) =>
+                                                        const LogIn()),
+                                                (route) => false);
+                                            Utilities.logOut();
                                           }
                                         },
-                                        child: Text(lang["ChangePas"],
+                                        child: Text(lang["Logout"],
                                             style: GoogleFonts.inter(
                                                 color: MColors.mainColor,
                                                 fontSize: Utilities
                                                         .deviceSizeMultiply /
                                                     38,
                                                 decoration:
-                                                    TextDecoration.underline)))
-                                    : const SizedBox(),
-                                SizedBox(height: height / 55),
-                                GestureDetector(
-                                    onTap: () {
-                                      if (!isLoading.value) {
-                                        Navigator.pushAndRemoveUntil(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (_) => const LogIn()),
-                                            (route) => false);
-                                        Utilities.logOut();
-                                      }
-                                    },
-                                    child: Text(lang["Logout"],
-                                        style: GoogleFonts.inter(
-                                            color: MColors.mainColor,
-                                            fontSize:
-                                                Utilities.deviceSizeMultiply /
-                                                    38,
-                                            decoration:
-                                                TextDecoration.underline))),
-                                SizedBox(height: height / 20),
-                                Text(lang["Voice"],
-                                    style: GoogleFonts.inter(
-                                        color: Colors.white,
-                                        fontSize:
-                                            Utilities.deviceSizeMultiply / 29,
-                                        fontWeight: FontWeight.bold)),
-                                SizedBox(height: height / 25),
-                                Row(
-                                  children: [
-                                    Container(
-                                        margin:
-                                            const EdgeInsets.only(right: 10),
-                                        width: 20,
-                                        height: 20,
-                                        decoration: BoxDecoration(
-                                            border: Border.all(
-                                                color: Colors.white)),
-                                        child: Checkbox(
-                                          activeColor: Colors.transparent,
-                                          value: she,
-                                          tristate: false,
-                                          onChanged: (value) {
-                                            if (!isLoading.value) {
-                                              setState(() {
-                                                !he && !they
-                                                    ? null
-                                                    : she = value!;
-                                                changeVoice();
-                                              });
-                                            }
-                                          },
-                                        )),
-                                    Text(lang["she/her"],
+                                                    TextDecoration.underline))),
+                                    SizedBox(height: height / 20),
+                                    Text(lang["Voice"],
                                         style: GoogleFonts.inter(
                                             color: Colors.white,
                                             fontSize:
                                                 Utilities.deviceSizeMultiply /
+                                                    29,
+                                            fontWeight: FontWeight.bold)),
+                                    SizedBox(height: height / 25),
+                                    Row(
+                                      children: [
+                                        Container(
+                                            margin: const EdgeInsets.only(
+                                                right: 10),
+                                            width: 20,
+                                            height: 20,
+                                            decoration: BoxDecoration(
+                                                border: Border.all(
+                                                    color: Colors.white)),
+                                            child: Checkbox(
+                                              activeColor: Colors.transparent,
+                                              value: she,
+                                              tristate: false,
+                                              onChanged: (value) {
+                                                if (!isLoading.value) {
+                                                  setState(() {
+                                                    !he && !they
+                                                        ? null
+                                                        : she = value!;
+                                                    changeVoice();
+                                                  });
+                                                }
+                                              },
+                                            )),
+                                        Text(lang["she/her"],
+                                            style: GoogleFonts.inter(
+                                                color: Colors.white,
+                                                fontSize: Utilities
+                                                        .deviceSizeMultiply /
                                                     41)),
-                                    const Spacer(),
-                                    Container(
-                                        margin:
-                                            const EdgeInsets.only(right: 10),
-                                        width: 20,
-                                        height: 20,
-                                        decoration: BoxDecoration(
-                                            border: Border.all(
-                                                color: Colors.white)),
-                                        child: Checkbox(
-                                          activeColor: Colors.transparent,
-                                          value: he,
-                                          tristate: false,
-                                          onChanged: (value) {
-                                            if (!isLoading.value) {
-                                              setState(() {
-                                                !she && !they
-                                                    ? null
-                                                    : he = value!;
-                                                changeVoice();
-                                              });
-                                            }
-                                          },
-                                        )),
-                                    Text(lang["he/him"],
+                                        const Spacer(),
+                                        Container(
+                                            margin: const EdgeInsets.only(
+                                                right: 10),
+                                            width: 20,
+                                            height: 20,
+                                            decoration: BoxDecoration(
+                                                border: Border.all(
+                                                    color: Colors.white)),
+                                            child: Checkbox(
+                                              activeColor: Colors.transparent,
+                                              value: he,
+                                              tristate: false,
+                                              onChanged: (value) {
+                                                if (!isLoading.value) {
+                                                  setState(() {
+                                                    !she && !they
+                                                        ? null
+                                                        : he = value!;
+                                                    changeVoice();
+                                                  });
+                                                }
+                                              },
+                                            )),
+                                        Text(lang["he/him"],
+                                            style: GoogleFonts.inter(
+                                                color: Colors.white,
+                                                fontSize: Utilities
+                                                        .deviceSizeMultiply /
+                                                    41)),
+                                        const Spacer(),
+                                        Container(
+                                            margin: const EdgeInsets.only(
+                                                right: 10),
+                                            width: 20,
+                                            height: 20,
+                                            decoration: BoxDecoration(
+                                                border: Border.all(
+                                                    color: Colors.white)),
+                                            child: Checkbox(
+                                              activeColor: Colors.transparent,
+                                              value: they,
+                                              tristate: false,
+                                              onChanged: (value) {
+                                                if (!isLoading.value) {
+                                                  setState(() {
+                                                    !he && !she
+                                                        ? null
+                                                        : they = value!;
+                                                    changeVoice();
+                                                  });
+                                                }
+                                              },
+                                            )),
+                                        Text(lang["they/them"],
+                                            style: GoogleFonts.inter(
+                                                color: Colors.white,
+                                                fontSize: Utilities
+                                                        .deviceSizeMultiply /
+                                                    41)),
+                                      ],
+                                    ),
+                                    SizedBox(height: height / 12),
+                                    Text(lang["MyRec"],
                                         style: GoogleFonts.inter(
                                             color: Colors.white,
                                             fontSize:
                                                 Utilities.deviceSizeMultiply /
-                                                    41)),
-                                    const Spacer(),
-                                    Container(
-                                        margin:
-                                            const EdgeInsets.only(right: 10),
-                                        width: 20,
-                                        height: 20,
-                                        decoration: BoxDecoration(
-                                            border: Border.all(
-                                                color: Colors.white)),
-                                        child: Checkbox(
-                                          activeColor: Colors.transparent,
-                                          value: they,
-                                          tristate: false,
-                                          onChanged: (value) {
-                                            if (!isLoading.value) {
-                                              setState(() {
-                                                !he && !she
-                                                    ? null
-                                                    : they = value!;
-                                                changeVoice();
-                                              });
-                                            }
-                                          },
-                                        )),
-                                    Text(lang["they/them"],
-                                        style: GoogleFonts.inter(
-                                            color: Colors.white,
-                                            fontSize:
-                                                Utilities.deviceSizeMultiply /
-                                                    41)),
+                                                    23,
+                                            fontWeight: FontWeight.bold)),
+                                    SizedBox(height: height / 30),
+                                    ValueListenableBuilder<bool>(
+                                        valueListenable: isLoading,
+                                        builder: (_, isloading, child) {
+                                          return isloading
+                                              ? Shimmer(
+                                                  linearGradient:
+                                                      shimmerGradient,
+                                                  child: ListView(
+                                                      physics:
+                                                          const NeverScrollableScrollPhysics(),
+                                                      shrinkWrap: true,
+                                                      padding: EdgeInsets.zero,
+                                                      children: [
+                                                        ShimmerLoading(
+                                                            isLoading:
+                                                                isloading,
+                                                            child: Column(
+                                                              children: [
+                                                                forLoadingShimmer(),
+                                                                forLoadingShimmer(),
+                                                                forLoadingShimmer(),
+                                                                forLoadingShimmer(),
+                                                                forLoadingShimmer(),
+                                                              ],
+                                                            ))
+                                                      ]),
+                                                )
+                                              : TrackElement(
+                                                  trackNames: trackNames,
+                                                  trackLikes: trackLikes,
+                                                  trackIds: trackIds,
+                                                  trackStatuses: trackStatuses,
+                                                  toUpdate: loadingTracks);
+                                        })
                                   ],
                                 ),
-                                SizedBox(height: height / 12),
-                                Text(lang["MyRec"],
-                                    style: GoogleFonts.inter(
-                                        color: Colors.white,
-                                        fontSize:
-                                            Utilities.deviceSizeMultiply / 23,
-                                        fontWeight: FontWeight.bold)),
-                                SizedBox(height: height / 30),
-                                ValueListenableBuilder<bool>(
-                                    valueListenable: isLoading,
-                                    builder: (_, isloading, child) {
-                                      return isloading
-                                          ? Shimmer(
-                                              linearGradient: shimmerGradient,
-                                              child: ListView(
-                                                  physics:
-                                                      const NeverScrollableScrollPhysics(),
-                                                  shrinkWrap: true,
-                                                  padding: EdgeInsets.zero,
-                                                  children: [
-                                                    ShimmerLoading(
-                                                        isLoading: isloading,
-                                                        child: Column(
-                                                          children: [
-                                                            forLoadingShimmer(),
-                                                            forLoadingShimmer(),
-                                                            forLoadingShimmer(),
-                                                            forLoadingShimmer(),
-                                                            forLoadingShimmer(),
-                                                          ],
-                                                        ))
-                                                  ]),
-                                            )
-                                          : TrackElement(
-                                              trackNames: trackNames,
-                                              trackLikes: trackLikes,
-                                              trackIds: trackIds,
-                                              trackStatuses: trackStatuses,
-                                              toUpdate: loadingTracks);
-                                    })
-                              ],
-                            ),
-                          )))));
+                              ))))));
         });
   }
 
