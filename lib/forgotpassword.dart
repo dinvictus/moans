@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moans/elements/appbarleading.dart';
+import 'package:moans/utils/server.dart';
 import 'package:moans/utils/utilities.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -35,10 +36,20 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     return null;
   }
 
-  submit() {
+  submit() async {
     setState(() {
       submitter = true;
     });
+    if (errorEmailText == null) {
+      int statusCodePasswordRecovery =
+          await Server.passwordRecovery(controllerEmail.text, context);
+      if (statusCodePasswordRecovery == 200) {
+        Navigator.pop(context);
+        Utilities.showToast(Utilities.curLang.value["EmailSendTrue"]);
+      } else {
+        Utilities.showToast(Utilities.curLang.value["ServerError"]);
+      }
+    }
   }
 
   @override

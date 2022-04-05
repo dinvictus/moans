@@ -37,7 +37,7 @@
 				<string>moans.com</string>
 				<key>CFBundleURLSchemes</key>
 				<array>
-					<string>customscheme</string>
+					<string>htpps</string>
 				</array>
 			</dict>
 		</array>

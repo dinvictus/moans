@@ -120,7 +120,6 @@ class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
 
   insertLinkTrack(int trackId) async {
     Map responceInfo = await Server.getOneTrackInfo(trackId, context);
-    print(responceInfo.entries);
     switch (responceInfo["status_code"]) {
       case 200:
         int newId = tracksEnd ? pages.length - 1 : pages.length;

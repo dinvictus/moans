@@ -19,6 +19,7 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
+  final GlobalKey<TrackElementState> key = GlobalKey();
   bool she = true;
   bool he = true;
   bool they = true;
@@ -29,11 +30,25 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
   final List<int> trackStatuses = [];
   late double width;
   late double height;
+  final ScrollController scrollController = ScrollController();
+  int counterAddedTracks = 0;
+  bool endTracks = false;
 
   @override
   void initState() {
     super.initState();
-    loadingTracks();
+    initVoice();
+    refresh();
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      scrollController.addListener(() async {
+        if (!endTracks &&
+            scrollController.position.pixels ==
+                scrollController.position.maxScrollExtent) {
+          await loadingTracks();
+          key.currentState!.update();
+        }
+      });
+    });
   }
 
   String getLikeString(int countLikes) {
@@ -74,15 +89,27 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
         1);
   }
 
-  loadingTracks() async {
+  refresh() async {
     setState(() {
       isLoading.value = true;
+      endTracks = false;
     });
+    counterAddedTracks = 0;
     trackNames.clear();
     trackIds.clear();
     trackStatuses.clear();
     trackLikes.clear();
-    Map<String, String> forProfileTracks = {"limit": "5", "skip": "0"};
+    await loadingTracks();
+    setState(() {
+      isLoading.value = false;
+    });
+  }
+
+  loadingTracks() async {
+    Map<String, String> forProfileTracks = {
+      "limit": "10",
+      "skip": counterAddedTracks.toString()
+    };
     Map profileTracksInfo = await Server.getProfileTracks(forProfileTracks);
     switch (profileTracksInfo["status_code"]) {
       case 200:
@@ -92,20 +119,28 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
           trackIds.add(myTracksInfo[i]["id"]);
           trackStatuses.add(int.parse(myTracksInfo[i]["status"]));
           trackLikes.add(getLikeString(myTracksInfo[i]["likes"]));
+          counterAddedTracks++;
         }
-        setState(() {
-          isLoading.value = false;
-          initVoice();
-        });
+        if (myTracksInfo.length < 10) {
+          setState(() {
+            endTracks = true;
+          });
+        }
         break;
       case 403:
         await Server.logIn(Utilities.email, Utilities.password, null);
-        loadingTracks();
+        await loadingTracks();
+        if (!isLoading.value) {
+          key.currentState!.update();
+        }
         break;
       default:
         Utilities.showToast(Utilities.curLang.value["ServerError"]);
-        Timer(const Duration(seconds: 15), () {
-          loadingTracks();
+        Timer(const Duration(seconds: 15), () async {
+          await loadingTracks();
+          if (!isLoading.value) {
+            key.currentState!.update();
+          }
         });
         break;
     }
@@ -174,11 +209,12 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                           color: MColors.mainColor,
                           triggerMode: RefreshIndicatorTriggerMode.onEdge,
                           onRefresh: () async {
-                            await loadingTracks();
+                            await refresh();
                           },
                           child: SizedBox(
                               height: height,
                               child: SingleChildScrollView(
+                                controller: scrollController,
                                 physics: isLoading.value
                                     ? const NeverScrollableScrollPhysics()
                                     : const AlwaysScrollableScrollPhysics(),
@@ -375,12 +411,30 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                                                             ))
                                                       ]),
                                                 )
-                                              : TrackElement(
-                                                  trackNames: trackNames,
-                                                  trackLikes: trackLikes,
-                                                  trackIds: trackIds,
-                                                  trackStatuses: trackStatuses,
-                                                  toUpdate: loadingTracks);
+                                              : Column(children: [
+                                                  TrackElement(
+                                                      key: key,
+                                                      trackNames: trackNames,
+                                                      trackLikes: trackLikes,
+                                                      trackIds: trackIds,
+                                                      trackStatuses:
+                                                          trackStatuses,
+                                                      toUpdate: refresh),
+                                                  endTracks ||
+                                                          trackNames.isEmpty
+                                                      ? const SizedBox()
+                                                      : Padding(
+                                                          padding: EdgeInsets
+                                                              .fromLTRB(
+                                                                  0,
+                                                                  height / 80,
+                                                                  0,
+                                                                  height / 80),
+                                                          child:
+                                                              const CircularProgressIndicator(
+                                                                  color: MColors
+                                                                      .mainColor))
+                                                ]);
                                         })
                                   ],
                                 ),

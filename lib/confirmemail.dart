@@ -91,27 +91,33 @@ class ConfirmEmail extends StatelessWidget {
                                             Utilities.deviceSizeMultiply / 30),
                                   ),
                                   onPressed: () async {
-                                    // Проверка email на подтверждение, потом далее
-                                    if (true) {
-                                      int statusCodeLogin = await Server.logIn(
-                                          email, pass, context);
-                                      switch (statusCodeLogin) {
-                                        case 200:
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      const MainScreen()));
-                                          break;
-                                        case 404:
-                                          Utilities.showToast(Utilities
-                                              .curLang.value["ServerError"]);
-                                          break;
-                                        default:
-                                          Utilities.showToast(
-                                              Utilities.curLang.value["Error"]);
-                                          break;
-                                      }
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
+                                    int statusCodeLogin = await Server.logIn(
+                                        email, pass, context);
+                                    switch (statusCodeLogin) {
+                                      case 200:
+                                        Navigator.pushAndRemoveUntil(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (_) =>
+                                                    const MainScreen()),
+                                            (route) => false);
+                                        break;
+                                      case 404:
+                                        Utilities.showToast(Utilities
+                                            .curLang.value["ServerError"]);
+                                        break;
+                                      case 401:
+                                        break;
+                                      case 426:
+                                        Utilities.showToast(Utilities
+                                            .curLang.value["EmailNotConfirm"]);
+                                        break;
+                                      default:
+                                        Utilities.showToast(
+                                            Utilities.curLang.value["Error"]);
+                                        break;
                                     }
                                   },
                                 ),

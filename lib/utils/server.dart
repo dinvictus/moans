@@ -26,7 +26,6 @@ class Server {
       if (responce.statusCode == 200) {
         Map userInfo = jsonDecode(responce.body);
         Utilities.authToken = userInfo["access_token"];
-        print(Utilities.authToken);
         Utilities.email = email;
         Utilities.password = password;
         Utilities.setUser(email, password);
@@ -43,7 +42,7 @@ class Server {
   }
 
   static Future<int> signUp(
-      String email, String password, BuildContext? context) async {
+      String email, String password, BuildContext? context, String url) async {
     var passbyte = utf8.encode(password);
     var passhash = sha256.convert(passbyte);
     var user = {
@@ -55,7 +54,7 @@ class Server {
       Utilities.showLoadingScreen(context);
     }
     try {
-      var responce = await http.post(Uri.parse(Utilities.url + "users/"),
+      var responce = await http.post(Uri.parse(Utilities.url + "users/" + url),
           body: jsonEncode(user),
           headers: {"Content-Type": "application/json"});
       if (context != null) {
@@ -325,14 +324,28 @@ class Server {
       await _googleSignIn.signIn();
       final GoogleSignInAuthentication googleAuth =
           await _googleSignIn.currentUser!.authentication;
-      await Server.signUp(
-          _googleSignIn.currentUser!.email, googleAuth.accessToken!, null);
+      await Server.signUp(_googleSignIn.currentUser!.email,
+          googleAuth.accessToken!, null, "autoregistration");
       int statusCodeLogin = await Server.logIn(
           _googleSignIn.currentUser!.email, googleAuth.accessToken!, null);
       Navigator.of(context).pop();
       return statusCodeLogin;
     } catch (e) {
       Navigator.of(context).pop();
+      return 404;
+    }
+  }
+
+  static Future<int> passwordRecovery(
+      String email, BuildContext context) async {
+    try {
+      Utilities.showLoadingScreen(context);
+      var responce = await http.get(
+          Uri.parse(Utilities.url + "users/recovery/" + email),
+          headers: {"Content-Type": "application/json"});
+      Navigator.of(context).pop();
+      return responce.statusCode;
+    } catch (e) {
       return 404;
     }
   }

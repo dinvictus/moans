@@ -166,7 +166,7 @@ class Utilities {
   static late SharedPreferences preferences;
   static late AudioHandler audioHandler;
   static late AudioManager managerForRecord;
-  static const String url = "https://sub-moans.pagekite.me/";
+  static const String url = "https://moans2.pagekite.me/";
   static ValueNotifier<int> curPage = ValueNotifier(0);
   static ValueNotifier<Map> curLang = ValueNotifier<Map>(_englishStrings);
   static String email = "";
@@ -255,6 +255,8 @@ class Utilities {
     "ForgotPassText":
         "To recover your password, enter the email associated with your account. We will send an email with instructions.",
     "ForgotPassTitle": "Password recovery",
+    "EmailNotConfirm": "Your email has not been verified yet",
+    "EmailSendTrue": "The email was successfully sent to your mail"
   };
 
   static const Map _russianStrings = {
@@ -339,6 +341,8 @@ class Utilities {
     "ForgotPassText":
         "Чтобы восстановить пароль, введите почту, привязанную к вашему аккаунту. Мы отправим на неё письмо с инструкцией.",
     "ForgotPassTitle": "Восстановление пароля",
+    "EmailNotConfirm": "Ваш email ещё не подтверждён",
+    "EmailSendTrue": "Письмо успешно отправлено на вашу почту"
   };
   static void changeLanguage(Languages language) {
     switch (language) {

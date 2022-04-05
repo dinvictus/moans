@@ -183,6 +183,13 @@ class AudioManager extends BaseAudioHandler with SeekHandler {
         initNoti = false;
       }
     });
+
+    Utilities.logout.addListener(() {
+      if (_audioPlayer.playing) {
+        _audioPlayer.stop();
+        initNoti = false;
+      }
+    });
   }
 
   @override

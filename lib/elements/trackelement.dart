@@ -20,34 +20,39 @@ class TrackElement extends StatefulWidget {
 
   @override
   State<TrackElement> createState() {
-    return _TrackElementState();
+    return TrackElementState();
   }
 }
 
-class _TrackElementState extends State<TrackElement> {
-  final List<Widget> listTracks = [];
-  late double width;
-  late double height;
+class TrackElementState extends State<TrackElement> {
+  final List<Widget> _listTracks = [];
+  late double _width;
+  late double _height;
 
-  back() {
+  _back() {
     Navigator.pop(context);
     widget.toUpdate();
+  }
+
+  update() {
+    _listTracks.clear();
+    for (int i = 0; i < widget.trackNames.length; i++) {
+      _listTracks.add(_trackElement(
+          widget.trackNames[i],
+          widget.trackLikes[i],
+          widget.trackIds[i],
+          Statuses.values.elementAt(widget.trackStatuses[i])));
+    }
+    setState(() {});
   }
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-      width = MediaQuery.of(context).size.width;
-      height = MediaQuery.of(context).size.height;
-      for (int i = 0; i < widget.trackNames.length; i++) {
-        listTracks.add(_trackElement(
-            widget.trackNames[i],
-            widget.trackLikes[i],
-            widget.trackIds[i],
-            Statuses.values.elementAt(widget.trackStatuses[i])));
-      }
-      setState(() {});
+      _width = MediaQuery.of(context).size.width;
+      _height = MediaQuery.of(context).size.height;
+      update();
     });
   }
 
@@ -71,17 +76,17 @@ class _TrackElementState extends State<TrackElement> {
         break;
     }
     Widget trackElement = Container(
-      margin: EdgeInsets.only(bottom: height / 70),
+      margin: EdgeInsets.only(bottom: _height / 70),
       decoration: const BoxDecoration(
           border: Border(bottom: BorderSide(color: Color(0xff4b4b4f)))),
-      height: height / 15,
+      height: _height / 15,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
             alignment: Alignment.centerLeft,
-            width: width / 2.3,
+            width: _width / 2.3,
             child: Text(trackName,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
@@ -105,12 +110,12 @@ class _TrackElementState extends State<TrackElement> {
               const SizedBox(width: 2),
               Container(
                   padding: const EdgeInsets.only(bottom: 3),
-                  width: width / 12,
-                  margin: EdgeInsets.only(right: width / 15),
+                  width: _width / 12,
+                  margin: EdgeInsets.only(right: _width / 15),
                   child: Text(trackLike,
                       style: GoogleFonts.inter(color: Colors.white))),
               Container(
-                  margin: EdgeInsets.only(bottom: height / 60),
+                  margin: EdgeInsets.only(bottom: _height / 60),
                   width: Utilities.deviceSizeMultiply / 20,
                   height: Utilities.deviceSizeMultiply / 20,
                   child: ElevatedButton(
@@ -123,11 +128,11 @@ class _TrackElementState extends State<TrackElement> {
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                  PostItem(back, trackId, "")));
+                                  PostItem(_back, trackId, "")));
                     },
                     child: Image.asset("assets/items/edit.png"),
                   )),
-              SizedBox(width: width / 20)
+              SizedBox(width: _width / 20)
             ],
           )
         ],
@@ -146,6 +151,6 @@ class _TrackElementState extends State<TrackElement> {
                   textAlign: TextAlign.center,
                   style: GoogleFonts.inter(color: Colors.white));
             })
-        : Column(children: listTracks);
+        : Column(children: _listTracks);
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moans/confirmemail.dart';
 import 'package:moans/elements/dropbutton.dart';
 import 'package:moans/forgotpassword.dart';
 import 'package:moans/mainscreen.dart';
@@ -53,6 +54,15 @@ class _LogInState extends State<LogIn> {
           setState(() {
             errorEmailText = Utilities.curLang.value["EmailNotCorrect"];
           });
+          break;
+        case 426:
+          Server.signUp(
+              controllerEmail.value.text, controllerPass.value.text, null, "");
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      ConfirmEmail(controllerEmail.text, controllerPass.text)));
           break;
         default:
           Utilities.showToast(Utilities.curLang.value["Error"]);

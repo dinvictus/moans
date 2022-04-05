@@ -38,6 +38,9 @@ class AudioRecorder {
       _audioRecorder = Record();
       _isInitialize = true;
     }
+    Utilities.logout.addListener(() {
+      back();
+    });
   }
 
   loadFile(String ur) {
@@ -70,6 +73,7 @@ class AudioRecorder {
         Utilities.managerForRecord.resetDuration();
         if (await _audioRecorder.isRecording()) {
           _audioRecorder.stop();
+          isRecording = false;
         }
         clearTimer();
         pageAudioRecordNotifier.value = AudioRecordState.main;

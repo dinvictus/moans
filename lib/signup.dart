@@ -30,7 +30,7 @@ class _SignUpState extends State<SignUp> {
     });
     if (errorEmailText == null && errorPassText == null) {
       int statusCodeSignup = await Server.signUp(
-          controllerEmail.value.text, controllerPass.value.text, context);
+          controllerEmail.value.text, controllerPass.value.text, context, "");
       switch (statusCodeSignup) {
         case 200:
           Navigator.push(
