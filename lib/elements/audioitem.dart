@@ -120,7 +120,7 @@ class _AudioItemState extends State<AudioItem>
           "\n" +
           widget._titleTrack +
           "\n"
-              "https://moans2.pagekite.me/track_" +
+              "moans://track_" +
           widget._trackId.toString());
     }
   }

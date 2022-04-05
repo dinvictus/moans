@@ -334,7 +334,7 @@ class Server {
         Utilities.authToken = userInfo["access_token"];
         Utilities.authorized = true;
         Utilities.setUser(Utilities.googleSignIn.currentUser!.email, "");
-        Utilities.isGoogleSignUp = true;
+        Utilities.setGoogleSignUp();
       }
       return responce.statusCode;
     } catch (e) {
