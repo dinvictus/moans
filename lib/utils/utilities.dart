@@ -1,6 +1,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:moans/elements/audiomanager.dart';
 import 'package:moans/utils/server.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -63,6 +64,12 @@ class Utilities {
         authorized = true;
       }
     }
+    if (isGoogleSignUp) {
+      int statusCodeLogin = await Server.googleSignUp(null);
+      if (statusCodeLogin == 200) {
+        authorized = true;
+      }
+    }
   }
 
   static helpNotificationViewied() {
@@ -117,6 +124,9 @@ class Utilities {
     preferences.setInt(_keyVoices, 6);
     preferences.setBool(_keyGoogleSignUp, false);
     curVoice = Voices.sheHeThey;
+    if (isGoogleSignUp) {
+      await googleSignIn.disconnect();
+    }
     email = "";
     password = "";
     authorized = false;
@@ -145,6 +155,11 @@ class Utilities {
   }
 
   static bool isGoogleSignUp = false;
+  static GoogleSignIn googleSignIn = GoogleSignIn(
+    scopes: [
+      'email',
+    ],
+  );
   static List<AudioManager> handlers = [];
   static NotifyLogout logout = NotifyLogout();
   static bool authorized = false;

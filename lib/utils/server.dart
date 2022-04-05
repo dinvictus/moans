@@ -313,25 +313,34 @@ class Server {
     }
   }
 
-  static Future<int> googleSignUp(BuildContext context) async {
+  static Future<int> googleSignUp(BuildContext? context) async {
     try {
-      GoogleSignIn _googleSignIn = GoogleSignIn(
-        scopes: [
-          'email',
-        ],
-      );
-      Utilities.showLoadingScreen(context);
-      await _googleSignIn.signIn();
+      if (context != null) {
+        Utilities.showLoadingScreen(context);
+      }
+      await Utilities.googleSignIn.signIn();
       final GoogleSignInAuthentication googleAuth =
-          await _googleSignIn.currentUser!.authentication;
-      await Server.signUp(_googleSignIn.currentUser!.email,
-          googleAuth.accessToken!, null, "autoregistration");
-      int statusCodeLogin = await Server.logIn(
-          _googleSignIn.currentUser!.email, googleAuth.accessToken!, null);
-      Navigator.of(context).pop();
-      return statusCodeLogin;
+          await Utilities.googleSignIn.currentUser!.authentication;
+      Map<String, String> body = {"id_token": googleAuth.idToken!};
+      var responce = await http.post(Uri.parse(Utilities.url + "auth/google"),
+          body: jsonEncode(body),
+          headers: {"Content-Type": "application/json"});
+      if (context != null) {
+        Navigator.of(context).pop();
+      }
+      if (responce.statusCode == 200) {
+        Map userInfo = jsonDecode(responce.body);
+        Utilities.email = Utilities.googleSignIn.currentUser!.email;
+        Utilities.authToken = userInfo["access_token"];
+        Utilities.authorized = true;
+        Utilities.setUser(Utilities.googleSignIn.currentUser!.email, "");
+        Utilities.isGoogleSignUp = true;
+      }
+      return responce.statusCode;
     } catch (e) {
-      Navigator.of(context).pop();
+      if (context != null) {
+        Navigator.of(context).pop();
+      }
       return 404;
     }
   }
