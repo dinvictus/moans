@@ -34,7 +34,7 @@
 				<key>CFBundleTypeRole</key>
 				<string>Editor</string>
 				<key>CFBundleURLName</key>
-				<string>moans.com</string>
+				<string>moans2.pagekite.me</string>
 				<key>CFBundleURLSchemes</key>
 				<array>
 					<string>htpps</string>
@@ -45,7 +45,7 @@
 		<dict>
 			<key>NSExceptionDomains</key>
 			<dict>
-				<key>example.com</key>
+				<key>moans2.pagekite.me</key>
 				<dict>
 					<key>NSExceptionRequiresForwardSecrecy</key>
 					<false/>
