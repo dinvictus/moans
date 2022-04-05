@@ -148,8 +148,7 @@ class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
       AppLinks _appLinks = AppLinks();
       _appLinks.uriLinkStream.listen((uri) {
         String url = uri.toString();
-        int trackId =
-            int.parse(url.substring(url.indexOf("_") + 1, url.length));
+        int trackId = int.parse(url.substring(13, url.length));
         for (int i = 0; i < pages.length - 1; i++) {
           if (pages[i].getTrackId as int == trackId) {
             controller.jumpToPage(i);
