@@ -119,8 +119,9 @@ class _AudioItemState extends State<AudioItem>
       Share.share(Utilities.curLang.value["ShareMsg"] +
           "\n" +
           widget._titleTrack +
-          "\n"
-              "moans://moansed.com/track_" +
+          "\n" +
+          Utilities.url +
+          "tracks/track_" +
           widget._trackId.toString());
     }
   }
