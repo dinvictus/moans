@@ -126,7 +126,8 @@ class _FeedState extends State<Feed> with AutomaticKeepAliveClientMixin {
         pages.insert(newId, AudioItem(newId));
         var tracksInfo = responceInfo["track_info"];
         List<String> tags = tracksInfo["tags"].toString().split(" ");
-        bool liked = tracksInfo["liked"] != null ? true : false;
+        bool liked = tracksInfo["liked"];
+        print(tracksInfo["liked"]);
         pages[newId].addInfo(tracksInfo["name"], tracksInfo["description"],
             tags, tracksInfo["likes"], trackId, liked);
         Utilities.handlers.add(pages[newId].audioManager);
